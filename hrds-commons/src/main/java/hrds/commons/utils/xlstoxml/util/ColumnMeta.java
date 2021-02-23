@@ -3,7 +3,9 @@ package hrds.commons.utils.xlstoxml.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import hrds.commons.exception.AppSystemException;
+import hrds.commons.utils.ConnUtil;
 import hrds.commons.utils.Constant;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -147,9 +149,23 @@ public class ColumnMeta {
 	 * @return 表的所有信息
 	 */
 	private static List<String> getColumnListByExcel(String tableName, String excel_file_path) {
-		logger.info(tableName + "-----" + excel_file_path);
-		//TODO
-		throw new AppSystemException("请检查数据字典的格式，暂不支持db文件采集数据字典excel格式");
+
+		logger.info("getColumnListByExcel: " + tableName + "-----" + excel_file_path);
+		List<String> cList = new ArrayList<>();
+		String xmlName = ConnUtil.getDataBaseFile("", "", excel_file_path, "");
+		Map<String, List<Map<String, String>>> columnList = ConnUtil.getColumnByXml(xmlName);
+		columnList.forEach((itemTableName, columnMap) -> {
+			if (itemTableName.equalsIgnoreCase(tableName)) {
+				columnMap.forEach(columnInfo -> {
+					//只取column的属性,表属性只做页面选择使用
+					cList.add(columnInfo.get("column_name") + Constant.METAINFOSPLIT
+						+ columnInfo.get("column_type") + Constant.METAINFOSPLIT
+						+ columnInfo.get("is_primary_key"));
+				});
+			}
+		});
+		logger.info("表: " + tableName + " 的列信息是: " + cList);
+		return cList;
 	}
 
 	/**
@@ -185,8 +201,8 @@ public class ColumnMeta {
 						JSONObject columnMeta = columnMetaArray.getJSONObject(j);
 						//只取column的属性,表属性只做页面选择使用
 						cList.add(columnMeta.getString("column_name") + Constant.METAINFOSPLIT
-								+ columnMeta.getString("column_type") + Constant.METAINFOSPLIT
-								+ columnMeta.getString("is_primary_key"));
+							+ columnMeta.getString("column_type") + Constant.METAINFOSPLIT
+							+ columnMeta.getString("is_primary_key"));
 					}
 				}
 			}
