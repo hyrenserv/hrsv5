@@ -178,7 +178,8 @@ public class ColumnMeta {
 	private static List<String> getIncrementColumnListByExcel(String tableName, String excel_file_path) {
 		logger.info(tableName + "-----" + excel_file_path);
 		//TODO
-		throw new AppSystemException("请检查数据字典的格式，暂不支持db文件采集数据字典excel格式");
+//		throw new AppSystemException("请检查数据字典的格式，暂不支持db文件采集数据字典excel格式");
+		return new ArrayList<>();
 	}
 
 	/**
