@@ -168,6 +168,7 @@ subprojects {
         compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.31'
         compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
         compile group: 'com.oracle.database.jdbc', name: 'ojdbc8', version: '12.2.0.1'
+        compile group: 'com.aliyun.odps', name: 'odps-jdbc', version: '3.0.1'
 
         /** jdbc pool */
         compile group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
