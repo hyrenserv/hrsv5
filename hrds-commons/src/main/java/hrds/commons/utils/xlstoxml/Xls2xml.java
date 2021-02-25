@@ -123,7 +123,7 @@ public class Xls2xml {
 		String path_cd = pathToUnEscape(db_path);
 		File file = FileUtils.getFile(path_cd);
 		if (file.exists()) {
-			if (db_path.toUpperCase().endsWith("JSON") || db_path.equals("")) {
+			if (db_path.toUpperCase().endsWith("JSON") || db_path.endsWith("")) {
 				jsonToXml(db_path, xml_path);
 			} else if (db_path.toUpperCase().endsWith("XLS") || db_path.toUpperCase().endsWith("XLSX")) {
 				XlsToXml(db_path, xml_path);
