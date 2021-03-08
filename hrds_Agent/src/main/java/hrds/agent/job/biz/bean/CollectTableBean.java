@@ -2,6 +2,7 @@ package hrds.agent.job.biz.bean;
 
 import fd.ng.core.annotation.DocBean;
 import fd.ng.core.annotation.DocClass;
+import fd.ng.db.conf.Dbtype;
 import hrds.commons.entity.Column_merge;
 import hrds.commons.entity.Data_extraction_def;
 
@@ -94,6 +95,16 @@ public class CollectTableBean implements Serializable {
 	private Integer interval_time;
 	@DocBean(name = "over_date", value = "按照频率采集结束日期", dataType = String.class, required = false)
 	private String over_date;
+	@DocBean(name = "db_type", value = "按照频率采集结束日期", dataType = String.class, required = false)
+	private Dbtype db_type;
+
+	public Dbtype getDb_type() {
+		return db_type;
+	}
+
+	public void setDb_type(Dbtype db_type) {
+		this.db_type = db_type;
+	}
 
 	public List<Column_merge> getColumn_merge_list() {
 		return column_merge_list;

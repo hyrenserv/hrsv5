@@ -64,6 +64,8 @@ public class CollectPage implements Callable<Long> {
 			long rowCount = 0L;
 			//1、执行查询，获取ResultSet
 			resultSet = getPageData(db);
+			//放入DBType类型
+			collectTableBean.setDb_type(db.getDbtype());
 			if (resultSet != null) {
 				//2、解析ResultSet，并batch入库
 				ParseResultSetToDataBase parser = new ParseResultSetToDataBase(resultSet, tableBean,

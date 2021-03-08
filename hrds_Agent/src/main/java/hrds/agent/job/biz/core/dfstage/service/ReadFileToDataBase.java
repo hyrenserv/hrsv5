@@ -19,6 +19,8 @@ import hrds.commons.collection.ConnectionTool;
 import hrds.commons.exception.AppSystemException;
 import hrds.commons.hadoop.readconfig.ConfigReader;
 import hrds.commons.utils.Constant;
+import java.sql.Timestamp;
+import java.util.Date;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
@@ -48,6 +50,7 @@ import java.util.concurrent.Callable;
 
 @DocClass(desc = "读取卸数文件到数据库", author = "zxz", createdate = "2019/12/17 15:43")
 public class ReadFileToDataBase implements Callable<Long> {
+
 	//打印日志
 	private static final Logger LOGGER = LogManager.getLogger();
 	//卸数到本地的文件绝对路径
@@ -64,17 +67,13 @@ public class ReadFileToDataBase implements Callable<Long> {
 	/**
 	 * 读取文件到数据库构造方法
 	 *
-	 * @param fileAbsolutePath  String
-	 *                          含义：本地文件绝对路径
-	 * @param tableBean         TableBean
-	 *                          含义：文件对应的表结构信息
-	 * @param collectTableBean  CollectTableBean
-	 *                          含义：文件对应的卸数信息
-	 * @param dataStoreConfBean DataStoreConfBean
-	 *                          含义：文件需要上传到表对应的存储信息
+	 * @param fileAbsolutePath  String 含义：本地文件绝对路径
+	 * @param tableBean         TableBean 含义：文件对应的表结构信息
+	 * @param collectTableBean  CollectTableBean 含义：文件对应的卸数信息
+	 * @param dataStoreConfBean DataStoreConfBean 含义：文件需要上传到表对应的存储信息
 	 */
 	public ReadFileToDataBase(String fileAbsolutePath, TableBean tableBean, CollectTableBean collectTableBean,
-							  DataStoreConfBean dataStoreConfBean) {
+		DataStoreConfBean dataStoreConfBean) {
 		this.fileAbsolutePath = fileAbsolutePath;
 		this.collectTableBean = collectTableBean;
 		this.dataStoreConfBean = dataStoreConfBean;
@@ -96,7 +95,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 //					Constant.METAINFOSPLIT), dataStoreConfBean.getDsl_name());
 			//3.拼接batch插入数据库的sql
 			String batchSql = getBatchSql(columnList, collectTableBean.getHbase_name() + "_"
-					+ 1);
+				+ 1);
 			//4.根据卸数问价类型读取文件插入到数据库
 			//文件编码
 			String file_code = tableBean.getFile_code();
@@ -120,11 +119,11 @@ public class ReadFileToDataBase implements Callable<Long> {
 					count = readDingChangToDataBase(db, columnList, sourceTypeList, batchSql, file_code, is_header);
 				} else {
 					count = readFeiDingChangToDataBase(db, columnList, sourceTypeList, batchSql,
-							column_separator, file_code, is_header);
+						column_separator, file_code, is_header);
 				}
 			} else if (FileFormat.FeiDingChang.getCode().equals(file_format)) {
 				count = readFeiDingChangToDataBase(db, columnList, sourceTypeList, batchSql,
-						column_separator, file_code, is_header);
+					column_separator, file_code, is_header);
 			} else {
 				throw new AppSystemException("不支持的卸数文件格式");
 			}
@@ -137,11 +136,11 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private long readFeiDingChangToDataBase(DatabaseWrapper db, List<String> columnList,
-											List<String> typeList, String batchSql, String dataDelimiter,
-											String database_code, String is_header) {
+		List<String> typeList, String batchSql, String dataDelimiter,
+		String database_code, String is_header) {
 		long num = 0;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileAbsolutePath),
-				DataBaseCode.ofValueByCode(database_code)))) {
+			DataBaseCode.ofValueByCode(database_code)))) {
 			List<Object[]> pool = new ArrayList<>();// 存储全量插入信息的list
 			String line;
 			if (IsFlag.Shi.getCode().equals(is_header)) {
@@ -158,7 +157,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 				List<String> valueList = StringUtil.split(line, dataDelimiter);
 				if (valueList.size() != columnList.size()) {
 					throw new AppSystemException("取到数据的列的数量跟数据字典定义的列的长度不一致，请检查数据是否有问题：========"
-							+ valueList.toString());
+						+ valueList.toString());
 				}
 				for (int j = 0; j < columnList.size(); j++) {
 					objs[j] = getValue(typeList.get(j), valueList.get(j), db.getDbtype());
@@ -178,7 +177,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	public static List<String> getDingChangValueList(String line, List<Integer> lengthList, String database_code)
-			throws Exception {
+		throws Exception {
 		List<String> valueList = new ArrayList<>();
 		byte[] bytes = line.getBytes(database_code);
 		int begin = 0;
@@ -192,16 +191,16 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private long readDingChangToDataBase(DatabaseWrapper db, List<String> columnList, List<String> typeList,
-										 String batchSql, String database_code, String is_header) {
+		String batchSql, String database_code, String is_header) {
 		database_code = DataBaseCode.ofValueByCode(database_code);
 		long num = 0;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileAbsolutePath),
-				database_code))) {
+			database_code))) {
 			List<Object[]> pool = new ArrayList<>();// 存储全量插入信息的list
 			String line;
 			Object[] objs;
 			List<String> lengthStrList = StringUtil.split(tableBean.getColLengthInfo(),
-					Constant.METAINFOSPLIT);
+				Constant.METAINFOSPLIT);
 			List<Integer> lengthList = new ArrayList<>();
 			for (String lengthStr : lengthStrList) {
 				lengthList.add(Integer.parseInt(lengthStr));
@@ -219,7 +218,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 				List<String> valueList = getDingChangValueList(line, lengthList, database_code);
 				if (valueList.size() != columnList.size()) {
 					throw new AppSystemException("取到数据的列的数量跟数据字典定义的列的长度不一致，请检查数据是否有问题：========"
-							+ valueList.toString());
+						+ valueList.toString());
 				}
 				for (int j = 0; j < columnList.size(); j++) {
 					objs[j] = getValue(typeList.get(j), valueList.get(j), db.getDbtype());
@@ -239,7 +238,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private long readSequenceToDataBase(DatabaseWrapper db, List<String> columnList, List<String> typeList,
-										String batchSql) throws Exception {
+		String batchSql) throws Exception {
 		//TODO 这里是不是修改？？
 		Configuration conf = ConfigReader.getConfiguration();
 		conf.setBoolean("fs.hdfs.impl.disable.cache", true);
@@ -262,7 +261,7 @@ public class ReadFileToDataBase implements Callable<Long> {
 				List<String> valueList = StringUtil.split(str, Constant.SEQUENCEDELIMITER);
 				if (valueList.size() != columnList.size()) {
 					throw new AppSystemException("取到数据的列的数量跟数据字典定义的列的长度不一致，请检查数据是否有问题：========"
-							+ valueList.toString());
+						+ valueList.toString());
 				}
 				objs = new Object[columnList.size()];// 存储全量插入信息的list
 				for (int j = 0; j < columnList.size(); j++) {
@@ -278,21 +277,22 @@ public class ReadFileToDataBase implements Callable<Long> {
 				doBatch(batchSql, pool, num, db);
 			}
 		} finally {
-			if (sfr != null)
+			if (sfr != null) {
 				sfr.close();
+			}
 		}
 		return num;
 	}
 
 	private long readOrcToDataBase(DatabaseWrapper db, List<String> typeList,
-								   String batchSql) throws Exception {
+		String batchSql) throws Exception {
 		RecordReader rows = null;
 		long num = 0L;
 		try {
 			List<Object[]> pool = new ArrayList<>();// 存储全量插入信息的list
 			Object[] objs;
 			Reader reader = OrcFile.createReader(new Path(fileAbsolutePath), OrcFile.readerOptions(
-					ConfigReader.getConfiguration()));
+				ConfigReader.getConfiguration()));
 			rows = reader.rows();
 			TypeDescription schema = reader.getSchema();
 			List<TypeDescription> children = schema.getChildren();
@@ -303,9 +303,9 @@ public class ReadFileToDataBase implements Callable<Long> {
 					OrcStruct result = new OrcStruct(schema);
 					for (int i = 0; i < numberOfChildren; ++i) {
 						OrcMapredRecordReader.nextValue(batch.cols[i], r,
-								children.get(i), result.getFieldValue(i));
+							children.get(i), result.getFieldValue(i));
 						result.setFieldValue(i, OrcMapredRecordReader.nextValue(batch.cols[i], r,
-								children.get(i), result.getFieldValue(i)));
+							children.get(i), result.getFieldValue(i)));
 					}
 					num++;
 					objs = new Object[result.getNumFields()];// 存储全量插入信息的list
@@ -322,14 +322,15 @@ public class ReadFileToDataBase implements Callable<Long> {
 				doBatch(batchSql, pool, num, db);
 			}
 		} finally {
-			if (rows != null)
+			if (rows != null) {
 				rows.close();
+			}
 		}
 		return num;
 	}
 
 	private long readParquetToDataBase(DatabaseWrapper db, List<String> columnList, List<String> typeList,
-									   String batchSql) {
+		String batchSql) {
 		ParquetReader<Group> build = null;
 		try {
 			long num = 0;
@@ -358,8 +359,9 @@ public class ReadFileToDataBase implements Callable<Long> {
 			throw new AppSystemException("读取parquet文件失败", e);
 		} finally {
 			try {
-				if (build != null)
+				if (build != null) {
 					build.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -373,27 +375,27 @@ public class ReadFileToDataBase implements Callable<Long> {
 			// 如果取出的值为null则给空字符串
 			str = line.getBoolean(column, 0);
 		} else if (type.contains(DataTypeConstant.INT8.getMessage())
-				|| type.contains(DataTypeConstant.BIGINT.getMessage())
-				|| type.contains(DataTypeConstant.LONG.getMessage())) {
+			|| type.contains(DataTypeConstant.BIGINT.getMessage())
+			|| type.contains(DataTypeConstant.LONG.getMessage())) {
 			str = line.getLong(column, 0);
 		} else if (type.contains(DataTypeConstant.INT.getMessage())) {
 			str = line.getInteger(column, 0);
 		} else if (type.contains(DataTypeConstant.FLOAT.getMessage())) {
 			str = line.getFloat(column, 0);
 		} else if (type.contains(DataTypeConstant.DOUBLE.getMessage())
-				|| type.contains(DataTypeConstant.DECIMAL.getMessage())
-				|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
+			|| type.contains(DataTypeConstant.DECIMAL.getMessage())
+			|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
 			str = line.getDouble(column, 0);
 		} else if (DataTypeConstant.CLOB.getMessage().equalsIgnoreCase(type)) {
 			str = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
-					line.getString(column, 0).getBytes())));
+				line.getString(column, 0).getBytes())));
 		} else if (DataTypeConstant.BLOB.getMessage().equalsIgnoreCase(type)) {
 			String tmpValue = line.getString(column, 0);
 			if (tmpValue == null || StringUtil.isEmpty(tmpValue)) {
 				str = null;
 			} else {
 				str = new BufferedInputStream(new FileInputStream(lobsFileAbsolutePath +
-						tmpValue));
+					tmpValue));
 			}
 		} else {
 			// 如果取出的值为null则给空字符串
@@ -406,13 +408,13 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private long readCsvToDataBase(DatabaseWrapper db, List<String> columnList, List<String> typeList,
-								   String batchSql, String database_code, String is_header) {
+		String batchSql, String database_code, String is_header) {
 		//TODO 分隔符应该使用传进来的，懒得找了，测试的时候一起改吧
 		long num = 0;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileAbsolutePath),
-				DataBaseCode.ofValueByCode(database_code)));
-			 CsvListReader csvReader = new CsvListReader(reader,
-					 CsvPreference.EXCEL_PREFERENCE)) {
+			DataBaseCode.ofValueByCode(database_code)));
+			CsvListReader csvReader = new CsvListReader(reader,
+				CsvPreference.EXCEL_PREFERENCE)) {
 			List<Object[]> pool = new ArrayList<>();// 存储全量插入信息的list
 			List<String> lineList;
 			Object[] objs;
@@ -444,30 +446,30 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private Object getValue(String type, WritableComparable tmpValue, Dbtype dbtype)
-			throws FileNotFoundException {
+		throws FileNotFoundException {
 		Object str;
 		type = type.toLowerCase();
 		if (type.contains(DataTypeConstant.BOOLEAN.getMessage())) {
 			// 如果取出的值为null则给空字符串
 			str = tmpValue == null ? null : Boolean.parseBoolean(tmpValue.toString().trim());
 		} else if (type.contains(DataTypeConstant.LONG.getMessage())
-				|| type.contains(DataTypeConstant.INT.getMessage())
-				|| type.contains(DataTypeConstant.FLOAT.getMessage())
-				|| type.contains(DataTypeConstant.DOUBLE.getMessage())
-				|| type.contains(DataTypeConstant.DECIMAL.getMessage())
-				|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
+			|| type.contains(DataTypeConstant.INT.getMessage())
+			|| type.contains(DataTypeConstant.FLOAT.getMessage())
+			|| type.contains(DataTypeConstant.DOUBLE.getMessage())
+			|| type.contains(DataTypeConstant.DECIMAL.getMessage())
+			|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
 			// 如果取出的值为null则给空字符串
 			str = tmpValue == null ? null : new BigDecimal(tmpValue.toString().trim());
 		} else if (DataTypeConstant.CLOB.getMessage().equalsIgnoreCase(type)) {
 			String clobValue = tmpValue == null ? "" : tmpValue.toString();
 			str = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
-					clobValue.getBytes())));
+				clobValue.getBytes())));
 		} else if (DataTypeConstant.BLOB.getMessage().equalsIgnoreCase(type)) {
 			if (tmpValue == null || StringUtil.isEmpty(tmpValue.toString())) {
 				str = null;
 			} else {
 				str = new BufferedInputStream(new FileInputStream(lobsFileAbsolutePath +
-						tmpValue.toString()));
+					tmpValue.toString()));
 			}
 		} else {
 			// 如果取出的值为null则给空字符串
@@ -483,31 +485,33 @@ public class ReadFileToDataBase implements Callable<Long> {
 	}
 
 	private Object getValue(String type, String tmpValue, Dbtype dbtype) throws
-			FileNotFoundException {
+		FileNotFoundException {
 		Object str;
 		type = type.toLowerCase();
 		if (type.contains(DataTypeConstant.BOOLEAN.getMessage())) {
 			// 如果取出的值为null则给空字符串
 			str = StringUtil.isBlank(tmpValue) ? null : Boolean.parseBoolean(tmpValue.trim());
 		} else if (type.contains(DataTypeConstant.LONG.getMessage())
-				|| type.contains(DataTypeConstant.INT.getMessage())
-				|| type.contains(DataTypeConstant.FLOAT.getMessage())
-				|| type.contains(DataTypeConstant.DOUBLE.getMessage())
-				|| type.contains(DataTypeConstant.DECIMAL.getMessage())
-				|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
+			|| type.contains(DataTypeConstant.INT.getMessage())
+			|| type.contains(DataTypeConstant.FLOAT.getMessage())
+			|| type.contains(DataTypeConstant.DOUBLE.getMessage())
+			|| type.contains(DataTypeConstant.DECIMAL.getMessage())
+			|| type.contains(DataTypeConstant.NUMERIC.getMessage())) {
 			// 如果取出的值为null则给空字符串
 			str = StringUtil.isBlank(tmpValue) ? null : new BigDecimal(tmpValue.trim());
 		} else if (DataTypeConstant.CLOB.getMessage().equalsIgnoreCase(type)) {
 			String clobValue = tmpValue == null ? "" : tmpValue;
 			str = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
-					clobValue.getBytes())));
+				clobValue.getBytes())));
 		} else if (DataTypeConstant.BLOB.getMessage().equalsIgnoreCase(type)) {
 			if (tmpValue == null || StringUtil.isEmpty(tmpValue)) {
 				str = null;
 			} else {
 				str = new BufferedInputStream(new FileInputStream(lobsFileAbsolutePath +
-						tmpValue));
+					tmpValue));
 			}
+		} else if (type.contains(DataTypeConstant.TIMESTAMP.getMessage())) {
+			str = Timestamp.valueOf(tmpValue);
 		} else {
 			// 如果取出的值为null则给空字符串
 			str = StringUtil.isBlank(tmpValue) ? "" : tmpValue.trim();
@@ -564,8 +568,8 @@ public class ReadFileToDataBase implements Callable<Long> {
 		aa[2] = "cccc";
 		arr.add(aa);
 		try (DatabaseWrapper dbWrapper = ConnectionTool.getDBWrapper("oracle.jdbc.OracleDriver",
-				"jdbc:oracle:thin:@47.103.83.1:1521:hyshf",
-				"hyshf", "hyshf", DatabaseType.Oracle10g.getCode())) {
+			"jdbc:oracle:thin:@47.103.83.1:1521:hyshf",
+			"hyshf", "hyshf", DatabaseType.Oracle10g.getCode())) {
 //		try (DatabaseWrapper dbWrapper = ConnectionTool.getDBWrapper("org.postgresql.Driver",
 //				"jdbc:postgresql://47.103.83.1:32001/hrsdxg",
 //				"hrsdxg", "hrsdxg", DatabaseType.Postgresql.getCode())) {

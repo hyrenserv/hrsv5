@@ -1,5 +1,6 @@
 package hrds.agent.job.biz.core.dbstage.writer;
 
+import com.alibaba.druid.DbType;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.annotation.Method;
 import fd.ng.core.annotation.Param;
@@ -7,6 +8,7 @@ import fd.ng.core.annotation.Return;
 import fd.ng.core.utils.FileNameUtils;
 import fd.ng.core.utils.MD5Util;
 import fd.ng.core.utils.StringUtil;
+import fd.ng.db.conf.Dbtype;
 import hrds.agent.job.biz.bean.CollectTableBean;
 import hrds.agent.job.biz.bean.TableBean;
 import hrds.commons.codes.DataBaseCode;
@@ -45,6 +47,7 @@ public abstract class AbstractFileWriter implements FileWriterInterface {
 	protected int pageNum;
 	protected TableBean tableBean;
 	protected Data_extraction_def data_extraction_def;
+	protected Dbtype db_type;
 	//操作日期
 	protected String operateDate;
 	//操作时间
@@ -62,6 +65,7 @@ public abstract class AbstractFileWriter implements FileWriterInterface {
 		this.operateDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		this.operateTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
 		this.user_id = String.valueOf(collectTableBean.getUser_id());
+		this.db_type = collectTableBean.getDb_type();
 	}
 
 	@Method(desc = "把Blob类型转换为byte字节数组, 用于写Avro，在抽象类中实现，请子类不要覆盖这个方法"
@@ -153,6 +157,85 @@ public abstract class AbstractFileWriter implements FileWriterInterface {
 					reader2String = date.toString();
 				} else if (type == java.sql.Types.TIME) {
 					Date date = resultSet.getTime(column_name);
+					reader2String = date.toString();
+				} else if (type == java.sql.Types.CHAR || type == java.sql.Types.VARCHAR
+						|| type == java.sql.Types.NVARCHAR || type == java.sql.Types.BINARY
+						|| type == java.sql.Types.LONGVARCHAR) {
+					reader2String = oj.toString();
+
+				} else {
+					reader2String = oj.toString();
+				}
+				//清理数据  TODO 这里其实修改了数据，需要讨论
+				reader2String = clearIrregularData(reader2String);
+			}
+			sb_.append(reader2String);
+		}
+		if (readerToByte != null && readerToByte.length > 0) {
+			record.put("currValue", lobs_file_name);
+			record.put("readerToByte", ByteBuffer.wrap(readerToByte));
+			avroWriter.append(record);//往avro文件中写入信息（每行）
+			//写lobs小文件
+			writeLobsFileToOracle(midName + "LOBS", lobs_file_name, readerToByte);
+		}
+		return reader2String;
+	}
+
+
+	/**
+	 * 解析result一行的值
+	 */
+	protected String getOneColumnValue(DataFileWriter<Object> avroWriter, long lineCounter, int pageNum, ResultSet resultSet,
+									   int type, StringBuilder sb_, String column_name, String hbase_name, String midName,int i)
+			throws SQLException, IOException {
+		String lobs_file_name = "";
+		String reader2String = "";
+		byte[] readerToByte = null;
+		if (type == java.sql.Types.BLOB || type == Types.LONGVARBINARY) {
+			Blob blob = resultSet.getBlob(i);
+			if (null != blob) {
+				readerToByte = blobToBytes(blob);
+				if (readerToByte.length > 0) {
+					lobs_file_name = "LOBs_" + hbase_name + "_" + column_name + "_" + pageNum + "_"
+							+ lineCounter + "_BLOB_" + avroWriter.sync();
+					sb_.append(lobs_file_name);
+					reader2String = new String(readerToByte);
+				}
+			}
+		} else if (type == Types.VARBINARY) {
+			InputStream binaryStream = resultSet.getBinaryStream(i);
+			if (null != binaryStream) {
+				readerToByte = IOUtils.toByteArray(binaryStream);
+				if (readerToByte != null && readerToByte.length > 0) {
+					lobs_file_name = "LOBs_" + hbase_name + "_" + column_name + "_" + pageNum + "_"
+							+ lineCounter + "_VARBINARY_" + avroWriter.sync();
+					sb_.append(lobs_file_name);
+					reader2String = new String(readerToByte);
+				}
+			}
+		} else if (type == Types.CLOB) {
+			Object obj = resultSet.getClob(i);
+			if (null != obj) {
+				Reader characterStream = resultSet.getClob(i).getCharacterStream();
+				reader2String = readerStreamToString(characterStream);
+				//清理不能处理的数据  TODO 这里其实修改了数据，需要讨论
+				reader2String = clearIrregularData(reader2String);
+			}
+			sb_.append(reader2String);
+		} else {
+			Object oj = resultSet.getObject(i);
+			if (null != oj) {
+				if (type == java.sql.Types.TIMESTAMP) {
+					String dateStr = resultSet.getTimestamp(i).toString();
+					if (dateStr.endsWith(".0")) {
+						dateStr = dateStr.replace(".0", "");
+					}
+					reader2String = dateStr;
+				} else if (type == java.sql.Types.DATE) {
+					Date date = resultSet.getDate(i);
+					reader2String = date.toString();
+				} else if (type == java.sql.Types.TIME) {
+					Date date = resultSet.getTime(i);
 					reader2String = date.toString();
 				} else if (type == java.sql.Types.CHAR || type == java.sql.Types.VARCHAR
 						|| type == java.sql.Types.NVARCHAR || type == java.sql.Types.BINARY

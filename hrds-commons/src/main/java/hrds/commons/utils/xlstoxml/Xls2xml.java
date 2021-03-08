@@ -421,7 +421,7 @@ public class Xls2xml {
 			Row rowData = sheet.getRow(i);
 			String cellValue = ExcelUtil.getValue(rowData.getCell(0)).toString();
 			//匹配到的标签为英文表名时,说明是新的表开始
-			if (cellValue.equals("英文表名")) {
+			if (cellValue.equals("英文表名") || StringUtil.isEmpty(cellValue)) {
 				break;
 			}
 			Table_column table_column = new Table_column();
