@@ -256,6 +256,8 @@ public class DBUnloadDataStageImpl extends AbstractJobStage {
 			List<Long> pageCountResult = new ArrayList<>();
 			//增量抽取是根据页面传过来的三个sql直接抽取出增量数据
 			String incrementSql = collectTableBean.getSql();
+			//将此次数据库类型记录下来
+			collectTableBean.setDb_type(db.getDbtype());
 			List<String> incrementSqlList = getSortJson(JSONObject.parseObject(incrementSql));
 			String[] operateArray = {"delete", "update", "insert"};
 			//遍历json根据json的key执行sql,拼接对应的操作方式,增量抽取是写到同一个文件，因此这里不使用多线程

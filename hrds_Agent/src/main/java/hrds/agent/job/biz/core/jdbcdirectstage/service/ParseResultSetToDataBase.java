@@ -3,6 +3,7 @@ package hrds.agent.job.biz.core.jdbcdirectstage.service;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.utils.MD5Util;
 import fd.ng.core.utils.StringUtil;
+import fd.ng.db.conf.Dbtype;
 import fd.ng.db.jdbc.DatabaseWrapper;
 import hrds.agent.job.biz.bean.CollectTableBean;
 import hrds.agent.job.biz.bean.DataStoreConfBean;
@@ -54,7 +55,7 @@ public class ParseResultSetToDataBase {
 	 * @param dataStoreConfBean DataStoreConfBean 含义：文件需要上传到表对应的存储信息
 	 */
 	public ParseResultSetToDataBase(ResultSet resultSet, TableBean tableBean, CollectTableBean collectTableBean,
-									DataStoreConfBean dataStoreConfBean) {
+		DataStoreConfBean dataStoreConfBean) {
 		this.resultSet = resultSet;
 		this.collectTableBean = collectTableBean;
 		this.dataStoreConfBean = dataStoreConfBean;
@@ -72,7 +73,7 @@ public class ParseResultSetToDataBase {
 		StringBuilder md5Value = new StringBuilder();
 		String etlDate = collectTableBean.getEtlDate();
 		String batchSql = ReadFileToDataBase.getBatchSql(columnMetaInfoList,
-				collectTableBean.getHbase_name() + "_" + 1);
+			collectTableBean.getHbase_name() + "_" + 1);
 		long counter = 0;
 		try (DatabaseWrapper db = ConnectionTool.getDBWrapper(dataStoreConfBean.getData_store_connect_attr())) {
 			LOGGER.info("连接配置为：" + dataStoreConfBean.getData_store_connect_attr().toString());
@@ -81,10 +82,12 @@ public class ParseResultSetToDataBase {
 			List<String> selectColumnList = StringUtil.split(tableBean.getAllColumns(), Constant.METAINFOSPLIT);
 			//用来batch提交
 			List<String> typeList = StringUtil.split(tableBean.getAllType(),
-					Constant.METAINFOSPLIT);
+				Constant.METAINFOSPLIT);
 			int[] typeArray = tableBean.getTypeArray();
 			int numberOfColumns = selectColumnList.size();
-			LOGGER.info("type : " + typeList.size() + "  colName " + numberOfColumns);
+			boolean isodps = collectTableBean.getDb_type() == Dbtype.ODPS;
+			LOGGER.info(
+				"type : " + typeList.size() + "  colName " + numberOfColumns + "   是否为ODPS " + isodps);
 			while (resultSet.next()) {
 				//用来写一行数据
 				counter++;
@@ -93,42 +96,49 @@ public class ParseResultSetToDataBase {
 //					LOGGER.info("字段类型: " + type + " 字段名称: " + selectColumnList.get(i));
 					//判断类型
 					if (type == Types.BLOB || type == Types.LONGVARBINARY) {
-						Blob blob = resultSet.getBlob(selectColumnList.get(i));
+						Blob blob = !isodps ? resultSet.getBlob(selectColumnList.get(i)) : resultSet.getBlob(i + 1);
 						if (blob == null) {
 							pst.setBinaryStream(i + 1, null);
 						} else {
 							pst.setBinaryStream(i + 1, blob.getBinaryStream());
 						}
 					} else if (type == Types.CLOB) {
-						Clob clob = resultSet.getClob(selectColumnList.get(i));
+						Clob clob = !isodps ? resultSet.getClob(selectColumnList.get(i)) : resultSet.getClob(i + 1);
 						if (clob == null) {
 							pst.setCharacterStream(i + 1, null);
 						} else {
 							pst.setCharacterStream(i + 1, clob.getCharacterStream());
 						}
 					} else if (type == Types.VARBINARY) {
-						pst.setBinaryStream(i + 1, resultSet.getBinaryStream(selectColumnList.get(i)));
+						pst.setBinaryStream(i + 1,
+							!isodps ? resultSet.getBinaryStream(selectColumnList.get(i)) : resultSet.getBinaryStream(i + 1));
 					} else {
 						//获取值
-						if (resultSet.getObject(selectColumnList.get(i)) == null) {
+						Object obj = !isodps ? resultSet.getObject(selectColumnList.get(i)) : resultSet.getObject(i + 1);
+						if (obj == null) {
 							pst.setNull(i + 1, Types.NULL);
 						} else {
 							if (type == Types.DATE) {
-								pst.setObject(i + 1, resultSet.getDate(selectColumnList.get(i)).toString());
+								pst.setObject(i + 1, !isodps ? resultSet.getDate(selectColumnList.get(i)).toString()
+									: resultSet.getDate(i + 1).toString());
 							} else if (type == Types.TIME) {
-								pst.setObject(i + 1, resultSet.getTime(selectColumnList.get(i)).toString());
+								pst.setObject(i + 1, !isodps ? resultSet.getTime(selectColumnList.get(i)).toString()
+									: resultSet.getTime(i + 1).toString());
 							} else if (type == Types.TIMESTAMP) {
-								pst.setObject(i + 1, resultSet.getTimestamp(selectColumnList.get(i)).toString());
+								pst.setObject(i + 1, !isodps ? resultSet.getTimestamp(selectColumnList.get(i)).toString()
+									: resultSet.getTimestamp(i + 1).toString());
 							} else if (type == Types.STRUCT) {
-								pst.setObject(i + 1, resultSet.getObject(selectColumnList.get(i)).toString());
+								pst.setObject(i + 1, !isodps ? resultSet.getObject(selectColumnList.get(i)).toString()
+									: resultSet.getObject(i + 1).toString());
 							} else {
-								pst.setObject(i + 1, resultSet.getObject(selectColumnList.get(i)));
+								pst.setObject(i + 1, !isodps ? resultSet.getObject(selectColumnList.get(i))
+									: resultSet.getObject(i + 1).toString());
 							}
 						}
 					}
 					//TODO 这里要放到上面，因为流的取值不能只能toString
 					if (is_zipper_flag && isZipperFieldInfo.get(selectColumnList.get(i))) {
-						md5Value.append(resultSet.getObject(selectColumnList.get(i)));
+						md5Value.append(!isodps ? resultSet.getObject(selectColumnList.get(i)) : resultSet.getObject(i + 1));
 					}
 				}
 				pst.setString(numberOfColumns + 1, etlDate);
@@ -136,7 +146,7 @@ public class ParseResultSetToDataBase {
 				if (is_zipper_flag) {
 					pst.setString(numberOfColumns + 2, Constant.MAXDATE);
 					pst.setString(numberOfColumns + 3, MD5Util.md5String(md5Value.toString()));
-					md5Value.delete(0,md5Value.length());
+					md5Value.delete(0, md5Value.length());
 				}
 				//拼接操作时间、操作日期、操作人
 				appendOperateInfo(pst, numberOfColumns);

@@ -2,6 +2,7 @@ package hrds.agent.job.biz.core.dbstage.writer.impl;
 
 import fd.ng.core.utils.FileNameUtils;
 import fd.ng.core.utils.StringUtil;
+import fd.ng.db.conf.Dbtype;
 import hrds.agent.job.biz.bean.CollectTableBean;
 import hrds.agent.job.biz.bean.TableBean;
 import hrds.agent.job.biz.constant.JobConstant;
@@ -30,16 +31,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JdbcToCsvFileWriter
- * date: 2019/12/6 17:19
- * author: zxz
+ * JdbcToCsvFileWriter date: 2019/12/6 17:19 author: zxz
  */
 public class JdbcToCsvFileWriter extends AbstractFileWriter {
+
 	//打印日志
 	private static final Logger log = LogManager.getLogger();
 
 	public JdbcToCsvFileWriter(ResultSet resultSet, CollectTableBean collectTableBean, int pageNum,
-							   TableBean tableBean, Data_extraction_def data_extraction_def) {
+		TableBean tableBean, Data_extraction_def data_extraction_def) {
 		super(resultSet, collectTableBean, pageNum, tableBean, data_extraction_def);
 	}
 
@@ -52,7 +52,7 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 		//数据抽取指定的目录
 		String plane_url = data_extraction_def.getPlane_url();
 		String midName = plane_url + File.separator + eltDate + File.separator + collectTableBean.getTable_name()
-				+ File.separator + Constant.fileFormatMap.get(FileFormat.CSV.getCode()) + File.separator;
+			+ File.separator + Constant.fileFormatMap.get(FileFormat.CSV.getCode()) + File.separator;
 		midName = FileNameUtils.normalize(midName, true);
 		DataFileWriter<Object> avroWriter = null;
 		CsvListWriter writer;
@@ -80,7 +80,7 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 			Map<String, String> mergeIng = (Map<String, String>) parseJson.get("mergeIng");
 			//字符拆分
 			Map<String, Map<String, Column_split>> splitIng = (Map<String, Map<String, Column_split>>)
-					parseJson.get("splitIng");
+				parseJson.get("splitIng");
 			Clean cl = new Clean(parseJson, allclean);
 			//获取所有列的值用来做列合并
 			StringBuilder mergeStringTmp = new StringBuilder(1024 * 1024);
@@ -90,7 +90,7 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 			List<Object> sb = new ArrayList<>(columnMetaInfoList.size());//用来写一行数据
 			StringBuilder sb_ = new StringBuilder();//用来写临时数据
 			List<String> typeList = StringUtil.split(tableBean.getAllType(),
-					Constant.METAINFOSPLIT);
+				Constant.METAINFOSPLIT);
 			int numberOfColumns = selectColumnList.size();
 			log.info("type : " + typeList.size() + "  colName " + numberOfColumns);
 			String currValue;
@@ -104,33 +104,41 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 				for (int i = 0; i < numberOfColumns; i++) {
 					//获取原始值来计算 MD5
 					sb_.delete(0, sb_.length());
-					mergeStringTmp.append(getOneColumnValue(avroWriter, counter, pageNum, resultSet, typeArray[i],
+					log.info("开始处理列: " + selectColumnList.get(i) + " 列类型是: " + typeArray[i] + " 数据库类型是: " + collectTableBean
+						.getDb_type());
+					if (collectTableBean.getDb_type() != Dbtype.ODPS) {
+						mergeStringTmp.append(getOneColumnValue(avroWriter, counter, pageNum, resultSet, typeArray[i],
 							sb_, selectColumnList.get(i), hbase_name, midName));
+					} else {
+						mergeStringTmp.append(getOneColumnValue(avroWriter, counter, pageNum, resultSet, typeArray[i],
+							sb_, selectColumnList.get(i), hbase_name, midName, i + 1));
+					}
 					// Add DELIMITER if not last value
 					if (i < numberOfColumns - 1) {
 						mergeStringTmp.append(Constant.DATADELIMITER);
 					}
 					currValue = sb_.toString();
+					log.info("处理列: " + selectColumnList.get(i) + " 数据是: " + currValue);
 					//判断是否是算md5的列，算md5
 					if (md5Col.get(selectColumnList.get(i)) != null && md5Col.get(selectColumnList.get(i))) {
 						md5StringTmp.append(currValue);
 					}
 					//清洗操作
 					currValue = cl.cleanColumn(currValue, selectColumnList.get(i).toUpperCase(), null,
-							typeList.get(i), FileFormat.CSV.getCode(), sb,
-							data_extraction_def.getDatabase_code(), dataDelimiter);
+						typeList.get(i), FileFormat.CSV.getCode(), sb,
+						data_extraction_def.getDatabase_code(), dataDelimiter);
 					if (splitIng.get(selectColumnList.get(i).toUpperCase()) == null
-							|| splitIng.get(selectColumnList.get(i).toUpperCase()).size() == 0) {
+						|| splitIng.get(selectColumnList.get(i).toUpperCase()).size() == 0) {
 						sb.add(currValue);
 					}
 				}
 				//如果有列合并处理合并信息
 				if (!mergeIng.isEmpty()) {
 					List<String> arrColString = StringUtil.split(mergeStringTmp.toString(),
-							Constant.DATADELIMITER);
+						Constant.DATADELIMITER);
 					allclean.merge(mergeIng, arrColString.toArray(new String[0]), selectColumnList.toArray
-									(new String[0]), null, sb,
-							FileFormat.CSV.getCode(), data_extraction_def.getDatabase_code(), dataDelimiter);
+							(new String[0]), null, sb,
+						FileFormat.CSV.getCode(), data_extraction_def.getDatabase_code(), dataDelimiter);
 				}
 				sb.add(eltDate);
 				//根据是否算MD5判断是否追加结束日期和MD5两个字段
@@ -151,7 +159,7 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 						fileName = midName + hbase_name + pageNum + index + "." + data_extraction_def.getFile_suffix();
 						writerFile = new WriterFile(fileName);
 						writer = writerFile.getCsvWriter(DataBaseCode.ofValueByCode(
-								data_extraction_def.getDatabase_code()));
+							data_extraction_def.getDatabase_code()));
 						//写表头
 						writeHeader(writer, columnMetaInfoList);
 						fileInfo.append(fileName).append(Constant.METAINFOSPLIT);
@@ -170,10 +178,12 @@ public class JdbcToCsvFileWriter extends AbstractFileWriter {
 			throw new AppSystemException("数据库采集卸数Csv文件失败", e);
 		} finally {
 			try {
-				if (writerFile != null)
+				if (writerFile != null) {
 					writerFile.csvClose();
-				if (avroWriter != null)
+				}
+				if (avroWriter != null) {
 					avroWriter.close();
+				}
 			} catch (IOException e) {
 				log.error(e);
 			}
