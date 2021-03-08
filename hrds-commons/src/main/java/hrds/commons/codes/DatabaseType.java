@@ -36,7 +36,9 @@ public enum DatabaseType {
 	/**Hive<Hive>  */
 	Hive("14", "Hive", "36", "数据库类型"),
 	/**Odps<Odps>  */
-	Odps("15", "Odps", "36", "数据库类型");
+	Odps("15", "Odps", "36", "数据库类型"),
+	/**KingBase<KingBase>  */
+	KingBase("16", "KingBase", "36", "数据库类型");
 
 	private final String code;
 	private final String value;

@@ -101,6 +101,11 @@ public class ConnUtil {
 			template.setIpPlaceholder("");
 			template.setPortPlaceholder("");
 			template.setUrlSuffix("");
+		}else if( DatabaseType.KingBase == databaseType) {
+			template.setUrlPrefix("jdbc:kingbase8://");
+			template.setIpPlaceholder(":");
+			template.setPortPlaceholder("/");
+			template.setUrlSuffix("");
 		}
 		else {
 			logger.error("目前不支持对该数据库类型进行采集，请联系管理员");
@@ -144,7 +149,9 @@ public class ConnUtil {
 			return "org.apache.hive.jdbc.HiveDriver";
 		} else if (DatabaseType.Odps == databaseType) {
 			return "com.aliyun.odps.jdbc.OdpsDriver";
-		} else {
+		} else if(DatabaseType.KingBase == databaseType){
+			return "com.kingbase8.Driver";
+		}else {
 			logger.error("目前不支持对该数据库类型进行采集，请联系管理员");
 			throw new AppSystemException("目前不支持对该数据库类型进行采集，请联系管理员");
 		}

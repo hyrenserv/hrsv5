@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import fd.ng.core.utils.StringUtil;
 import fd.ng.core.utils.Validator;
 import hrds.commons.codes.DataBaseCode;
+import hrds.commons.codes.DatabaseType;
 import hrds.commons.codes.FileFormat;
 import hrds.commons.codes.IsFlag;
 import hrds.commons.codes.UnloadType;
@@ -121,17 +122,16 @@ public class Xls2xml {
 
 		String path_cd = pathToUnEscape(db_path);
 		File file = FileUtils.getFile(path_cd);
-		if (file.exists() && db_path.toUpperCase().endsWith("JSON")) {
-			jsonToXml(db_path, xml_path);
-		} else if (db_path.toUpperCase().endsWith("XLS") || db_path.toUpperCase().endsWith("XLSX")) {
-			path_cd = pathToUnEscape(db_path);
-			file = FileUtils.getFile(path_cd);
-			if (!file.exists()) {
-				throw new BusinessException("没有找到相应的数据字典定义文件！");
+		if (file.exists()) {
+			if (db_path.toUpperCase().endsWith("JSON") || db_path.equals("")) {
+				jsonToXml(db_path, xml_path);
+			} else if (db_path.toUpperCase().endsWith("XLS") || db_path.toUpperCase().endsWith("XLSX")) {
+				XlsToXml(db_path, xml_path);
+			} else {
+				throw new BusinessException("请指定正确的数据字典文件！");
 			}
-			XlsToXml(db_path, xml_path);
 		} else {
-			throw new BusinessException("请指定正确的数据字典文件！");
+			throw new BusinessException("没有找到相应的数据字典定义文件！");
 		}
 	}
 
@@ -378,7 +378,7 @@ public class Xls2xml {
 		String table_cn_name = ExcelUtil.getValue(rowData.getCell(1)).toString();
 		Validator.notBlank(table_cn_name, "数据字典( " + rowNum + " )行的中文表名为空,请检查");
 		//将表的信息写入Xml
-		addTable(table_name.toLowerCase(), table_cn_name, null);
+		addTable(table_name.toLowerCase(), table_cn_name, UnloadType.QuanLiangXieShu.getCode());
 
 		//数据抽取定义信息
 		Data_extraction_def extraction_def = new Data_extraction_def();
@@ -417,7 +417,7 @@ public class Xls2xml {
 
 	static void writeColumn2Xml(int lastRowNum, Sheet sheet, int rowNum) {
 
-		for (int i = rowNum; i < lastRowNum; i++) {
+		for (int i = rowNum; i <= lastRowNum; i++) {
 			Row rowData = sheet.getRow(i);
 			String cellValue = ExcelUtil.getValue(rowData.getCell(0)).toString();
 			//匹配到的标签为英文表名时,说明是新的表开始

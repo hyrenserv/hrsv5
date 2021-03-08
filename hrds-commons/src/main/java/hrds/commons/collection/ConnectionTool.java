@@ -111,6 +111,7 @@ public class ConnectionTool {
 	}
 
 	public static DatabaseWrapper getDBWrapper(Map<String, String> dbConfig, int fetch_size) {
+		logger.info("获取到连接的配置为：===============================" + dbConfig.toString());
 		//1、将SourceDataConfBean对象中的内容封装到dbInfo中
 		DbinfosConf.Dbinfo dbInfo = new DbinfosConf.Dbinfo();
 		dbInfo.setName(DbinfosConf.DEFAULT_DBNAME);
@@ -293,6 +294,10 @@ public class ConnectionTool {
 			return Dbtype.TERADATA;
 		} else if (typeConstant == DatabaseType.Hive) {
 			return Dbtype.HIVE;
+		} else if (typeConstant == DatabaseType.Odps) {
+			return Dbtype.ODPS;
+		} else if (typeConstant == DatabaseType.KingBase) {
+			return Dbtype.KINGBASE;
 		} else {
 			throw new AppSystemException("系统不支持该数据库类型");
 		}
