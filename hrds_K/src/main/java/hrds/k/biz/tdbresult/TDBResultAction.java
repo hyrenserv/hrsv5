@@ -281,7 +281,8 @@ public class TDBResultAction extends BaseAction {
 			" row_number() over(partition BY fk_table_code ORDER BY col_code) row_num" +
 			" FROM " + Dbm_fk_info_tab.TableName + " WHERE id !=''");
 		if (StringUtil.isNotBlank(searchFKAnalysisBean.getTable_name())) {
-			asmSql.addLikeParam("fk_table_code", "%" + searchFKAnalysisBean.getTable_name() + "%");
+			asmSql.addLikeParam("upper(fk_table_code)",
+				"%" + searchFKAnalysisBean.getTable_name().toUpperCase() + "%");
 		}
 		if (StringUtil.isNotBlank(searchFKAnalysisBean.getTable_field_name())) {
 			asmSql.addLikeParam("fk_col_code", "%" + searchFKAnalysisBean.getFk_table_field_name() + "%");
@@ -587,8 +588,8 @@ public class TDBResultAction extends BaseAction {
 	}
 
 	@Method(desc = "求最长路径", logicStep = "1.参数合法性验证" +
-			"2.获取最长路径neo4j结果数据" +
-			"3.最长路径数据格式转换")
+		"2.获取最长路径neo4j结果数据" +
+		"3.最长路径数据格式转换")
 	@Param(name = "columnNodeName1", desc = "第一个字段的节点名称", range = "不为空")
 	@Param(name = "columnNodeName2", desc = "第二个字段的节点名称", range = "不为空")
 	@Param(name = "level", desc = "最多找多少层", range = "这个值不能太大，不然查询超级慢")
