@@ -28,10 +28,7 @@ import hrds.commons.codes.StoreLayerDataSource;
 import hrds.commons.entity.*;
 import hrds.commons.exception.AppSystemException;
 import hrds.commons.exception.BusinessException;
-import hrds.commons.utils.AgentActionUtil;
-import hrds.commons.utils.Constant;
-import hrds.commons.utils.DboExecute;
-import hrds.commons.utils.ReadLog;
+import hrds.commons.utils.*;
 import hrds.commons.utils.jsch.SFTPChannel;
 import hrds.commons.utils.jsch.SFTPDetails;
 import java.io.File;
@@ -1648,7 +1645,7 @@ public class AgentListAction extends BaseAction {
 
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agent_down_info.getAgent_ip());
-		sftpDetails.setPort(Integer.parseInt(Constant.SFTP_PORT));
+		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
 		sftpDetails.setUser_name(agent_down_info.getUser_name());
 		sftpDetails.setPwd(agent_down_info.getPasswd());
 		// 5: 使用工具类,读取日志信息
@@ -1811,7 +1808,7 @@ public class AgentListAction extends BaseAction {
 
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agentMap.get("agent_ip").toString());
-		sftpDetails.setPort(Integer.parseInt(Constant.SFTP_PORT));
+		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
 		sftpDetails.setUser_name(agentMap.get("user_name").toString());
 		sftpDetails.setPwd(agentMap.get("passwd").toString());
 

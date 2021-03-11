@@ -24,10 +24,7 @@ import hrds.commons.entity.Collect_job_classify;
 import hrds.commons.entity.Data_source;
 import hrds.commons.entity.Database_set;
 import hrds.commons.exception.BusinessException;
-import hrds.commons.utils.AgentActionUtil;
-import hrds.commons.utils.Constant;
-import hrds.commons.utils.DboExecute;
-import hrds.commons.utils.ReadLog;
+import hrds.commons.utils.*;
 import hrds.commons.utils.jsch.SFTPDetails;
 import hrds.commons.utils.key.PrimayKeyGener;
 import java.util.List;
@@ -471,7 +468,7 @@ public class DBConfStepAction extends BaseAction {
 		String logDir = agentDownInfo.getLog_dir();
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agentDownInfo.getAgent_ip());
-		sftpDetails.setPort(Integer.parseInt(Constant.SFTP_PORT));
+		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
 		sftpDetails.setUser_name(agentDownInfo.getUser_name());
 		sftpDetails.setPwd(agentDownInfo.getPasswd());
 		// 最多显示1000行

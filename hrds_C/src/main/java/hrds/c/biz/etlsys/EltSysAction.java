@@ -183,7 +183,7 @@ public class EltSysAction extends BaseAction {
 		// 格式化路径
 		serv_file_path = FilenameUtils.normalize(serv_file_path);
 		// 3.部署作业工程
-		ETLAgentDeployment.scpETLAgent(etl_sys_cd, etl_serv_ip, Constant.SFTP_PORT, user_name, user_pwd,
+		ETLAgentDeployment.scpETLAgent(etl_sys_cd, etl_serv_ip, CommonVariables.SFTP_PORT, user_name, user_pwd,
 				serv_file_path, etlSys.getServ_file_path());
 		String redisIP = PropertyParaValue.getString("redis_ip", "172.168.0.61");
 		String redisPort = PropertyParaValue.getString("redis_port", "56379");
@@ -194,7 +194,7 @@ public class EltSysAction extends BaseAction {
 		etl_sys.setUser_pwd(user_pwd);
 		etl_sys.setServ_file_path(serv_file_path);
 		etl_sys.setRemarks(redisIP + ':' + redisPort);
-		etl_sys.setEtl_serv_port(Constant.SFTP_PORT);
+		etl_sys.setEtl_serv_port(CommonVariables.SFTP_PORT);
 		// 4.部署成功，更新用户信息
 		etl_sys.update(Dbo.db());
 	}

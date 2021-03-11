@@ -16,6 +16,7 @@ import hrds.commons.entity.Etl_resource;
 import hrds.commons.entity.Etl_sub_sys_list;
 import hrds.commons.entity.Etl_sys;
 import hrds.commons.exception.BusinessException;
+import hrds.commons.utils.CommonVariables;
 import hrds.commons.utils.Constant;
 import hrds.commons.utils.ParallerTestUtil;
 import hrds.testbase.WebBaseTestCase;
@@ -62,7 +63,7 @@ public class EtlSysActionTest extends WebBaseTestCase {
 					etl_sys.setSys_run_status(Job_Status.RUNNING.getCode());
 				} else if (i == 3) {
 					etl_sys.setEtl_serv_ip(ETL_SERV_IP);
-					etl_sys.setEtl_serv_port(Constant.SFTP_PORT);
+					etl_sys.setEtl_serv_port(CommonVariables.SFTP_PORT);
 					etl_sys.setSys_run_status(Job_Status.STOP.getCode());
 					etl_sys.setUser_name(USER_NAME);
 					etl_sys.setUser_pwd(USER_PWD);

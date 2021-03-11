@@ -33,10 +33,6 @@ public class Constant {
 	 */
 	public static final String INITDATE = "00000000";
 	/**
-	 * 部署时服务器的默认端口
-	 */
-	public static final String SFTP_PORT = "22";
-	/**
 	 * Hbase的默认列族
 	 */
 	public static final byte[] HBASE_COLUMN_FAMILY = "F".getBytes();
