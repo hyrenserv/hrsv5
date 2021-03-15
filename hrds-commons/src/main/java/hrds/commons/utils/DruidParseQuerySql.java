@@ -28,7 +28,6 @@ import com.alibaba.druid.stat.TableStat.Name;
 import com.alibaba.druid.util.JdbcConstants;
 import fd.ng.core.exception.BusinessSystemException;
 import fd.ng.core.utils.StringUtil;
-import fd.ng.db.conf.Dbtype;
 import fd.ng.db.jdbc.DatabaseWrapper;
 import fd.ng.db.jdbc.SqlOperator;
 import hrds.commons.codes.TableStorage;
@@ -36,7 +35,6 @@ import hrds.commons.entity.Dm_datatable;
 import hrds.commons.entity.Dm_operation_info;
 import hrds.commons.exception.AppSystemException;
 import hrds.commons.exception.BusinessException;
-import org.apache.calcite.sql.SqlBinaryOperator;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -110,8 +108,10 @@ public class DruidParseQuerySql {
 			SQLSelect sqlSelect = sqlSubqueryTableSource.getSelect();
 			SQLSelectQuery sqlSelectQuery = sqlSelect.getQuery();
 			getAllWhere(sqlSelectQuery);
-			SQLExpr where = sqlSelectQueryBlock.getWhere();
-			allWherelist.add(where);
+			if (sqlSelectQueryBlock != null) {
+				SQLExpr where = sqlSelectQueryBlock.getWhere();
+				allWherelist.add(where);
+			}
 		}
 		//如果是单表的话 那么单表的parent一定是最简单的查询
 		else if (sqlTableSource instanceof SQLExprTableSource) {
@@ -305,7 +305,7 @@ public class DruidParseQuerySql {
 			handleFrom(oracleSelectQueryBlock.getFrom());
 		} else {
 			throw new BusinessSystemException(
-					"未知的sqlSelectQuery：" + sqlSelectQuery.toString() + " class:" + sqlSelectQuery.getClass());
+				"未知的sqlSelectQuery：" + sqlSelectQuery.toString() + " class:" + sqlSelectQuery.getClass());
 		}
 	}
 
@@ -349,7 +349,7 @@ public class DruidParseQuerySql {
 				//判断 如果当前完整查询sql 为子查询的话 需要记录子查询的临时表名
 				if (sqlObject.getParent() instanceof OracleSelectSubqueryTableSource) {
 					OracleSelectSubqueryTableSource oracleSelectSubqueryTableSource = (OracleSelectSubqueryTableSource) sqlObject
-							.getParent();
+						.getParent();
 					upperealias = oracleSelectSubqueryTableSource.getAlias();
 				}
 				while (!(sqlObject instanceof OracleSelectQueryBlock)) {
@@ -398,16 +398,16 @@ public class DruidParseQuerySql {
 							if (sqlexpr instanceof SQLIdentifierExpr) {
 								if (uppercolumn.equalsIgnoreCase(sqlexpr.toString())) {
 									putResult(templist, alias, stringObjectHashMap.get("columnname") == null ? null
-													: stringObjectHashMap.get("columnname").toString(),
-											stringObjectHashMap.get("table").toString());
+											: stringObjectHashMap.get("columnname").toString(),
+										stringObjectHashMap.get("table").toString());
 								}
 							} else if (sqlexpr instanceof SQLPropertyExpr) {
 								SQLPropertyExpr sqlPropertyExpr = (SQLPropertyExpr) sqlexpr;
 								if (uppercolumn.equalsIgnoreCase(sqlPropertyExpr.getName())
-										&& sqlPropertyExpr.getOwner().toString().equalsIgnoreCase(upperealias)) {
+									&& sqlPropertyExpr.getOwner().toString().equalsIgnoreCase(upperealias)) {
 									putResult(templist, alias, stringObjectHashMap.get("columnname") == null ? null
-													: stringObjectHashMap.get("columnname").toString(),
-											stringObjectHashMap.get("table").toString());
+											: stringObjectHashMap.get("columnname").toString(),
+										stringObjectHashMap.get("table").toString());
 								}
 							}
 						}
@@ -496,7 +496,7 @@ public class DruidParseQuerySql {
 	 * <p>参   数:  </p>
 	 */
 	private void startHandleFromColumn(OracleSelectQueryBlock oracleSelectQueryBlock, SQLTableSource sqlTableSource,
-									   String upperealias) {
+	                                   String upperealias) {
 		SQLTableSource from = oracleSelectQueryBlock.getFrom();
 		Boolean isOracleSelectTableReference = oracleSelectQueryBlock.getFrom() instanceof OracleSelectTableReference;
 		//表示第一次开始寻找
@@ -535,7 +535,7 @@ public class DruidParseQuerySql {
 						} else if (sqlexpr instanceof SQLPropertyExpr) {
 							SQLPropertyExpr sqlPropertyExpr = (SQLPropertyExpr) sqlexpr;
 							if (uppercolumn.equalsIgnoreCase(sqlPropertyExpr.getName())
-									&& sqlPropertyExpr.getOwner().toString().equalsIgnoreCase(upperealias)) {
+								&& sqlPropertyExpr.getOwner().toString().equalsIgnoreCase(upperealias)) {
 								newuppercolumnlist.add(alias);
 								flag = false;
 							}
@@ -583,7 +583,7 @@ public class DruidParseQuerySql {
 	 * <p>参   数:  </p>
 	 */
 	private void handleColumn(SQLSelectItem sqlSelectItem, OracleSelectTableReference oracleSelectTableReference,
-							  Boolean isOracleSelectTableReference) {
+	                          Boolean isOracleSelectTableReference) {
 		String alias = getAlias(sqlSelectItem);
 		columnlist.clear();
 		getcolumn(sqlSelectItem.getExpr(), sqlSelectItem.getAlias());
@@ -602,7 +602,7 @@ public class DruidParseQuerySql {
 				SQLPropertyExpr sqlPropertyExprcolumn = (SQLPropertyExpr) column;
 				String owner = sqlPropertyExprcolumn.getOwner().toString();
 				String tablename = StringUtils.isEmpty(oracleSelectTableReference.getAlias()) ?
-						oracleSelectTableReference.getName().toString() : oracleSelectTableReference.getAlias();
+					oracleSelectTableReference.getName().toString() : oracleSelectTableReference.getAlias();
 				if (owner.trim().equalsIgnoreCase(tablename.trim())) {
 					map.put("columnname", sqlPropertyExprcolumn.getName());
 				}
@@ -881,9 +881,9 @@ public class DruidParseQuerySql {
 			OracleSelectTableReference oracleSelectTableReference = (OracleSelectTableReference) sqlTableSource;
 			String tablename = oracleSelectTableReference.getExpr().toString();
 			List<Map<String, Object>> maps = SqlOperator.queryList(db,
-					"select t2.execute_sql from " + Dm_datatable.TableName + " t1 left join " + Dm_operation_info.TableName +
-							" t2 on t1.datatable_id = t2.datatable_id where lower(t1.datatable_en_name) = ? and t1.table_storage = ?",
-					tablename.toLowerCase(), TableStorage.ShuJuShiTu.getCode());
+				"select t2.execute_sql from " + Dm_datatable.TableName + " t1 left join " + Dm_operation_info.TableName +
+					" t2 on t1.datatable_id = t2.datatable_id where lower(t1.datatable_en_name) = ? and t1.table_storage = ?",
+				tablename.toLowerCase(), TableStorage.ShuJuShiTu.getCode());
 			if (!maps.isEmpty()) {
 				String execute_sql = maps.get(0).get("execute_sql").toString();
 //				oracleSelectTableReference.setExpr(" ( " + execute_sql + " ) " + tablename);
@@ -963,18 +963,18 @@ public class DruidParseQuerySql {
 			Map<String, Object> bloodRelationMap = null;
 			if (sqlStatement instanceof SQLInsertStatement) {//新增
 				bloodRelationMap = druidParseQuerySql
-						.getBloodRelationMap(((SQLInsertStatement) sqlStatement).getQuery().toString());
+					.getBloodRelationMap(((SQLInsertStatement) sqlStatement).getQuery().toString());
 			} else if (sqlStatement instanceof SQLDeleteStatement) {//删除SQL
 
 			} else if (sqlStatement instanceof SQLUpdateStatement) {//更新SQL
 			} else if (sqlStatement instanceof SQLSelectStatement) {//查询SQL
 				bloodRelationMap = druidParseQuerySql
-						.getBloodRelationMap(((SQLSelectStatement) sqlStatement).getSelect().getQuery().toString());
+					.getBloodRelationMap(((SQLSelectStatement) sqlStatement).getSelect().getQuery().toString());
 			} else if (sqlStatement instanceof SQLCreateTableStatement) {//创建SQL
 				SQLSelect select = ((SQLCreateTableStatement) sqlStatement).getSelect();
 				if (select != null) {
 					bloodRelationMap = druidParseQuerySql
-							.getBloodRelationMap(select.getQuery().toString());
+						.getBloodRelationMap(select.getQuery().toString());
 				}
 			}
 			targetTableDataMap.put("targetTableField", bloodRelationMap);
@@ -1125,8 +1125,8 @@ public class DruidParseQuerySql {
 
 	public static void main(String[] args) {
 		String sql = "SELECT ADVISORYNUM,ACCEPTDATE,BUSINESSTYPE2,BUSINESSTYPE3,STATUS,PROBLEM,STARLEVEL,RESULT," +
-				"PONITSTANDARD,REPORTSOURCE,ORGID,ISMONIT,REPORTER,SECTIONID,COMEFROM,COMP_TYPE,INGLE_TYPE_ID," +
-				"REPORTSOURCE_ID,COMEFROM_ID,HPB_ID,COMPLAINOBJECT,ISVALID,TEL,DISTRICT,STREETNAME,ADDRESS,SECTIONNAME,ORGNAME,BUSINESSTYPE1 FROM S30_I_INGLE";
+			"PONITSTANDARD,REPORTSOURCE,ORGID,ISMONIT,REPORTER,SECTIONID,COMEFROM,COMP_TYPE,INGLE_TYPE_ID," +
+			"REPORTSOURCE_ID,COMEFROM_ID,HPB_ID,COMPLAINOBJECT,ISVALID,TEL,DISTRICT,STREETNAME,ADDRESS,SECTIONNAME,ORGNAME,BUSINESSTYPE1 FROM S30_I_INGLE";
 //		DruidParseQuerySql sql1 = new DruidParseQuerySql(sql);
 //		System.out.println(sql1.getSelectSql());
 //		Map<String, String> selectColumnMap = sql1.getSelectColumnMap();
