@@ -20,6 +20,8 @@ alter table etl_job_cur alter column pro_para TYPE text;
 alter table etl_job_disp_his alter column pro_para TYPE text;
 ALTER TABLE etl_job_disp_his DROP constraint etl_job_disp_his_pk;
 
+alter table AUTO_COMP_SUM alter column COMPONENT_BUFFER TYPE text;
+
 create unique index u_index_data_source01 on data_source(datasource_number);-- 数据源编号不能重复
 
 -- 源文件属性
