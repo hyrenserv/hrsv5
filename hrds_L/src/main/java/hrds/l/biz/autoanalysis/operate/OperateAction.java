@@ -1561,7 +1561,7 @@ public class OperateAction extends BaseAction {
 		if (autoCompConds != null && autoCompConds.length > 0) {
 			for (Auto_comp_cond auto_comp_cond : autoCompConds) {
 				Validator.notBlank(auto_comp_cond.getCond_en_column(), "条件英文字段不能为空");
-				Validator.notBlank(auto_comp_cond.getCond_value(), "条件值不能为空");
+//				Validator.notBlank(auto_comp_cond.getCond_value(), "条件值不能为空");
 				Validator.notBlank(auto_comp_cond.getOperator(), "操作符不能为空");
 				auto_comp_cond.setCreate_date(DateUtil.getSysDate());
 				auto_comp_cond.setCreate_time(DateUtil.getSysTime());
