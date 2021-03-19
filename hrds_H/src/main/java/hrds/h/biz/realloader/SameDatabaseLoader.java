@@ -8,6 +8,7 @@ import hrds.commons.codes.StoreLayerAdded;
 import hrds.commons.collection.ConnectionTool;
 import hrds.commons.entity.Datatable_field_info;
 import hrds.commons.exception.AppSystemException;
+import hrds.commons.utils.Constant;
 import hrds.commons.utils.DruidParseQuerySql;
 import hrds.commons.utils.PropertyParaValue;
 import hrds.commons.utils.StorageTypeKey;
@@ -247,7 +248,7 @@ public class SameDatabaseLoader extends AbstractRealLoader {
 		 */
 		conf.getDatatableFields()
 				.stream()
-				.filter(field -> !field.getField_en_name().startsWith("hyren_"))
+				.filter(field -> !Constant.HYRENFIELD.contains(field.getField_en_name()))
 				.forEach(field -> {
 					String processCode = field.getField_process();
 					if (ProcessType.ZiZeng.getCode().equals(processCode)) {
