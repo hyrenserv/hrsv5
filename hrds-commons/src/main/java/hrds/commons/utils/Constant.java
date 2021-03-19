@@ -7,7 +7,10 @@ import hrds.commons.codes.CleanType;
 import hrds.commons.codes.FileFormat;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @DocClass(desc = "项目中经常用到的常量值", author = "zxz", createdate = "2019/12/25 0025 下午 04:28")
@@ -20,6 +23,12 @@ public class Constant {
 	public static final String HYREN_OPER_TIME = "HYREN_OPER_TIME";
 	public static final String HYREN_OPER_PERSON = "HYREN_OPER_PERSON";
 	public static final String TABLE_ID_NAME = "HYREN_TABLE_ID";
+	/**
+	 * 海云建表时的一些字段信息, 防止集市在查询时使用此类字段. 所以这里进行字段的统计提供给集市过滤使用
+	 */
+	private static final String[] HYRENCOLUMN = {SDATENAME, EDATENAME, MD5NAME, HYREN_OPER_DATE, HYREN_OPER_TIME,
+		HYREN_OPER_PERSON, TABLE_ID_NAME};
+	public static final List<String> HYRENFIELD = Arrays.asList(HYRENCOLUMN);
 	/**
 	 * 数据有效日期
 	 */
@@ -83,7 +92,7 @@ public class Constant {
 	public static final String HDFSSHELLFILE = USER_DIR + File.separator + "hdfsShellFile" + File.separator;
 	//通信异常存储目录
 	public static final String COMMUNICATIONERRORFOLDER = USER_DIR + File.separator
-			+ "CommunicationError" + File.separator;
+		+ "CommunicationError" + File.separator;
 	//定义并行抽取SQL开始条数占位符
 	/**
 	 * 定义并行抽取SQL开始条数占位符
@@ -292,7 +301,7 @@ public class Constant {
 	 * 数据对标配置类实体序列化路径前缀
 	 */
 	public static final String ALGORITHMS_CONF_SERIALIZE_PATH = FileUtil.TEMP_DIR_NAME +
-			"algorithms-conf-serialize" + FileUtil.PATH_SEPARATOR_CHAR;
+		"algorithms-conf-serialize" + FileUtil.PATH_SEPARATOR_CHAR;
 	public static final String HYUCC_RESULT_PATH_NAME = "HyUccOut";
 	public static final String HYFD_RESULT_PATH_NAME = "HyFdOut";
 
