@@ -248,7 +248,7 @@ public class SameDatabaseLoader extends AbstractRealLoader {
 		 */
 		conf.getDatatableFields()
 				.stream()
-				.filter(field -> !Constant.HYRENFIELD.contains(field.getField_en_name()))
+				.filter(field -> !Constant.HYRENFIELD.contains(field.getField_en_name().toUpperCase()))
 				.forEach(field -> {
 					String processCode = field.getField_process();
 					if (ProcessType.ZiZeng.getCode().equals(processCode)) {
