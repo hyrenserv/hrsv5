@@ -179,8 +179,8 @@ public abstract class ProcessingData {
 								+ Table_storage_info.TableName + " tsi" +
 								" join " + Dtab_relation_store.TableName + " dtrs on tsi.storage_id = dtrs.tab_id" +
 								" join " + Data_store_layer.TableName + " dsl on dtrs.dsl_id = dsl.dsl_id" +
-								" where tsi.table_id = ? and dtrs.data_source in (?,?)",
-						dsr.getTable_id(), StoreLayerDataSource.DB.getCode(), StoreLayerDataSource.DBA.getCode());
+								" where lower(tsi.hyren_name) = lower(?) and dtrs.data_source in (?,?)",
+						dsr.getHyren_name(), StoreLayerDataSource.DB.getCode(), StoreLayerDataSource.DBA.getCode());
 			}
 
 			//记录数据表所在存储层信息

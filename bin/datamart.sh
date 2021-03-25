@@ -5,7 +5,7 @@
 PROJECTDIR=$(
   cd $(dirname $0)
   pwd
-)/../h
+)
 
 MainClass=hrds.h.biz.MainClass
 
