@@ -42,7 +42,7 @@ public class Database_set extends ProjectTableEntity
 	private String database_pad;
 	@DocBean(name ="database_drive",value="数据库驱动:",dataType = String.class,required = false)
 	private String database_drive;
-	@DocBean(name ="database_type",value="数据库类型(DatabaseType):01-MYSQL<MYSQL> 02-Oracle9i及一下<Oracle9i> 03-Oracle10g及以上<Oracle10g> 04-SQLSERVER2000<SqlServer2000> 05-SQLSERVER2005<SqlServer2005> 06-DB2<DB2> 07-SybaseASE12.5及以上<SybaseASE125> 08-Informatic<Informatic> 09-H2<H2> 10-ApacheDerby<ApacheDerby> 11-Postgresql<Postgresql> 12-GBase<GBase> 13-TeraData<TeraData> 14-Hive<Hive> ",dataType = String.class,required = false)
+	@DocBean(name ="database_type",value="数据库类型(DatabaseType):01-MYSQL<MYSQL> 02-Oracle9i及一下<Oracle9i> 03-Oracle10g及以上<Oracle10g> 04-SQLSERVER2000<SqlServer2000> 05-SQLSERVER2005<SqlServer2005> 06-DB2<DB2> 07-SybaseASE12.5及以上<SybaseASE125> 08-Informatic<Informatic> 09-H2<H2> 10-ApacheDerby<ApacheDerby> 11-Postgresql<Postgresql> 12-GBase<GBase> 13-TeraData<TeraData> 14-Hive<Hive> 15-Odps<Odps> 16-KingBase<KingBase> ",dataType = String.class,required = false)
 	private String database_type;
 	@DocBean(name ="user_name",value="用户名称:",dataType = String.class,required = false)
 	private String user_name;

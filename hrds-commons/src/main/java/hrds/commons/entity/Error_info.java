@@ -30,13 +30,27 @@ public class Error_info extends ProjectTableEntity
 		__tmpPKS.add("error_id");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
+	@DocBean(name ="error_id",value="错误ID:",dataType = Long.class,required = true)
+	private Long error_id;
 	@DocBean(name ="error_msg",value="error_msg:",dataType = String.class,required = false)
 	private String error_msg;
 	@DocBean(name ="job_rs_id",value="作业执行结果ID:",dataType = String.class,required = true)
 	private String job_rs_id;
-	@DocBean(name ="error_id",value="错误ID:",dataType = Long.class,required = true)
-	private Long error_id;
 
+	/** 取得：错误ID */
+	public Long getError_id(){
+		return error_id;
+	}
+	/** 设置：错误ID */
+	public void setError_id(Long error_id){
+		this.error_id=error_id;
+	}
+	/** 设置：错误ID */
+	public void setError_id(String error_id){
+		if(!fd.ng.core.utils.StringUtil.isEmpty(error_id)){
+			this.error_id=new Long(error_id);
+		}
+	}
 	/** 取得：error_msg */
 	public String getError_msg(){
 		return error_msg;
@@ -52,19 +66,5 @@ public class Error_info extends ProjectTableEntity
 	/** 设置：作业执行结果ID */
 	public void setJob_rs_id(String job_rs_id){
 		this.job_rs_id=job_rs_id;
-	}
-	/** 取得：错误ID */
-	public Long getError_id(){
-		return error_id;
-	}
-	/** 设置：错误ID */
-	public void setError_id(Long error_id){
-		this.error_id=error_id;
-	}
-	/** 设置：错误ID */
-	public void setError_id(String error_id){
-		if(!fd.ng.core.utils.StringUtil.isEmpty(error_id)){
-			this.error_id=new Long(error_id);
-		}
 	}
 }

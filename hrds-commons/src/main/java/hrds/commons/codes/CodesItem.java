@@ -7,58 +7,66 @@ import java.util.*;
                                                                                        
 public class CodesItem{                        
 	private static final Log logger = LogFactory.getLog(CodesItem.class);                                                      
-	/**落地文件-卸数方式   */
-	protected static final String unloadType=new String("UnloadType");
-	/**数据处理方式   */
-	protected static final String processType=new String("ProcessType");
-	/**存储层关系-数据来源   */
-	protected static final String storeLayerDataSource=new String("StoreLayerDataSource");
-	/**对标-状态   */
-	protected static final String dbmState=new String("DbmState");
-	/**数据库采集方式   */
-	protected static final String collectType=new String("CollectType");
 	/**自主取数模板状态   */
 	protected static final String autoTemplateStatus=new String("AutoTemplateStatus");
 	/**自主取数数据展现形式   */
 	protected static final String autoDataRetrievalForm=new String("AutoDataRetrievalForm");
-	/**用户类型   */
-	protected static final String userType=new String("UserType");
 	/**自主取数取数状态   */
 	protected static final String autoFetchStatus=new String("AutoFetchStatus");
+	/**可视化数据操作符   */
+	protected static final String autoDataOperator=new String("AutoDataOperator");
+	/**可视化数据汇总类型   */
+	protected static final String autoDataSumType=new String("AutoDataSumType");
+	/**可视化源对象   */
+	protected static final String autoSourceObject=new String("AutoSourceObject");
+	/**可视化轴类型   */
+	protected static final String axisType=new String("AxisType");
+	/**用户类型   */
+	protected static final String userType=new String("UserType");
+	/**值类型   */
+	protected static final String autoValueType=new String("AutoValueType");
 	/**是否标识   */
 	protected static final String isFlag=new String("IsFlag");
+	/**流数据管理Agent类别   */
+	protected static final String sdmAgentType=new String("SdmAgentType");
 	/**用户状态   */
 	protected static final String userState=new String("UserState");
 	/**ETL作业类型   */
 	protected static final String pro_Type=new String("Pro_Type");
 	/**用户优先级   */
 	protected static final String userPriority=new String("UserPriority");
+	/**消费周期   */
+	protected static final String consumerCyc=new String("ConsumerCyc");
 	/**ETL调度频率   */
 	protected static final String dispatch_Frequency=new String("Dispatch_Frequency");
+	/**消费者类型   */
+	protected static final String consumerType=new String("ConsumerType");
 	/**ETL调度类型   */
 	protected static final String dispatch_Type=new String("Dispatch_Type");
 	/**ETl作业有效标志   */
 	protected static final String job_Effective_Flag=new String("Job_Effective_Flag");
-	/**可视化数据操作符   */
-	protected static final String autoDataOperator=new String("AutoDataOperator");
+	/**流数据管理分区方式   */
+	protected static final String sdmPatitionWay=new String("SdmPatitionWay");
 	/**ETL作业状态   */
 	protected static final String job_Status=new String("Job_Status");
-	/**可视化数据汇总类型   */
-	protected static final String autoDataSumType=new String("AutoDataSumType");
+	/**流数据管理自定义业务类类型   */
+	protected static final String sdmCustomBusCla=new String("SdmCustomBusCla");
 	/**ETL当天调度标志   */
 	protected static final String today_Dispatch_Flag=new String("Today_Dispatch_Flag");
-	/**可视化源对象   */
-	protected static final String autoSourceObject=new String("AutoSourceObject");
+	/**流数据管理变量类型   */
+	protected static final String sdmVariableType=new String("SdmVariableType");
 	/**ETL主服务器同步   */
 	protected static final String main_Server_Sync=new String("Main_Server_Sync");
-	/**可视化轴类型   */
-	protected static final String axisType=new String("AxisType");
+	/**流数据管理消费端目的地   */
+	protected static final String sdmConsumeDestination=new String("SdmConsumeDestination");
 	/**ETL状态   */
 	protected static final String status=new String("Status");
-	/**值类型   */
-	protected static final String autoValueType=new String("AutoValueType");
+	/**流数据管理线程与分区的关系   */
+	protected static final String sdmThreadPartition=new String("SdmThreadPartition");
 	/**ETL干预类型   */
 	protected static final String meddle_type=new String("Meddle_type");
+	/**消费方向   */
+	protected static final String consDirection=new String("ConsDirection");
 	/**ETL干预状态   */
 	protected static final String meddle_status=new String("Meddle_status");
 	/**ETL变类型   */
@@ -149,36 +157,50 @@ public class CodesItem{
 	protected static final String jobExecuteState=new String("JobExecuteState");
 	/**sql执行引擎   */
 	protected static final String sqlEngine=new String("SqlEngine");
+	/**落地文件-卸数方式   */
+	protected static final String unloadType=new String("UnloadType");
+	/**数据处理方式   */
+	protected static final String processType=new String("ProcessType");
+	/**存储层关系-数据来源   */
+	protected static final String storeLayerDataSource=new String("StoreLayerDataSource");
+	/**对标-状态   */
+	protected static final String dbmState=new String("DbmState");
+	/**数据库采集方式   */
+	protected static final String collectType=new String("CollectType");
 
 
 	public static final Map<String,Class> mapCat= new HashMap<String,Class>(100);
 	static{
-		mapCat.put(unloadType,UnloadType.class);
-		mapCat.put(processType,ProcessType.class);
-		mapCat.put(storeLayerDataSource,StoreLayerDataSource.class);
-		mapCat.put(dbmState,DbmState.class);
-		mapCat.put(collectType,CollectType.class);
 		mapCat.put(autoTemplateStatus,AutoTemplateStatus.class);
 		mapCat.put(autoDataRetrievalForm,AutoDataRetrievalForm.class);
-		mapCat.put(userType,UserType.class);
 		mapCat.put(autoFetchStatus,AutoFetchStatus.class);
+		mapCat.put(autoDataOperator,AutoDataOperator.class);
+		mapCat.put(autoDataSumType,AutoDataSumType.class);
+		mapCat.put(autoSourceObject,AutoSourceObject.class);
+		mapCat.put(axisType,AxisType.class);
+		mapCat.put(userType,UserType.class);
+		mapCat.put(autoValueType,AutoValueType.class);
 		mapCat.put(isFlag,IsFlag.class);
+		mapCat.put(sdmAgentType,SdmAgentType.class);
 		mapCat.put(userState,UserState.class);
 		mapCat.put(pro_Type,Pro_Type.class);
 		mapCat.put(userPriority,UserPriority.class);
+		mapCat.put(consumerCyc,ConsumerCyc.class);
 		mapCat.put(dispatch_Frequency,Dispatch_Frequency.class);
+		mapCat.put(consumerType,ConsumerType.class);
 		mapCat.put(dispatch_Type,Dispatch_Type.class);
 		mapCat.put(job_Effective_Flag,Job_Effective_Flag.class);
-		mapCat.put(autoDataOperator,AutoDataOperator.class);
+		mapCat.put(sdmPatitionWay,SdmPatitionWay.class);
 		mapCat.put(job_Status,Job_Status.class);
-		mapCat.put(autoDataSumType,AutoDataSumType.class);
+		mapCat.put(sdmCustomBusCla,SdmCustomBusCla.class);
 		mapCat.put(today_Dispatch_Flag,Today_Dispatch_Flag.class);
-		mapCat.put(autoSourceObject,AutoSourceObject.class);
+		mapCat.put(sdmVariableType,SdmVariableType.class);
 		mapCat.put(main_Server_Sync,Main_Server_Sync.class);
-		mapCat.put(axisType,AxisType.class);
+		mapCat.put(sdmConsumeDestination,SdmConsumeDestination.class);
 		mapCat.put(status,Status.class);
-		mapCat.put(autoValueType,AutoValueType.class);
+		mapCat.put(sdmThreadPartition,SdmThreadPartition.class);
 		mapCat.put(meddle_type,Meddle_type.class);
+		mapCat.put(consDirection,ConsDirection.class);
 		mapCat.put(meddle_status,Meddle_status.class);
 		mapCat.put(paramType,ParamType.class);
 		mapCat.put(compState,CompState.class);
@@ -224,6 +246,11 @@ public class CodesItem{
 		mapCat.put(tableStorage,TableStorage.class);
 		mapCat.put(jobExecuteState,JobExecuteState.class);
 		mapCat.put(sqlEngine,SqlEngine.class);
+		mapCat.put(unloadType,UnloadType.class);
+		mapCat.put(processType,ProcessType.class);
+		mapCat.put(storeLayerDataSource,StoreLayerDataSource.class);
+		mapCat.put(dbmState,DbmState.class);
+		mapCat.put(collectType,CollectType.class);
 	}
 
 
