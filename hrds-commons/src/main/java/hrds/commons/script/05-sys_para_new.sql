@@ -15,6 +15,8 @@ INSERT INTO sys_para VALUES ('101', 'solrclassname', 'hrds.commons.hadoop.solr.i
 INSERT INTO sys_para VALUES ('102', 'zkHost', 'hdp001.beyondsoft.com:2181,hdp002.beyondsoft.com:2181,hdp003.beyondsoft.com:2181/solr', 'common.properties', 'solr的zookeeper配置');
 INSERT INTO sys_para VALUES ('103', 'collection', 'HrdsFullTextIndexing', 'common.properties', 'solr的collection');
 INSERT INTO sys_para VALUES ('104', 'solr_bulk_submissions_num', '50000', 'common.properties', 'solr创建索引批量提交数');
+INSERT INTO sys_para VALUES ('105', 'sftp_port', '22', 'common.properties', '部署时服务器ssh的端口');
+INSERT INTO sys_para VALUES ('106', 'pathprefix', '/hrds', 'common.properties', 'hdfs上的目录规范，此目录必须为hdfs的根目录，即必须以"/"开头');
 -- 采集配置
 INSERT INTO sys_para VALUES ('201', 'summary_volumn', '3', 'hrds_b.properties', '摘要获取行数');
 INSERT INTO sys_para VALUES ('202', 'file_blocksize', '1024', 'hrds_b.properties', '写单个文件大小(单位:M),建议128M的整数倍,默认1G(2G则写成2048)');
@@ -48,6 +50,5 @@ INSERT INTO sys_para VALUES ('603', 'triggerPath', '/home/hyshf/HRSDATA/agent_do
 
 -- 预留配置
 -- INSERT INTO sys_para VALUES ('901', 'availableProcessors', '8', 'server.properties', '多线程采集每个任务可用线程数,这一行默认不用存库，系统默认取最大值');
--- INSERT INTO sys_para VALUES ('902', 'pathprefix', '/hrds', 'server.properties', 'hdfs上的目录规范，此目录必须为hdfs的根目录，即必须以 \"/\"开头');
 -- INSERT INTO sys_para VALUES ('903', 'ocr_rpc_cpu', 'http://10.71.4.57:33333', 'server.properties', 'OCR图片文字识别的RPC服务器地址');
 -- INSERT INTO sys_para VALUES ('904', 'language', 'eng', 'server.properties', 'ocr识别语言，eng（英文）或者chi_sim，默认chi_sim（简体中文）');
