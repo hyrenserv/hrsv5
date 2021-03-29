@@ -47,7 +47,7 @@ INSERT INTO sys_para VALUES ('601', 'etlDeployPath', '/home/hyshf/HRSDATA/agent_
 INSERT INTO sys_para VALUES ('602', 'controlPath', '/home/hyshf/HRSDATA/agent_download_package/etl/hrds_Control-5.0.jar','hrds_c.properties','CONTROL程序jar包地址');
 INSERT INTO sys_para VALUES ('603', 'triggerPath', '/home/hyshf/HRSDATA/agent_download_package/etl/hrds_Trigger-5.0.jar', 'hrds_c.properties','TRIGGER程序jar包地址');
 --流项目配置
-INSERT INTO sys_para VALUES ('703', 'kafka_zk_host', '127.0.0.1:2181', 'hrds_j.properties','kafka的zookeeper服务地址');
+INSERT INTO sys_para VALUES ('703', 'kafka_zk_address', '127.0.0.1:2181', 'hrds_j.properties','kafka的zookeeper服务地址');
 -- 预留配置
 -- INSERT INTO sys_para VALUES ('901', 'availableProcessors', '8', 'server.properties', '多线程采集每个任务可用线程数,这一行默认不用存库，系统默认取最大值');
 -- INSERT INTO sys_para VALUES ('902', 'pathprefix', '/hrds', 'server.properties', 'hdfs上的目录规范，此目录必须为hdfs的根目录，即必须以 \"/\"开头');
