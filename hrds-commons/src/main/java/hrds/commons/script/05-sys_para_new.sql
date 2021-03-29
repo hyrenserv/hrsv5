@@ -16,7 +16,7 @@ INSERT INTO sys_para VALUES ('102', 'zkHost', 'hdp001.beyondsoft.com:2181,hdp002
 INSERT INTO sys_para VALUES ('103', 'collection', 'HrdsFullTextIndexing', 'common.properties', 'solr的collection');
 INSERT INTO sys_para VALUES ('104', 'solr_bulk_submissions_num', '50000', 'common.properties', 'solr创建索引批量提交数');
 INSERT INTO sys_para VALUES ('105', 'sftp_port', '22', 'common.properties', '部署时服务器ssh的端口');
-INSERT INTO sys_para VALUES ('902', 'pathprefix', '/hrds', 'common.properties', 'hdfs上的目录规范，此目录必须为hdfs的根目录，即必须以"/"开头');
+INSERT INTO sys_para VALUES ('106', 'pathprefix', '/hrds', 'common.properties', 'hdfs上的目录规范，此目录必须为hdfs的根目录，即必须以"/"开头');
 -- 采集配置
 INSERT INTO sys_para VALUES ('201', 'summary_volumn', '3', 'hrds_b.properties', '摘要获取行数');
 INSERT INTO sys_para VALUES ('202', 'file_blocksize', '1024', 'hrds_b.properties', '写单个文件大小(单位:M),建议128M的整数倍,默认1G(2G则写成2048)');
