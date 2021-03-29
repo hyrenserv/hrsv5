@@ -223,6 +223,9 @@ subprojects {
         /**neo4j相关*/
         compile group: 'org.neo4j.driver', name: 'neo4j-java-driver', version: '4.2.0'
 
+        /** kafka */
+        compile group: 'org.apache.kafka', name: 'kafka_2.11', version: '1.0.2'
+
         /** utils*/
         compile group: 'net.viktorc', name: 'pp4j', version: '2.2'
         compile group: 'com.univocity', name: 'univocity-parsers', version: '2.8.2'
