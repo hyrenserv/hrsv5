@@ -209,6 +209,7 @@ public class SameDatabaseLoader extends AbstractRealLoader {
 	 * @param tableName
 	 */
 	private void insertData(String tableName) {
+		logger.info("============================开始替换作业,插入临时表数据======================");
 		db.execute(String.format("INSERT INTO %s ( %s ) SELECT %s FROM ( %s ) a",
 				tableName, columns, realSelectExpr(), sql));
 	}
