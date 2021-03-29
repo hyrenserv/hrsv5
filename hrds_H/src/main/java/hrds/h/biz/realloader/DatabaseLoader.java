@@ -18,6 +18,7 @@ import static hrds.commons.utils.StorageTypeKey.*;
  * @Since jdk1.8
  */
 public class DatabaseLoader extends AbstractRealLoader {
+
 	/**
 	 * spark 作业的配置类
 	 */
@@ -30,7 +31,7 @@ public class DatabaseLoader extends AbstractRealLoader {
 	DatabaseLoader(MarketConf conf) {
 		super(conf);
 		initArgs();
-		createTableColumnTypes = Utils.buildCreateTableColumnTypes(conf,true);
+		createTableColumnTypes = Utils.buildCreateTableColumnTypes(conf, true);
 	}
 
 	private void initArgs() {
@@ -51,7 +52,7 @@ public class DatabaseLoader extends AbstractRealLoader {
 	public void ensureRelation() {
 		try (DatabaseWrapper db = ConnectionTool.getDBWrapper(tableLayerAttrs)) {
 			if (versionManager.isVersionExpire()) {
-				if (!db.isExistTable(versionManager.getRenameTableName())) {
+				if (!db.isExistTable(versionManager.getRenameTableName()) && db.isExistTable(tableName)) {
 					Utils.renameTable(db, tableName, versionManager.getRenameTableName());
 				}
 			}
@@ -67,10 +68,7 @@ public class DatabaseLoader extends AbstractRealLoader {
 	}
 
 	/**
-	 * 1.创建临时表
-	 * 2.把数据导入到临时表
-	 * 3.删除最终表
-	 * 4.把临时表重命名成最终表
+	 * 1.创建临时表 2.把数据导入到临时表 3.删除最终表 4.把临时表重命名成最终表
 	 */
 	@Override
 	public void replace() {
@@ -96,7 +94,7 @@ public class DatabaseLoader extends AbstractRealLoader {
 		try (DatabaseWrapper db = ConnectionTool.getDBWrapper(tableLayerAttrs)) {
 			if (Utils.hasTodayData(db, tableName, etlDate, datatableId, isMultipleInput, conf.isIncrement())) {
 				Utils.restoreDatabaseData(db, tableName, conf.getEtlDate(),
-						conf.getDatatableId(), conf.isMultipleInput(), conf.isIncrement());
+					conf.getDatatableId(), conf.isMultipleInput(), conf.isIncrement());
 			}
 		}
 	}

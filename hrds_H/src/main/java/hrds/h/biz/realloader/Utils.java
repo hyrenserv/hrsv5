@@ -3,6 +3,8 @@ package hrds.h.biz.realloader;
 import fd.ng.core.utils.StringUtil;
 import fd.ng.db.conf.Dbtype;
 import fd.ng.db.jdbc.DatabaseWrapper;
+import fd.ng.db.jdbc.SqlOperator;
+import fd.ng.db.resultset.Result;
 import hrds.commons.codes.StoreLayerAdded;
 import hrds.commons.collection.ConnectionTool;
 import hrds.commons.entity.Datatable_field_info;
@@ -35,9 +37,7 @@ public class Utils {
 	private static final Logger logger = LogManager.getLogger();
 
 	/**
-	 * 获取字段名，字段类型组合 大概像这样：
-	 * a string, b double, c long
-	 * 这样的字符串
+	 * 获取字段名，字段类型组合 大概像这样： a string, b double, c long 这样的字符串
 	 *
 	 * @param conf       集市配置类实体
 	 * @param isDatabase 是否是关系型数据库
@@ -52,15 +52,15 @@ public class Utils {
 			Datatable_field_info field = datatableFields.get(i);
 			String fieldName = field.getField_en_name();
 			columnTypes.append("\t")
-					.append(fieldName)
-					.append(" ")
-					.append(field.getField_type());
+				.append(fieldName)
+				.append(" ")
+				.append(field.getField_type());
 
 			String fieldLength = field.getField_length();
 			//写了精度，则添加精度
 			if (StringUtil.isNotBlank(fieldLength)) {
 				columnTypes
-						.append("(").append(fieldLength).append(")");
+					.append("(").append(fieldLength).append(")");
 			}
 			//如果选择了主键，则添加主键
 			if (isDatabase && additionalAttrs != null && additionalAttrs.contains(fieldName)) {
@@ -102,31 +102,31 @@ public class Utils {
 	 */
 	static String columns(List<Datatable_field_info> fields) {
 		return fields
-				.stream()
-				.map(Datatable_field_info::getField_en_name)
-				.collect(Collectors.joining(","));
+			.stream()
+			.map(Datatable_field_info::getField_en_name)
+			.collect(Collectors.joining(","));
 	}
 
 	/**
-	 * 恢复关系型数据库的数据到上次跑批结果
+	 * 恢复关系型数据库的数据到上次跑批结果 z
 	 *
 	 * @param db DatabaseWrapper
 	 */
 	static void restoreDatabaseData(DatabaseWrapper db, String tableName,
-									String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) {
+		String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) {
 		if (isMultipleInput) {
 			db.execute(String.format("DELETE FROM %s WHERE %s = '%s' AND %s = '%s'",
-					tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId));
+				tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId));
 			if (isIncrement) {
 				db.execute(String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s' AND %s = '%s'",
-						tableName, EDATENAME, MAXDATE, EDATENAME, etlDate, TABLE_ID_NAME, datatableId));
+					tableName, EDATENAME, MAXDATE, EDATENAME, etlDate, TABLE_ID_NAME, datatableId));
 			}
 		} else {
 			db.execute(String.format("DELETE FROM %s WHERE %s = '%s'",
-					tableName, SDATENAME, etlDate));
+				tableName, SDATENAME, etlDate));
 			if (isIncrement) {
 				db.execute(String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
-						tableName, EDATENAME, MAXDATE, EDATENAME, etlDate));
+					tableName, EDATENAME, MAXDATE, EDATENAME, etlDate));
 			}
 		}
 	}
@@ -137,30 +137,30 @@ public class Utils {
 	 * @param db DatabaseWrapper
 	 */
 	static boolean hasTodayData(DatabaseWrapper db, String tableName,
-								String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) throws SQLException {
+		String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) throws SQLException {
 
 		if (isMultipleInput) {
 			ResultSet resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s'",
-					tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId), 0, 1, false);
+				tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId), 0, 1, false);
 			if (resultSet.next()) {
 				return true;
 			}
 			if (isIncrement) {
 				resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s'",
-						tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId), 0, 1, false);
+					tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId), 0, 1, false);
 				if (resultSet.next()) {
 					return true;
 				}
 			}
 		} else {
 			ResultSet resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s'",
-					tableName, SDATENAME, etlDate), 1, 2, false);
+				tableName, SDATENAME, etlDate), 1, 2, false);
 			if (resultSet.next()) {
 				return true;
 			}
 			if (isIncrement) {
 				resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s'",
-						tableName, EDATENAME, MAXDATE), 1, 2, false);
+					tableName, EDATENAME, MAXDATE), 1, 2, false);
 				if (resultSet.next()) {
 					return true;
 				}
@@ -170,32 +170,33 @@ public class Utils {
 	}
 
 	static boolean hasTodayDataLimit(DatabaseWrapper db, String tableName,
-									 String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) throws SQLException {
+		String etlDate, String datatableId, boolean isMultipleInput, boolean isIncrement) throws SQLException {
 
 		if (isMultipleInput) {
-			ResultSet resultSet = db.queryGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s' LIMIT 1",
+			ResultSet resultSet = db
+				.queryGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s' LIMIT 1",
 					tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId));
 			if (resultSet.next()) {
 				return true;
 			}
 			if (isIncrement) {
 				resultSet = db.queryGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s' LIMIT 1",
-						tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId));
+					tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId));
 				if (resultSet.next()) {
 					return true;
 				}
 			}
 		} else {
 			ResultSet resultSet = db.queryGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' LIMIT 1",
-					tableName, SDATENAME, etlDate));
+				tableName, SDATENAME, etlDate));
 			if (resultSet.next()) {
 				return true;
 			}
 			db.execute(String.format("SELECT * FROM %s WHERE %s = '%s'",
-					tableName, SDATENAME, etlDate));
+				tableName, SDATENAME, etlDate));
 			if (isIncrement) {
 				resultSet = db.queryGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' LIMIT 1",
-						tableName, EDATENAME, MAXDATE));
+					tableName, EDATENAME, MAXDATE));
 				if (resultSet.next()) {
 					return true;
 				}
@@ -206,8 +207,7 @@ public class Utils {
 
 
 	/**
-	 * 创建表
-	 * 如果表存在就报错
+	 * 创建表 如果表存在就报错
 	 */
 	static void createTable(DatabaseWrapper db, String tableName, String createTableColumnTypes) {
 		String createSql;
@@ -216,25 +216,25 @@ public class Utils {
 		} else {
 			createSql = "CREATE TABLE ";
 		}
+		logger.info("============================开始替换作业,创建临时表======================");
 		createSql += tableName + " (" + createTableColumnTypes + ")";
 		db.ExecDDL(createSql);
 	}
 
 	/**
-	 * 创建表
-	 * 如果表存在就删除掉
+	 * 创建表 如果表存在就删除掉
 	 */
 	static void forceCreateTable(DatabaseWrapper db, String tableName, String createTableColumnTypes) {
 
 		if (db.isExistTable(tableName)) {
+			logger.info("============================开始替换作业,删除临时表,在重建======================");
 			db.ExecDDL("DROP TABLE " + tableName);
 		}
 		createTable(db, tableName, createTableColumnTypes);
 	}
 
 	/**
-	 * 创建表
-	 * 如果表不存在就创建
+	 * 创建表 如果表不存在就创建
 	 */
 	static void softCreateTable(DatabaseWrapper db, String tableName, String createTableColumnTypes) {
 		if (!db.isExistTable(tableName)) {
@@ -248,8 +248,8 @@ public class Utils {
 			return Optional.empty();
 		}
 		List<String> sqlList = Arrays.stream(sqls.split(";;"))
-				.filter(StringUtil::isNotBlank)
-				.collect(Collectors.toList());
+			.filter(StringUtil::isNotBlank)
+			.collect(Collectors.toList());
 		if (sqlList.isEmpty()) {
 			logger.info("无后置作业需要执行！");
 			return Optional.empty();
@@ -263,8 +263,8 @@ public class Utils {
 			return Optional.empty();
 		}
 		List<String> sqlList = Arrays.stream(sqls.split(";;"))
-				.filter(StringUtil::isNotBlank)
-				.collect(Collectors.toList());
+			.filter(StringUtil::isNotBlank)
+			.collect(Collectors.toList());
 		if (sqlList.isEmpty()) {
 			logger.info("无前置作业需要执行！");
 			return Optional.empty();
@@ -273,8 +273,7 @@ public class Utils {
 	}
 
 	/**
-	 * 后置作业为多个sql
-	 * 不支持数据库级别事务回滚
+	 * 后置作业为多个sql 不支持数据库级别事务回滚
 	 *
 	 * @param sqlsJoined 多个sql，以 ;; 隔开
 	 * @param db         db对象
@@ -290,8 +289,7 @@ public class Utils {
 	}
 
 	/**
-	 * 后置作业为多个sql
-	 * 不支持数据库级别事务回滚
+	 * 后置作业为多个sql 不支持数据库级别事务回滚
 	 *
 	 * @param sqlsJoined 多个sql，以 ;; 隔开
 	 * @param db         db对象
@@ -307,8 +305,7 @@ public class Utils {
 	}
 
 	/**
-	 * 后置作业为多个sql
-	 * 支持数据库级别事务回滚
+	 * 后置作业为多个sql 支持数据库级别事务回滚
 	 *
 	 * @param sqlsJoined 多个sql，以 ;; 隔开
 	 * @param dbConf     db配置map
@@ -352,6 +349,7 @@ public class Utils {
 	static void dropTable(DatabaseWrapper db, String tableName) {
 		try {
 			if (db.isExistTable(tableName)) {
+				logger.info("============================开始替换作业,删除最终表======================");
 				db.ExecDDL("DROP TABLE " + tableName);
 			}
 		} catch (Exception e) {
@@ -359,21 +357,34 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * @param db
+	 * @param srcTableName  : 临时表名称
+	 * @param destTableName : 最终表名称
+	 */
 	static void renameTable(DatabaseWrapper db, String srcTableName, String destTableName) {
+		String renameSql;
+		//检查临时表是否存在
 		if (!db.isExistTable(srcTableName)) {
 			throw new AppSystemException("表" + srcTableName + "不存在，无法重命名成" + destTableName);
 		}
+
+		logger.info("==================================表: " + srcTableName + " 是否存在: " + db.isExistTable(srcTableName));
+		//检查最终表是否存在
 		if (db.isExistTable(destTableName)) {
 			throw new AppSystemException("表" + destTableName + "已存在，无法重命名成" + destTableName);
 		}
-		String renameSql;
+
 		if (db.getDbtype() == Dbtype.DB2V1 || db.getDbtype() == Dbtype.DB2V2) {
 			renameSql = "RENAME " + srcTableName + " TO " + destTableName;
 		} else if (db.getDbtype() == Dbtype.TERADATA) {
 			renameSql = "RENAME TABLE " + srcTableName + " TO " + destTableName;
+		} else if (db.getDbtype() == Dbtype.KINGBASE) {
+			renameSql = "ALTER TABLE " + db.getDatabaseName() + "." + srcTableName + " RENAME TO " + destTableName;
 		} else {
 			renameSql = "ALTER TABLE " + srcTableName + " RENAME TO " + destTableName;
 		}
+
 		db.ExecDDL(renameSql);
 	}
 
@@ -398,7 +409,7 @@ public class Utils {
 						db.ExecDDL("drop index " + indexName);
 					}
 					db.ExecDDL("create index  " + indexName + " on " +
-							tableName + "(" + additionalAttrs.get(i) + ")");
+						tableName + "(" + additionalAttrs.get(i) + ")");
 				}
 			}
 		}
@@ -410,10 +421,19 @@ public class Utils {
 	public static boolean isExistIndex(String indexName, DatabaseWrapper db) {
 		try {
 			ResultSet resultSet = db.queryGetResultSet("SELECT * FROM user_objects where  lower(object_name) = '"
-					+ indexName.toLowerCase() + "'");
+				+ indexName.toLowerCase() + "'");
 			return resultSet.next();
 		} catch (SQLException throwables) {
 			throw new AppSystemException("查找是否存在索引报错");
+		}
+	}
+
+	public static void main(String[] args) {
+		try (DatabaseWrapper db = new DatabaseWrapper.Builder().dbname("kingbase").create()) {
+			renameTable(db, "TEST2_TABLE", "TEST2_TABLE2222");
+//			renameTable(db, "TEST2_TABLE2222", "TEST2_TABLE");
+//			Result result = SqlOperator.queryResult(db, "SELECT * FROM TESTDB1.TEST2_TABLE");
+//			System.out.println(result.toJSON());
 		}
 	}
 }
