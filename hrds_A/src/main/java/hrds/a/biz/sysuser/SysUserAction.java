@@ -34,11 +34,11 @@ public class SysUserAction extends BaseAction {
 
 	@Method(desc = "保存系统用户", logicStep = "1.校验输入参数正确性" + "2.设置用户属性信息(非页面传入的值)" + "3.新增系统用户信息")
 	@Param(
-			name = "sysUser",
-			desc = "Sys_user的实体",
-			range = "Sys_user的实体",
-			example = "sysUser",
-			isBean = true)
+		name = "sysUser",
+		desc = "Sys_user的实体",
+		range = "Sys_user的实体",
+		example = "sysUser",
+		isBean = true)
 	@Return(desc = "void 无返回结果", range = "无")
 	public void saveSysUser(Sys_user sysUser) {
 		// 数据权限校验：根据登录用户的 user_id 进行权限校验
@@ -69,11 +69,11 @@ public class SysUserAction extends BaseAction {
 
 	@Method(desc = "修改系统用户信息", logicStep = "1.检查待修改的的系统用户是否存在，存在则修改")
 	@Param(
-			name = "sys_user",
-			desc = "Sys_user的实体",
-			range = "取值范围说明",
-			example = "sys_user",
-			isBean = true)
+		name = "sys_user",
+		desc = "Sys_user的实体",
+		range = "取值范围说明",
+		example = "sys_user",
+		isBean = true)
 	@Return(desc = "void 无返回结果", range = "无")
 	public void updateSysUser(Sys_user sys_user) {
 		// 数据权限校验：根据登录用户的 user_id 进行权限校验
@@ -95,13 +95,13 @@ public class SysUserAction extends BaseAction {
 	public List<Sys_user> getSysUserAll(int currPage, int pageSize) {
 		// 数据权限校验：根据登录用户的 user_id 进行权限校验
 		return Dbo.queryPagedList(
-				Sys_user.class,
-				new DefaultPageImpl(currPage, pageSize),
-				"select * from "
-						+ Sys_user.TableName
-						+ "where create_id=? order by user_id,create_date asc,"
-						+ "create_time asc",
-				getUserId());
+			Sys_user.class,
+			new DefaultPageImpl(currPage, pageSize),
+			"select * from "
+				+ Sys_user.TableName
+				+ "where create_id=? order by user_id,create_date asc,"
+				+ "create_time asc",
+			getUserId());
 	}
 
 	@Method(desc = "获取单个用户信息", logicStep = "1.根据用户id查询，返回查询结果")
@@ -113,8 +113,8 @@ public class SysUserAction extends BaseAction {
 			throw new BusinessException("查询不存在的用户id，user_id=" + user_id);
 		}
 		return Dbo.queryOneObject(
-				Sys_user.class, "select * from " + Sys_user.TableName + " where user_id = ?", user_id)
-				.orElseThrow(() -> new BusinessException("根据用户id获取用户信息的SQL失败!"));
+			Sys_user.class, "select * from " + Sys_user.TableName + " where user_id = ?", user_id)
+			.orElseThrow(() -> new BusinessException("根据用户id获取用户信息的SQL失败!"));
 	}
 
 	@Method(desc = "获取所有系统用户列表（不包含超级管理员）", logicStep = "1.查询管理员用户")
@@ -124,23 +124,23 @@ public class SysUserAction extends BaseAction {
 	public Map<String, Object> getSysUserInfo(int currPage, int pageSize) {
 		// 1.查询管理员用户
 		String[] str = new String[]
-				{
-						UserType.CaijiGuanLiYuan.getCode(), UserType.ZuoYeGuanLiYuan.getCode(),
-						UserType.ShuJuKSHSJY.getCode(), UserType.JianKongGuanLiYuan.getCode(),
-						UserType.RESTJieKouGuanLiYuan.getCode(), UserType.FenCiQiGuanLiYuan.getCode(),
-						UserType.JiQiXueXiGuanLiYuan.getCode(), UserType.LiuShuJuGuanLiYuan.getCode(),
-						UserType.ShuJuKuPeiZhi.getCode(), UserType.CaiJiYongHu.getCode(),
-						UserType.YeWuYongHu.getCode(), UserType.ShuJuKSHBianJI.getCode(),
-						UserType.ShuJuKSHChaKan.getCode(), UserType.RESTYongHu.getCode(),
-						UserType.JiShiGuanLiYuan.getCode(), UserType.JiShiJiaGongGuanLiYuan.getCode(),
-						UserType.LiuShuJuShengChanYongHu.getCode(), UserType.BaoBiaoChuanJian.getCode(),
-						UserType.BaoBiaoChaKan.getCode(), UserType.LiuShuJuXiaoFeiYongHu.getCode(),
-						UserType.ShuJuGuanKongGuanLiYuan.getCode(), UserType.ZiZhuFenXiGuanLi.getCode(),
-						UserType.ZiZhuFenXiCaoZuo.getCode(), UserType.ZuoYeCaoZuoYuan.getCode(),
-						UserType.ShuJuKSHGuanLiYuan.getCode(), UserType.JiQiXueXiYongHu.getCode(),
-						UserType.BiaoZhunYuanGuanLi.getCode(), UserType.BiaoZhunYuanChaKan.getCode(),
-						UserType.ZiYuanGuanLi.getCode()
-				};
+			{
+				UserType.CaijiGuanLiYuan.getCode(), UserType.ZuoYeGuanLiYuan.getCode(),
+				UserType.ShuJuKSHSJY.getCode(), UserType.JianKongGuanLiYuan.getCode(),
+				UserType.RESTJieKouGuanLiYuan.getCode(), UserType.FenCiQiGuanLiYuan.getCode(),
+				UserType.JiQiXueXiGuanLiYuan.getCode(), UserType.LiuShuJuGuanLiYuan.getCode(),
+				UserType.ShuJuKuPeiZhi.getCode(), UserType.CaiJiYongHu.getCode(),
+				UserType.YeWuYongHu.getCode(), UserType.ShuJuKSHBianJI.getCode(),
+				UserType.ShuJuKSHChaKan.getCode(), UserType.RESTYongHu.getCode(),
+				UserType.JiShiGuanLiYuan.getCode(), UserType.JiShiJiaGongGuanLiYuan.getCode(),
+				UserType.LiuShuJuShengChanYongHu.getCode(), UserType.BaoBiaoChuanJian.getCode(),
+				UserType.BaoBiaoChaKan.getCode(), UserType.LiuShuJuXiaoFeiYongHu.getCode(),
+				UserType.ShuJuGuanKongGuanLiYuan.getCode(), UserType.ZiZhuFenXiGuanLi.getCode(),
+				UserType.ZiZhuFenXiCaoZuo.getCode(), UserType.ZuoYeCaoZuoYuan.getCode(),
+				UserType.ShuJuKSHGuanLiYuan.getCode(), UserType.JiQiXueXiYongHu.getCode(),
+				UserType.BiaoZhunYuanGuanLi.getCode(), UserType.BiaoZhunYuanChaKan.getCode(),
+				UserType.ZiYuanGuanLi.getCode()
+			};
 		//初始化查询sql
 		SqlOperator.Assembler asmSql = SqlOperator.Assembler.newInstance();
 		asmSql.clean();
@@ -149,7 +149,7 @@ public class SysUserAction extends BaseAction {
 		asmSql.addSql(" order by user_id,create_date asc,create_time asc");
 		Page page = new DefaultPageImpl(currPage, pageSize);
 		List<Sys_user> sysUsers =
-				Dbo.queryPagedList(Sys_user.class, page, asmSql.sql(), asmSql.params());
+			Dbo.queryPagedList(Sys_user.class, page, asmSql.sql(), asmSql.params());
 		Map<String, Object> sysUserMap = new HashMap<>();
 		sysUserMap.put("sysUsers", sysUsers);
 		sysUserMap.put("totalSize", page.getTotalSize());
@@ -166,18 +166,18 @@ public class SysUserAction extends BaseAction {
 			throw new BusinessException("删除不存在的用户id，user_id=" + user_id);
 		}
 		DboExecute.deletesOrThrow(
-				"删除系统用户失败!，user_id=" + user_id,
-				"DELETE FROM " + Sys_user.TableName + " WHERE user_id = ? ",
-				user_id);
+			"删除系统用户失败!，user_id=" + user_id,
+			"DELETE FROM " + Sys_user.TableName + " WHERE user_id = ? ",
+			user_id);
 	}
 
 	@Method(desc = "获取用户功能菜单", logicStep = "1.管理员功能菜单" + "2.操作员功能菜单" + "3.返回功能菜单列表")
 	@Param(
-			name = "userIsAdmin",
-			desc = "用户类别",
-			range = "0：管理员功能菜单，1：操作员功能菜单",
-			example = "1",
-			valueIfNull = "0")
+		name = "userIsAdmin",
+		desc = "用户类别",
+		range = "0：管理员功能菜单，1：操作员功能菜单",
+		example = "1",
+		valueIfNull = "0")
 	@Return(desc = "用户功能菜单集合", range = "userFunctionMap：用户功能菜单")
 	public List<String> getUserFunctionMenu(String userIsAdmin) {
 		// 0：否,管理员功能菜单,1：是,操作员功能菜单
@@ -185,16 +185,10 @@ public class SysUserAction extends BaseAction {
 		if (IsFlag.Fou.getCode().equalsIgnoreCase(userIsAdmin)) {
 			// 1.管理员功能菜单
 			menuList.add(UserType.CaijiGuanLiYuan.getCode());
-			menuList.add(UserType.ZuoYeGuanLiYuan.getCode());
 			menuList.add(UserType.RESTJieKouGuanLiYuan.getCode());
 			menuList.add(UserType.BiaoZhunYuanGuanLi.getCode());
-//			menuList.add(UserType.ShuJuKSHSJY.getCode());
-//			menuList.add(UserType.JianKongGuanLiYuan.getCode());
-//			menuList.add(UserType.FenCiQiGuanLiYuan.getCode());
-//			menuList.add(UserType.JiQiXueXiGuanLiYuan.getCode());
-//			menuList.add(UserType.LiuShuJuGuanLiYuan.getCode());
-//			menuList.add(UserType.ShuJuKuPeiZhi.getCode());
-//			menuList.add(UserType.ZiZhuFenXiGuanLi.getCode());
+			menuList.add(UserType.ZiZhuFenXiGuanLi.getCode());
+			menuList.add(UserType.LiuShuJuGuanLiYuan.getCode());
 		} else if (IsFlag.Shi.getCode().equalsIgnoreCase(userIsAdmin)) {
 			// 2.操作员功能菜单
 			menuList.add(UserType.CaiJiYongHu.getCode());
@@ -204,23 +198,17 @@ public class SysUserAction extends BaseAction {
 			menuList.add(UserType.RESTYongHu.getCode());
 			menuList.add(UserType.ShuJuGuanKongGuanLiYuan.getCode());
 			menuList.add(UserType.BiaoZhunYuanChaKan.getCode());
-//			menuList.add(UserType.YeWuYongHu.getCode());
-//			menuList.add(UserType.ShuJuKSHBianJI.getCode());
-//			menuList.add(UserType.ShuJuKSHChaKan.getCode());
-//			menuList.add(UserType.JiShiJiaGongGuanLiYuan.getCode());
-//			menuList.add(UserType.LiuShuJuShengChanYongHu.getCode());
-//			menuList.add(UserType.BaoBiaoChuanJian.getCode());
-//			menuList.add(UserType.BaoBiaoChaKan.getCode());
-//			menuList.add(UserType.LiuShuJuXiaoFeiYongHu.getCode());
-//			menuList.add(UserType.ZiZhuFenXiCaoZuo.getCode());
+			menuList.add(UserType.ZiZhuFenXiCaoZuo.getCode());
+			menuList.add(UserType.LiuShuJuShengChanYongHu.getCode());
+			menuList.add(UserType.LiuShuJuXiaoFeiYongHu.getCode());
 		}
 		// 3.返回功能菜单列表
 		return menuList;
 	}
 
 	@Method(
-			desc = "获取部门信息和用户功能菜单信息",
-			logicStep = "1.获取部门信息" + "2.获取用户功能菜单,获取管理员功能菜单" + "3.获取用户功能菜单,获取操作员功能菜单")
+		desc = "获取部门信息和用户功能菜单信息",
+		logicStep = "1.获取部门信息" + "2.获取用户功能菜单,获取管理员功能菜单" + "3.获取用户功能菜单,获取操作员功能菜单")
 	@Return(desc = "添加用户功能回显数据Map", range = "Map类型数据")
 	public Map<String, Object> getDepartmentInfoAndUserFunctionMenuInfo() {
 		Map<String, Object> addUserInfoMap = new HashMap<>();
@@ -270,14 +258,14 @@ public class SysUserAction extends BaseAction {
 	}
 
 	@Method(
-			desc = "根据用户id检查用户是否已经存在",
-			logicStep = "1.根据user_id检查用户是否存在(1:表示存在, 其他为异常情况,因为根据主键只能查出一条记录信息)")
+		desc = "根据用户id检查用户是否已经存在",
+		logicStep = "1.根据user_id检查用户是否存在(1:表示存在, 其他为异常情况,因为根据主键只能查出一条记录信息)")
 	@Param(name = "user_id", desc = "用户登录id", range = "自动生成的id", example = "5000")
 	@Return(desc = "用户id是否已经存在", range = "true:不存在 或者 false:存在")
 	private boolean checkSysUserIsNotExist(long user_id) {
 		// 1.根据user_id检查用户是否存在(查询结果为1:表示存在, 其他为异常情况,因为根据主键只能查出一条记录信息)
 		return Dbo.queryNumber(
-				"SELECT COUNT(1) FROM " + Sys_user.TableName + " WHERE user_id = ?",
-				user_id).orElseThrow(() -> new BusinessException("检查系统用户否存在的SQL编写错误")) != 1;
+			"SELECT COUNT(1) FROM " + Sys_user.TableName + " WHERE user_id = ?",
+			user_id).orElseThrow(() -> new BusinessException("检查系统用户否存在的SQL编写错误")) != 1;
 	}
 }
