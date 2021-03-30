@@ -363,7 +363,6 @@ public class FullTextSearchAction extends BaseAction {
 	@Param(name = "rows", desc = "查询 行数", range = "int类型值,正整数")
 	@Return(desc = "solr检索出的结果集", range = "无限制")
 	private List<Map<String, Object>> getQueryFromSolr(String queryConditions, int start, int rows) {
-		List<Map<String, String>> resultMaps = new ArrayList<>();
 		if (StringUtil.isEmpty(queryConditions)) {
 			queryConditions = "*:*";
 		}
