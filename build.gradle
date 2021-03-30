@@ -225,7 +225,6 @@ subprojects {
 
         /** kafka */
         compile group: 'org.apache.kafka', name: 'kafka_2.11', version: '1.0.2'
-        compile group: 'org.apache.kafka', name: 'kafka-streams', version: '1.0.2'
 
         /** utils*/
         compile group: 'net.viktorc', name: 'pp4j', version: '2.2'
