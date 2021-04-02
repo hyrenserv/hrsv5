@@ -141,13 +141,13 @@ public class Utils {
 
 		if (isMultipleInput) {
 			ResultSet resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s'",
-				tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId), 0, 1, false);
+				tableName, SDATENAME, etlDate, TABLE_ID_NAME, datatableId), 1, 1, false);
 			if (resultSet.next()) {
 				return true;
 			}
 			if (isIncrement) {
 				resultSet = db.queryPagedGetResultSet(String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s'",
-					tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId), 0, 1, false);
+					tableName, EDATENAME, MAXDATE, TABLE_ID_NAME, datatableId), 1, 1, false);
 				if (resultSet.next()) {
 					return true;
 				}
