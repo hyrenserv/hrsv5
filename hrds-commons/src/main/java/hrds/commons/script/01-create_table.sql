@@ -2445,3 +2445,382 @@ USER_ID                                           BIGINT default 0 NOT NULL, --�
 AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
 CONSTRAINT COLLECT_JOB_CLASSIFY_PK PRIMARY KEY(CLASSIFY_ID)   );
 
+--数据对标字段信息表
+DROP TABLE IF EXISTS DBM_MMM_FIELD_INFO_TAB ;
+CREATE TABLE DBM_MMM_FIELD_INFO_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --表所属schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编号
+COL_NUM                                           INTEGER default 0 NOT NULL, --字段编号
+COL_CODE                                          VARCHAR(100) NOT NULL, --字段英文名
+COL_NAME                                          VARCHAR(512) NULL, --字段中文名
+COL_COMMENT                                       VARCHAR(512) NULL, --字段注释
+COL_TYPE                                          VARCHAR(64) NOT NULL, --字段类型
+COL_TYPE_JUDGE_RATE                               DECIMAL(16,2) default 0 NULL, --字段类型判断比例
+COL_LENGTH                                        CHAR(10) NULL, --字段长度
+COL_NULLABLE                                      CHAR(1) NOT NULL, --字段是否可为空
+COL_PK                                            CHAR(1) NOT NULL, --字段是否为主键
+IS_STD                                            CHAR(1) NOT NULL, --是否按标
+CDVAL_NO                                          CHAR(32) NULL, --码值编号
+COL_CHECK                                         CHAR(64) NULL, --约束条件
+COLTRA                                            CHAR(1) NULL, --转换类型
+COLFORMAT                                         VARCHAR(100) NULL, --字段格式
+TRATYPE                                           VARCHAR(32) NULL, --转换后数据类型
+ST_TM                                             VARCHAR(32) NOT NULL, --开始时间
+END_TM                                            VARCHAR(32) NOT NULL, --结束时间
+DATA_SRC                                          CHAR(5) NULL, --数据来源
+COL_AUTOINCRE                                     CHAR(1) NOT NULL, --字段值是否为自增序列
+COL_DEFULT                                        CHAR(1) NOT NULL, --字段值是否是默认值
+CONSTRAINT DBM_MMM_FIELD_INFO_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE,COL_NUM,COL_CODE)   );
+
+--数据对标分析配置表
+DROP TABLE IF EXISTS DBM_ANALYSIS_CONF_TAB ;
+CREATE TABLE DBM_ANALYSIS_CONF_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
+ORI_TABLE_CODE                                    VARCHAR(100) NOT NULL, --原始表编号
+TRANS_TABLE_CODE                                  VARCHAR(100) NULL, --转换后表编号
+ETL_DATE                                          CHAR(8) NULL, --数据时间
+DATE_OFFSET                                       CHAR(4) NULL, --时间偏移量
+FEATURE_FLAG                                      CHAR(1) NOT NULL, --是否进行字段特征分析
+FD_FLAG                                           CHAR(1) NOT NULL, --是否进行函数依赖分析
+PK_FLAG                                           CHAR(1) NOT NULL, --是否进行主键分析
+FK_FLAG                                           CHAR(1) NOT NULL, --是否进行单一外键分析
+JOINT_FK_FLAG                                     CHAR(1) NOT NULL, --是否进行联合外键分析
+FD_CHECK_FLAG                                     CHAR(1) NOT NULL, --是否进行函数依赖验证
+DIM_FLAG                                          CHAR(1) NOT NULL, --是否进行维度划分
+INCRE_TO_FULL_FLAG                                CHAR(1) NOT NULL, --是否将表转为全量
+ANA_ALG                                           VARCHAR(5) NOT NULL, --分析算法
+FD_SAMPLE_COUNT                                   VARCHAR(8) NULL, --函数依赖分析采样量
+TO_ANA_TB_PK                                      VARCHAR(128) NULL, --待分析表主键
+FK_ANA_MODE                                       VARCHAR(32) NULL, --外键分析模式
+JOINT_FK_ANA_MODE                                 VARCHAR(32) NULL, --联合外键分析模式
+CONSTRAINT DBM_ANALYSIS_CONF_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,ORI_TABLE_CODE)   );
+
+--数据对标分析进度表
+DROP TABLE IF EXISTS DBM_ANALYSIS_SCHEDULE_TAB ;
+CREATE TABLE DBM_ANALYSIS_SCHEDULE_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
+ORI_TABLE_CODE                                    VARCHAR(100) NOT NULL, --原始表编号
+FEATURE_SCHE                                      CHAR(1) NOT NULL, --字段特征分析进度
+FEATURE_START_DATE                                VARCHAR(32) NULL, --字段特征分析开始时间
+FEATURE_END_DATE                                  VARCHAR(32) NULL, --字段特征分析结束时间
+FD_SCHE                                           CHAR(1) NOT NULL, --函数依赖分析进度
+FD_START_DATE                                     VARCHAR(32) NULL, --函数依赖分析开始时间
+FD_END_DATE                                       VARCHAR(32) NULL, --函数依赖分析结束时间
+PK_SCHE                                           CHAR(1) NOT NULL, --主键分析进度
+PK_START_DATE                                     VARCHAR(32) NULL, --主键分析开始时间
+PK_END_DATE                                       VARCHAR(32) NULL, --主键分析结束时间
+FK_SCHE                                           CHAR(1) NOT NULL, --外键分析进度
+FK_START_DATE                                     VARCHAR(32) NULL, --外键分析开始时间
+FK_END_DATE                                       VARCHAR(32) NULL, --外键分析结束时间
+FD_CHECK_SCHE                                     CHAR(1) NOT NULL, --函数依赖验证进度
+FD_CHECK_START_DATE                               VARCHAR(32) NULL, --函数依赖验证开始时间
+FD_CHECK_END_DATE                                 VARCHAR(32) NULL, --函数依赖验证结束时间
+JOINT_FK_SCHE                                     CHAR(1) NOT NULL, --联合外键分析进度
+JOINT_FK_START_DATE                               VARCHAR(32) NULL, --联合外键分析开始时间
+JOINT_FK_END_DATE                                 VARCHAR(32) NULL, --联合外键分析结束时间
+DIM_SCHE                                          CHAR(1) NOT NULL, --维度划分进度
+DIM_START_DATE                                    VARCHAR(32) NULL, --维度划分进度开始时间
+DIM_END_DATE                                      VARCHAR(32) NULL, --维度划分进度结束时间
+INCRE_TO_FULL_SCHE                                CHAR(1) NOT NULL, --表转为全量进度
+INCRE_TO_FULL_START_DATE                          VARCHAR(32) NULL, --表转为全量开始时间
+INCRE_TO_FULL_END_DATE                            VARCHAR(32) NULL, --表转为全量结束时间
+CONSTRAINT DBM_ANALYSIS_SCHEDULE_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,ORI_TABLE_CODE)   );
+
+--数据对标字段特征表
+DROP TABLE IF EXISTS DBM_FEATURE_TAB ;
+CREATE TABLE DBM_FEATURE_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --表所属schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编号
+COL_CODE                                          VARCHAR(100) NOT NULL, --字段编号
+COL_RECORDS                                       INTEGER default 0 NOT NULL, --字段所在表中的记录数
+COL_DISTINCT                                      INTEGER default 0 NULL, --字段取值去重数目
+MAX_LEN                                           INTEGER default 0 NULL, --字段值最大长度
+MIN_LEN                                           INTEGER default 0 NULL, --字段值最小长度
+AVG_LEN                                           DECIMAL(16,2) default 0 NULL, --字段值平均长度
+SKEW_LEN                                          DECIMAL(16,2) default 0 NULL, --字段值平均长度偏度
+KURT_LEN                                          DECIMAL(16,2) default 0 NULL, --字段值平均长度峰度
+MEDIAN_LEN                                        DECIMAL(16,2) default 0 NULL, --字段值平均长度中位数
+VAR_LEN                                           DECIMAL(16,2) default 0 NULL, --字段值平均长度方差
+HAS_CHINESE                                       CHAR(1) NULL, --字段值是否包含中文
+TECH_CATE                                         CHAR(1) NULL, --字段技术分类
+ST_TM                                             VARCHAR(32) NOT NULL, --开始时间
+END_TM                                            VARCHAR(32) NOT NULL, --结束时间
+CONSTRAINT DBM_FEATURE_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE,COL_CODE)   );
+
+--数据对标外键信息表
+DROP TABLE IF EXISTS DBM_FK_INFO_TAB ;
+CREATE TABLE DBM_FK_INFO_TAB(
+FK_SYS_CLASS_CODE                                 VARCHAR(20) NOT NULL, --主表所在系统分类编码
+FK_NAME                                           VARCHAR(100) NOT NULL, --外键名称
+FK_TABLE_OWNER                                    VARCHAR(20) NOT NULL, --主表所属者
+FK_TABLE_CODE                                     VARCHAR(100) NOT NULL, --主表表编码
+FK_COL_CODE                                       VARCHAR(100) NOT NULL, --主键字段编码
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --从表所在系统分类编码
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --从表所在schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --从表编码
+COL_CODE                                          VARCHAR(100) NULL, --外键字段编码
+ST_TM                                             VARCHAR(32) NULL, --开始时间
+END_TM                                            VARCHAR(32) NULL, --结束时间
+DATA_SRC                                          CHAR(5) NULL, --数据来源
+ID                                                VARCHAR(64) NULL, --外键信息表主键uuid存储
+CONSTRAINT DBM_FK_INFO_TAB_PK PRIMARY KEY(FK_SYS_CLASS_CODE,FK_NAME,FK_TABLE_OWNER,FK_TABLE_CODE,FK_COL_CODE,SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
+
+--数据对标类别划分详细记录表
+DROP TABLE IF EXISTS DBM_FIELD_SAME_DETAIL ;
+CREATE TABLE DBM_FIELD_SAME_DETAIL(
+LEFT_SYS_CLASS_CODE                               VARCHAR(20) NOT NULL, --相等关系左部字段所属系统分类编码
+LEFT_TABLE_CODE                                   VARCHAR(100) NOT NULL, --相等关系左部字段所属表编码
+LEFT_COL_CODE                                     VARCHAR(100) NOT NULL, --相等关系左部字段编码
+FK_ID                                             VARCHAR(100) NOT NULL, --关联外键编号
+RIGHT_SYS_CLASS_CODE                              VARCHAR(20) NOT NULL, --相等关系右部字段所属系统分类编码
+RIGHT_TABLE_CODE                                  VARCHAR(100) NULL, --相等关系右部字段所属表编码
+RIGHT_COL_CODE                                    VARCHAR(100) NULL, --相等关系右部字段编码
+REL_TYPE                                          VARCHAR(10) NULL, --相等类型
+FK_TYPE                                           CHAR(1) NULL, --关联外键类型
+ANA_TIME                                          VARCHAR(32) NULL, --分析时间
+CONSTRAINT DBM_FIELD_SAME_DETAIL_PK PRIMARY KEY(LEFT_SYS_CLASS_CODE,LEFT_TABLE_CODE,LEFT_COL_CODE,FK_ID)   );
+
+--数据对标维度划分结果表
+DROP TABLE IF EXISTS DBM_FIELD_CATE_RESULT ;
+CREATE TABLE DBM_FIELD_CATE_RESULT(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编码
+COL_CODE                                          VARCHAR(100) NOT NULL, --字段编码
+CATEGORY_SAME                                     INTEGER default 0 NOT NULL, --同维度类别编号
+DIM_NODE                                          VARCHAR(512) NULL, --所属维度节点编号
+ORIGIN_DIM                                        VARCHAR(512) NULL, --原始所属维度节点编号
+RELATION_TYPE                                     CHAR(8) NULL, --关系类型
+DIFF_FLG                                          INTEGER default 0 NULL, --区别标识
+DIM_ORDER                                         INTEGER default 0 NULL, --同维度下同类别字段排序编号
+DEL_FLAG                                          CHAR(1) NULL, --子集关系删除标识
+CONSTRAINT DBM_FIELD_CATE_RESULT_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE)   );
+
+--数据对标联合主键关系表
+DROP TABLE IF EXISTS DBM_JOINT_PK_TAB ;
+CREATE TABLE DBM_JOINT_PK_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编码
+COL_CODE                                          VARCHAR(100) NOT NULL, --主键字段编码
+GROUP_CODE                                        VARCHAR(32) NOT NULL, --联合主键分组编码
+CONSTRAINT DBM_JOINT_PK_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE)   );
+
+--数据对标原始表名映射表
+DROP TABLE IF EXISTS DBM_ALIAS_MAPPING ;
+CREATE TABLE DBM_ALIAS_MAPPING(
+ALIAS_NUMBER                                      INTEGER default 0 NOT NULL, --别名序号
+ALIAS_TABLE_CODE                                  VARCHAR(10) NOT NULL, --原始表映射名
+ORIGIN_TABLE_CODE                                 VARCHAR(100) NOT NULL, --原始表表名
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
+CONSTRAINT DBM_ALIAS_MAPPING_PK PRIMARY KEY(ALIAS_NUMBER,ALIAS_TABLE_CODE,ORIGIN_TABLE_CODE,SYS_CLASS_CODE)   );
+
+--数据对标联合外键关系表
+DROP TABLE IF EXISTS DBM_JOINT_FK_TAB ;
+CREATE TABLE DBM_JOINT_FK_TAB(
+FK_SYS_CLASS_CODE                                 VARCHAR(20) NOT NULL, --主表所在系统分类编码
+FK_TABLE_CODE                                     VARCHAR(100) NOT NULL, --主表表编码
+FK_COL_CODE                                       VARCHAR(100) NOT NULL, --主键字段编码
+GROUP_CODE                                        VARCHAR(32) NOT NULL, --联合外键分组编码
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --从表所在系统分类编码
+TABLE_CODE                                        VARCHAR(100) NULL, --从表表编码
+COL_CODE                                          VARCHAR(100) NULL, --外键字段编码
+CONSTRAINT DBM_JOINT_FK_TAB_PK PRIMARY KEY(FK_SYS_CLASS_CODE,FK_TABLE_CODE,FK_COL_CODE)   );
+
+--数据对标单表函数依赖关系表
+DROP TABLE IF EXISTS DBM_FUNCTION_DEPENDENCY_TAB ;
+CREATE TABLE DBM_FUNCTION_DEPENDENCY_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --表所属schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --关系编码
+LEFT_COLUMNS                                      VARCHAR(512) NULL, --函数依赖关系左部
+RIGHT_COLUMNS                                     VARCHAR(512) NOT NULL, --函数依赖关系右部
+PROC_DT                                           VARCHAR(32) NULL, --计算日期
+FD_LEVEL                                          INTEGER default 0 NULL, --函数依赖关系级别
+CONSTRAINT DBM_FUNCTION_DEPENDENCY_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
+
+--数据对标类别划分分组结果表
+DROP TABLE IF EXISTS DBM_FIELD_SAME_RESULT ;
+CREATE TABLE DBM_FIELD_SAME_RESULT(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编码
+COL_CODE                                          VARCHAR(100) NOT NULL, --字段编码
+CATEGORY_SAME                                     INTEGER default 0 NOT NULL, --类别编号
+DIFF_FLG                                          INTEGER default 0 NULL, --区别标识
+DIM_ORDER                                         INTEGER default 0 NULL, --同类别字段排序编号
+ANA_TIME                                          VARCHAR(32) NULL, --分析时间
+CONSTRAINT DBM_FIELD_SAME_RESULT_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE,CATEGORY_SAME)   );
+
+--数据对标码值信息表
+DROP TABLE IF EXISTS DBM_CODE_INFO_TAB ;
+CREATE TABLE DBM_CODE_INFO_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --系统schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --原始表编码
+COLUMN_CODE                                       VARCHAR(100) NOT NULL, --被引用字段编码
+CDVAL_TYPE                                        CHAR(1) NULL, --码值类别
+CODE_CATE_NAME                                    VARCHAR(100) NULL, --代码分类名称
+CODE_VALUE                                        VARCHAR(100) NULL, --代码取值
+ST_TM                                             VARCHAR(32) NULL, --开始时间
+CODE_CONTENT                                      VARCHAR(512) NULL, --代码内容
+CONSTRAINT DBM_CODE_INFO_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE,COLUMN_CODE)   );
+
+--数据对标表信息表
+DROP TABLE IF EXISTS DBM_MMM_TAB_INFO_TAB ;
+CREATE TABLE DBM_MMM_TAB_INFO_TAB(
+SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编码
+TABLE_SCHEMA                                      VARCHAR(20) NOT NULL, --表所属schema
+TABLE_CODE                                        VARCHAR(100) NOT NULL, --表编码
+TABLE_NAME                                        VARCHAR(100) NULL, --表中文名
+TABLE_COMMENT                                     VARCHAR(512) NULL, --表注释
+TABLE_OWNER                                       VARCHAR(20) NULL, --表拥有者
+ST_TM                                             VARCHAR(32) NOT NULL, --开始时间
+END_TM                                            VARCHAR(32) NOT NULL, --结束时间
+NODE_CODE                                         VARCHAR(20) NULL, --节点编码
+DATA_SRC                                          CHAR(5) NULL, --数据来源
+COL_NUM                                           INTEGER default 0 NOT NULL, --表字段数
+CONSTRAINT DBM_MMM_TAB_INFO_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
+
+--数据对标节点信息表
+DROP TABLE IF EXISTS DBM_MMM_NODE_INFO ;
+CREATE TABLE DBM_MMM_NODE_INFO(
+NODE_CODE                                         VARCHAR(50) NOT NULL, --节点编码
+NODE_NAME                                         VARCHAR(1024) NOT NULL, --节点名称
+NODE_TYPE                                         VARCHAR(50) NOT NULL, --节点类型
+PARENT_NODE_CODE                                  VARCHAR(50) NULL, --父节点编码
+SYS_CLASS_CODE                                    VARCHAR(20) NULL, --系统分类编码
+DATA_SRC                                          VARCHAR(5) NULL, --数据来源
+CONSTRAINT DBM_MMM_NODE_INFO_PK PRIMARY KEY(NODE_CODE,NODE_NAME,NODE_TYPE)   );
+
+--StreamingPro作业信息表
+DROP TABLE IF EXISTS SDM_SP_JOBINFO ;
+CREATE TABLE SDM_SP_JOBINFO(
+SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
+SSJ_JOB_NAME                                      VARCHAR(512) NOT NULL, --作业名称
+SSJ_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
+SSJ_STRATEGY                                      VARCHAR(512) NOT NULL, --作业执行策略
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+CONSTRAINT SDM_SP_JOBINFO_PK PRIMARY KEY(SSJ_JOB_ID)   );
+
+--StreamingPro作业输入信息表
+DROP TABLE IF EXISTS SDM_JOB_INPUT ;
+CREATE TABLE SDM_JOB_INPUT(
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+INPUT_NUMBER                                      BIGINT default 0 NOT NULL, --序号
+INPUT_TYPE                                        CHAR(1) NOT NULL, --输入类型
+INPUT_EN_NAME                                     VARCHAR(512) NOT NULL, --输入英文名称
+INPUT_CN_NAME                                     VARCHAR(512) NULL, --输入中文名称
+INPUT_TABLE_NAME                                  VARCHAR(64) NOT NULL, --输出表名
+INPUT_SOURCE                                      VARCHAR(512) NOT NULL, --数据来源
+INPUT_DATA_TYPE                                   CHAR(1) NOT NULL, --数据模式
+SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
+CONSTRAINT SDM_JOB_INPUT_PK PRIMARY KEY(SDM_INFO_ID)   );
+
+--StreamingPro作业分析信息表
+DROP TABLE IF EXISTS SDM_SP_ANALYSIS ;
+CREATE TABLE SDM_SP_ANALYSIS(
+SSA_INFO_ID                                       BIGINT default 0 NOT NULL, --分析信息表id
+ANALYSIS_NUMBER                                   BIGINT default 0 NOT NULL, --序号
+ANALYSIS_TABLE_NAME                               VARCHAR(64) NOT NULL, --输出表名
+ANALYSIS_SQL                                      VARCHAR(8000) NOT NULL, --分析sql
+SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
+CONSTRAINT SDM_SP_ANALYSIS_PK PRIMARY KEY(SSA_INFO_ID)   );
+
+--StreamingPro作业输出信息表
+DROP TABLE IF EXISTS SDM_SP_OUTPUT ;
+CREATE TABLE SDM_SP_OUTPUT(
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输出信息表id
+OUTPUT_NUMBER                                     BIGINT default 0 NOT NULL, --序号
+OUTPUT_TYPE                                       CHAR(1) NOT NULL, --输出类型
+OUTPUT_MODE                                       CHAR(1) NOT NULL, --输出模式
+OUTPUT_TABLE_NAME                                 VARCHAR(512) NOT NULL, --输入表名称
+STREAM_TABLENAME                                  VARCHAR(100) NULL, --输出到流表的表名
+SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
+CONSTRAINT SDM_SP_OUTPUT_PK PRIMARY KEY(SDM_INFO_ID)   );
+
+--StreamingPro作业启动参数表
+DROP TABLE IF EXISTS SDM_SP_PARAM ;
+CREATE TABLE SDM_SP_PARAM(
+SSP_PARAM_ID                                      BIGINT default 0 NOT NULL, --作业启动参数表id
+SSP_PARAM_KEY                                     VARCHAR(64) NOT NULL, --参数key
+SSP_PARAM_VALUE                                   VARCHAR(5000) NULL, --参数值
+IS_CUSTOMIZE                                      CHAR(1) NOT NULL, --是否是自定义参数
+SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
+CONSTRAINT SDM_SP_PARAM_PK PRIMARY KEY(SSP_PARAM_ID)   );
+
+--StreamingPro数据库数据信息表
+DROP TABLE IF EXISTS SDM_SP_DATABASE ;
+CREATE TABLE SDM_SP_DATABASE(
+SSD_INFO_ID                                       BIGINT default 0 NOT NULL, --数据库信息表id
+SSD_TABLE_NAME                                    VARCHAR(100) NULL, --表名称
+SSD_DATABASE_TYPE                                 CHAR(2) NOT NULL, --数据库类型
+SSD_DATABASE_DRIVE                                VARCHAR(64) NOT NULL, --数据库驱动
+SSD_DATABASE_NAME                                 VARCHAR(100) NULL, --数据库名称
+SSD_IP                                            VARCHAR(50) NOT NULL, --数据库ip
+SSD_PORT                                          VARCHAR(10) NOT NULL, --端口
+SSD_USER_NAME                                     VARCHAR(100) NULL, --数据库用户名
+SSD_USER_PASSWORD                                 VARCHAR(100) NOT NULL, --用户密码
+SSD_JDBC_URL                                      VARCHAR(512) NOT NULL, --数据库jdbc连接的url
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT SDM_SP_DATABASE_PK PRIMARY KEY(SSD_INFO_ID)   );
+
+--StreamingPro流数据信息表
+DROP TABLE IF EXISTS SDM_SP_STREAM ;
+CREATE TABLE SDM_SP_STREAM(
+SSS_STREAM_ID                                     BIGINT default 0 NOT NULL, --流数据信息表id
+SSS_KAFKA_VERSION                                 CHAR(1) NOT NULL, --kafka版本
+SSS_TOPIC_NAME                                    VARCHAR(64) NOT NULL, --主题
+SSS_BOOTSTRAP_SERVER                              VARCHAR(256) NOT NULL, --流服务主机
+SSS_CONSUMER_OFFSET                               VARCHAR(64) NOT NULL, --偏移量设置
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT SDM_SP_STREAM_PK PRIMARY KEY(SSS_STREAM_ID)   );
+
+--StreamingPro文本文件信息表
+DROP TABLE IF EXISTS SDM_SP_TEXTFILE ;
+CREATE TABLE SDM_SP_TEXTFILE(
+TSST_EXTFILE_ID                                   BIGINT default 0 NOT NULL, --文本文件信息表id
+SST_FILE_TYPE                                     CHAR(1) NOT NULL, --文件格式
+SST_FILE_PATH                                     VARCHAR(512) NOT NULL, --文件输入输出路径
+SST_IS_HEADER                                     CHAR(1) NOT NULL, --是否有表头
+SST_SCHEMA                                        VARCHAR(1024) NULL, --schema
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT SDM_SP_TEXTFILE_PK PRIMARY KEY(TSST_EXTFILE_ID)   );
+
+--StreamProRest配置信息表
+DROP TABLE IF EXISTS STREAMPRO_SETTING ;
+CREATE TABLE STREAMPRO_SETTING(
+RS_ID                                             BIGINT default 0 NOT NULL, --Rest Id
+RS_URL                                            VARCHAR(512) NOT NULL, --RestUrl地址
+RS_PROCESSING                                     CHAR(1) NULL, --返回值处理
+RS_TYPE                                           VARCHAR(200) NULL, --请求类型
+RS_PARA                                           VARCHAR(200) NOT NULL, --Rest请求参数
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT STREAMPRO_SETTING_PK PRIMARY KEY(RS_ID)   );
+
+--REST数据库数据信息表
+DROP TABLE IF EXISTS SDM_REST_DATABASE ;
+CREATE TABLE SDM_REST_DATABASE(
+SSD_INFO_ID                                       BIGINT default 0 NOT NULL, --数据库信息表id
+SSD_TABLE_NAME                                    VARCHAR(100) NULL, --表名称
+SSD_DATABASE_TYPE                                 CHAR(2) NOT NULL, --数据库类型
+SSD_DATABASE_DRIVE                                VARCHAR(64) NOT NULL, --数据库驱动
+SSD_DATABASE_NAME                                 VARCHAR(100) NULL, --数据库名称
+SSD_IP                                            VARCHAR(50) NOT NULL, --数据库ip
+SSD_PORT                                          VARCHAR(10) NOT NULL, --端口
+SSD_USER_NAME                                     VARCHAR(100) NULL, --数据库用户名
+SSD_USER_PASSWORD                                 VARCHAR(100) NOT NULL, --用户密码
+SSD_JDBC_URL                                      VARCHAR(512) NOT NULL, --数据库jdbc连接的url
+RS_ID                                             BIGINT default 0 NULL, --Rest Id
+CONSTRAINT SDM_REST_DATABASE_PK PRIMARY KEY(SSD_INFO_ID)   );
+
+--REST流数据信息表
+DROP TABLE IF EXISTS SDM_REST_STREAM ;
+CREATE TABLE SDM_REST_STREAM(
+SSS_STREAM_ID                                     BIGINT default 0 NOT NULL, --流数据信息表id
+SSS_KAFKA_VERSION                                 CHAR(1) NOT NULL, --kafka版本
+SSS_TOPIC_NAME                                    VARCHAR(64) NOT NULL, --主题
+SSS_BOOTSTRAP_SERVER                              VARCHAR(256) NOT NULL, --流服务主机
+SSS_CONSUMER_OFFSET                               VARCHAR(64) NOT NULL, --偏移量设置
+RS_ID                                             BIGINT default 0 NULL, --Rest Id
+CONSTRAINT SDM_REST_STREAM_PK PRIMARY KEY(SSS_STREAM_ID)   );
+
