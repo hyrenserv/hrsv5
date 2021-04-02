@@ -1,4 +1,4 @@
---　系统的引用值个数:86
+--　系统的引用值个数:80
 --　本引用值的代码个数:3 -------i==1
 delete from code_info where ci_sp_class='105';
 INSERT INTO CODE_INFO  VALUES ('01', '105', '自主取数模板状态', '编辑', 'AutoTemplateStatus');
@@ -540,33 +540,3 @@ delete from code_info where ci_sp_class='96';
 INSERT INTO CODE_INFO  VALUES ('1', '96', '数据库采集方式', '贴元登记', 'CollectType');
 INSERT INTO CODE_INFO  VALUES ('2', '96', '数据库采集方式', '数据库抽数', 'CollectType');
 INSERT INTO CODE_INFO  VALUES ('3', '96', '数据库采集方式', '数据库采集', 'CollectType');
---　本引用值的代码个数:4 -------i==81
-delete from code_info where ci_sp_class='133';
-INSERT INTO CODE_INFO  VALUES ('1', '133', 'StreamingPro输入输出的类型', '文本文件', 'SdmSpInputOutputType');
-INSERT INTO CODE_INFO  VALUES ('2', '133', 'StreamingPro输入输出的类型', '数据库表', 'SdmSpInputOutputType');
-INSERT INTO CODE_INFO  VALUES ('3', '133', 'StreamingPro输入输出的类型', '消费主题', 'SdmSpInputOutputType');
-INSERT INTO CODE_INFO  VALUES ('4', '133', 'StreamingPro输入输出的类型', '内部表', 'SdmSpInputOutputType');
---　本引用值的代码个数:2 -------i==82
-delete from code_info where ci_sp_class='134';
-INSERT INTO CODE_INFO  VALUES ('1', '134', 'StreamingPro输入的数据模式', '批量表', 'SdmSpDataMode');
-INSERT INTO CODE_INFO  VALUES ('2', '134', 'StreamingPro输入的数据模式', '流表', 'SdmSpDataMode');
---　本引用值的代码个数:3 -------i==83
-delete from code_info where ci_sp_class='135';
-INSERT INTO CODE_INFO  VALUES ('1', '135', 'StreamingPro输出模式', 'Append', 'SdmSpOutputMode');
-INSERT INTO CODE_INFO  VALUES ('2', '135', 'StreamingPro输出模式', 'Update', 'SdmSpOutputMode');
-INSERT INTO CODE_INFO  VALUES ('3', '135', 'StreamingPro输出模式', 'Complete', 'SdmSpOutputMode');
---　本引用值的代码个数:3 -------i==84
-delete from code_info where ci_sp_class='138';
-INSERT INTO CODE_INFO  VALUES ('1', '138', 'StreamingPro文本文件格式', 'Csv', 'SdmSpFileType');
-INSERT INTO CODE_INFO  VALUES ('2', '138', 'StreamingPro文本文件格式', 'Parquent', 'SdmSpFileType');
-INSERT INTO CODE_INFO  VALUES ('3', '138', 'StreamingPro文本文件格式', 'Json', 'SdmSpFileType');
---　本引用值的代码个数:3 -------i==85
-delete from code_info where ci_sp_class='140';
-INSERT INTO CODE_INFO  VALUES ('1', '140', 'StreamingPro流式数据的版本', 'kafka8', 'SdmSpStreamVer');
-INSERT INTO CODE_INFO  VALUES ('2', '140', 'StreamingPro流式数据的版本', 'kafka9', 'SdmSpStreamVer');
-INSERT INTO CODE_INFO  VALUES ('3', '140', 'StreamingPro流式数据的版本', 'kafka', 'SdmSpStreamVer');
---　本引用值的代码个数:3 -------i==86
-delete from code_info where ci_sp_class='142';
-INSERT INTO CODE_INFO  VALUES ('0', '142', 'StreamingProREST返回处理方式', '忽略', 'SdmSpRsType');
-INSERT INTO CODE_INFO  VALUES ('1', '142', 'StreamingProREST返回处理方式', '数据库', 'SdmSpRsType');
-INSERT INTO CODE_INFO  VALUES ('2', '142', 'StreamingProREST返回处理方式', 'kafka', 'SdmSpRsType');

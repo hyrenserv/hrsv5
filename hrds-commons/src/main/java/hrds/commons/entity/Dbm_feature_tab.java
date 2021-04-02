@@ -59,14 +59,10 @@ public class Dbm_feature_tab extends ProjectTableEntity
 	private BigDecimal median_len;
 	@DocBean(name ="var_len",value="字段值平均长度方差:",dataType = BigDecimal.class,required = false)
 	private BigDecimal var_len;
-	@DocBean(name ="has_chinese",value="字段值是否包含中文(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = false)
-	private String has_chinese;
+	@DocBean(name ="字段值是否包含中文",value="字段值是否包含中文(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = false)
+	private String 字段值是否包含中文;
 	@DocBean(name ="tech_cate",value="字段技术分类:",dataType = String.class,required = false)
 	private String tech_cate;
-	@DocBean(name ="st_tm",value="开始时间:",dataType = String.class,required = true)
-	private String st_tm;
-	@DocBean(name ="end_tm",value="结束时间:",dataType = String.class,required = true)
-	private String end_tm;
 
 	/** 取得：系统分类编号 */
 	public String getSys_class_code(){
@@ -227,12 +223,12 @@ public class Dbm_feature_tab extends ProjectTableEntity
 		}
 	}
 	/** 取得：字段值是否包含中文 */
-	public String getHas_chinese(){
-		return has_chinese;
+	public String get字段值是否包含中文(){
+		return 字段值是否包含中文;
 	}
 	/** 设置：字段值是否包含中文 */
-	public void setHas_chinese(String has_chinese){
-		this.has_chinese=has_chinese;
+	public void set字段值是否包含中文(String 字段值是否包含中文){
+		this.字段值是否包含中文=字段值是否包含中文;
 	}
 	/** 取得：字段技术分类 */
 	public String getTech_cate(){
@@ -241,21 +237,5 @@ public class Dbm_feature_tab extends ProjectTableEntity
 	/** 设置：字段技术分类 */
 	public void setTech_cate(String tech_cate){
 		this.tech_cate=tech_cate;
-	}
-	/** 取得：开始时间 */
-	public String getSt_tm(){
-		return st_tm;
-	}
-	/** 设置：开始时间 */
-	public void setSt_tm(String st_tm){
-		this.st_tm=st_tm;
-	}
-	/** 取得：结束时间 */
-	public String getEnd_tm(){
-		return end_tm;
-	}
-	/** 设置：结束时间 */
-	public void setEnd_tm(String end_tm){
-		this.end_tm=end_tm;
 	}
 }
