@@ -61,7 +61,7 @@ public class Dbm_fk_info_tab extends ProjectTableEntity
 	private String end_tm;
 	@DocBean(name ="data_src",value="数据来源:",dataType = String.class,required = false)
 	private String data_src;
-	@DocBean(name ="id",value="外键信息表主键uuid存储:",dataType = String.class,required = false)
+	@DocBean(name ="id",value="外键信息表主键UUID存储:",dataType = String.class,required = false)
 	private String id;
 
 	/** 取得：主表所在系统分类编码 */
@@ -160,11 +160,11 @@ public class Dbm_fk_info_tab extends ProjectTableEntity
 	public void setData_src(String data_src){
 		this.data_src=data_src;
 	}
-	/** 取得：外键信息表主键uuid存储 */
+	/** 取得：外键信息表主键UUID存储 */
 	public String getId(){
 		return id;
 	}
-	/** 设置：外键信息表主键uuid存储 */
+	/** 设置：外键信息表主键UUID存储 */
 	public void setId(String id){
 		this.id=id;
 	}

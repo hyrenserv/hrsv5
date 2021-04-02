@@ -29,28 +29,28 @@ public class Dbm_field_cate_result extends ProjectTableEntity
 		Set<String> __tmpPKS = new HashSet<>();
 		__tmpPKS.add("sys_class_code");
 		__tmpPKS.add("table_code");
-		__tmpPKS.add("col_code");
+		__tmpPKS.add("字段编码");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
 	@DocBean(name ="sys_class_code",value="系统分类编码:",dataType = String.class,required = true)
 	private String sys_class_code;
 	@DocBean(name ="table_code",value="表编码:",dataType = String.class,required = true)
 	private String table_code;
-	@DocBean(name ="col_code",value="字段编码:",dataType = String.class,required = true)
-	private String col_code;
-	@DocBean(name ="dim_node",value="所属维度节点编号:",dataType = String.class,required = false)
-	private String dim_node;
+	@DocBean(name ="字段编码",value="字段编码:",dataType = String.class,required = true)
+	private String 字段编码;
+	@DocBean(name ="所属维度节点编号",value="所属维度节点编号:",dataType = String.class,required = false)
+	private String 所属维度节点编号;
 	@DocBean(name ="origin_dim",value="原始所属维度节点编号:",dataType = String.class,required = false)
 	private String origin_dim;
 	@DocBean(name ="relation_type",value="关系类型:",dataType = String.class,required = false)
 	private String relation_type;
-	@DocBean(name ="category_same",value="同维度类别编号:",dataType = Integer.class,required = true)
+	@DocBean(name ="category_same",value="同维度类别编号:",dataType = Integer.class,required = false)
 	private Integer category_same;
-	@DocBean(name ="diff_flg",value="区别标识:",dataType = Integer.class,required = false)
-	private Integer diff_flg;
+	@DocBean(name ="区别标识",value="区别标识:",dataType = Integer.class,required = false)
+	private Integer 区别标识;
 	@DocBean(name ="dim_order",value="同维度下同类别字段排序编号:",dataType = Integer.class,required = false)
 	private Integer dim_order;
-	@DocBean(name ="del_flag",value="子集关系删除标识:",dataType = String.class,required = false)
+	@DocBean(name ="del_flag",value="子集关系删除标识(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = false)
 	private String del_flag;
 
 	/** 取得：系统分类编码 */
@@ -70,20 +70,20 @@ public class Dbm_field_cate_result extends ProjectTableEntity
 		this.table_code=table_code;
 	}
 	/** 取得：字段编码 */
-	public String getCol_code(){
-		return col_code;
+	public String get字段编码(){
+		return 字段编码;
 	}
 	/** 设置：字段编码 */
-	public void setCol_code(String col_code){
-		this.col_code=col_code;
+	public void set字段编码(String 字段编码){
+		this.字段编码=字段编码;
 	}
 	/** 取得：所属维度节点编号 */
-	public String getDim_node(){
-		return dim_node;
+	public String get所属维度节点编号(){
+		return 所属维度节点编号;
 	}
 	/** 设置：所属维度节点编号 */
-	public void setDim_node(String dim_node){
-		this.dim_node=dim_node;
+	public void set所属维度节点编号(String 所属维度节点编号){
+		this.所属维度节点编号=所属维度节点编号;
 	}
 	/** 取得：原始所属维度节点编号 */
 	public String getOrigin_dim(){
@@ -116,17 +116,17 @@ public class Dbm_field_cate_result extends ProjectTableEntity
 		}
 	}
 	/** 取得：区别标识 */
-	public Integer getDiff_flg(){
-		return diff_flg;
+	public Integer get区别标识(){
+		return 区别标识;
 	}
 	/** 设置：区别标识 */
-	public void setDiff_flg(Integer diff_flg){
-		this.diff_flg=diff_flg;
+	public void set区别标识(Integer 区别标识){
+		this.区别标识=区别标识;
 	}
 	/** 设置：区别标识 */
-	public void setDiff_flg(String diff_flg){
-		if(!fd.ng.core.utils.StringUtil.isEmpty(diff_flg)){
-			this.diff_flg=new Integer(diff_flg);
+	public void set区别标识(String 区别标识){
+		if(!fd.ng.core.utils.StringUtil.isEmpty(区别标识)){
+			this.区别标识=new Integer(区别标识);
 		}
 	}
 	/** 取得：同维度下同类别字段排序编号 */

@@ -35,49 +35,49 @@ public class Dbm_analysis_schedule_tab extends ProjectTableEntity
 	private String sys_class_code;
 	@DocBean(name ="ori_table_code",value="原始表编号:",dataType = String.class,required = true)
 	private String ori_table_code;
-	@DocBean(name ="feature_sche",value="字段特征分析进度:",dataType = String.class,required = true)
+	@DocBean(name ="feature_sche",value="字段特征分析进度:",dataType = String.class,required = false)
 	private String feature_sche;
 	@DocBean(name ="feature_start_date",value="字段特征分析开始时间:",dataType = String.class,required = false)
 	private String feature_start_date;
 	@DocBean(name ="feature_end_date",value="字段特征分析结束时间:",dataType = String.class,required = false)
 	private String feature_end_date;
-	@DocBean(name ="fd_sche",value="函数依赖分析进度:",dataType = String.class,required = true)
+	@DocBean(name ="fd_sche",value="函数依赖分析进度:",dataType = String.class,required = false)
 	private String fd_sche;
 	@DocBean(name ="fd_start_date",value="函数依赖分析开始时间:",dataType = String.class,required = false)
 	private String fd_start_date;
 	@DocBean(name ="fd_end_date",value="函数依赖分析结束时间:",dataType = String.class,required = false)
 	private String fd_end_date;
-	@DocBean(name ="pk_sche",value="主键分析进度:",dataType = String.class,required = true)
+	@DocBean(name ="pk_sche",value="主键分析进度:",dataType = String.class,required = false)
 	private String pk_sche;
 	@DocBean(name ="pk_start_date",value="主键分析开始时间:",dataType = String.class,required = false)
 	private String pk_start_date;
 	@DocBean(name ="pk_end_date",value="主键分析结束时间:",dataType = String.class,required = false)
 	private String pk_end_date;
-	@DocBean(name ="fk_sche",value="外键分析进度:",dataType = String.class,required = true)
+	@DocBean(name ="fk_sche",value="外键分析进度:",dataType = String.class,required = false)
 	private String fk_sche;
 	@DocBean(name ="fk_start_date",value="外键分析开始时间:",dataType = String.class,required = false)
 	private String fk_start_date;
 	@DocBean(name ="fk_end_date",value="外键分析结束时间:",dataType = String.class,required = false)
 	private String fk_end_date;
-	@DocBean(name ="fd_check_sche",value="函数依赖验证进度:",dataType = String.class,required = true)
+	@DocBean(name ="fd_check_sche",value="函数依赖验证进度:",dataType = String.class,required = false)
 	private String fd_check_sche;
 	@DocBean(name ="fd_check_start_date",value="函数依赖验证开始时间:",dataType = String.class,required = false)
 	private String fd_check_start_date;
 	@DocBean(name ="fd_check_end_date",value="函数依赖验证结束时间:",dataType = String.class,required = false)
 	private String fd_check_end_date;
-	@DocBean(name ="joint_fk_sche",value="联合外键分析进度:",dataType = String.class,required = true)
+	@DocBean(name ="joint_fk_sche",value="联合外键分析进度:",dataType = String.class,required = false)
 	private String joint_fk_sche;
 	@DocBean(name ="joint_fk_start_date",value="联合外键分析开始时间:",dataType = String.class,required = false)
 	private String joint_fk_start_date;
 	@DocBean(name ="joint_fk_end_date",value="联合外键分析结束时间:",dataType = String.class,required = false)
 	private String joint_fk_end_date;
-	@DocBean(name ="dim_sche",value="维度划分进度:",dataType = String.class,required = true)
+	@DocBean(name ="dim_sche",value="维度划分进度:",dataType = String.class,required = false)
 	private String dim_sche;
 	@DocBean(name ="dim_start_date",value="维度划分进度开始时间:",dataType = String.class,required = false)
 	private String dim_start_date;
 	@DocBean(name ="dim_end_date",value="维度划分进度结束时间:",dataType = String.class,required = false)
 	private String dim_end_date;
-	@DocBean(name ="incre_to_full_sche",value="表转为全量进度:",dataType = String.class,required = true)
+	@DocBean(name ="incre_to_full_sche",value="表转为全量进度:",dataType = String.class,required = false)
 	private String incre_to_full_sche;
 	@DocBean(name ="incre_to_full_start_date",value="表转为全量开始时间:",dataType = String.class,required = false)
 	private String incre_to_full_start_date;

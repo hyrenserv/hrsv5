@@ -61,6 +61,20 @@ public enum FileFormat {
 	}
 
 	/**
+	 * 根据代码项的中文名称获取对应的Code值
+	 * @param value   本代码的代码值
+	 * @return
+	 */
+	public static String getCodeByValue(String value) {
+		for (FileFormat typeCode : FileFormat.values()) {
+			if (typeCode.getValue().equals(value)) {
+				return typeCode.code;
+			}
+		}
+		throw new AppSystemException("根据"+value+"没有找到对应的代码项");
+	}
+
+	/**
 	* 获取代码项的中文类名名称
 	* @return
 	*/
