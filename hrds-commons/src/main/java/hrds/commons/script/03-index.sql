@@ -47,3 +47,66 @@ create unique index u_index_data_store_reg01 on data_store_reg(hyren_name);
 ALTER TABLE data_store_reg ALTER COLUMN "meta_info" TYPE text;
 -- 异常信息登记
 ALTER TABLE collect_case ALTER COLUMN "cc_remark" TYPE text;
+
+CREATE VIEW
+    field_info_feature_view AS
+    (
+        SELECT
+            t1.SYS_CLASS_CODE     AS SYS_CLASS_CODE,
+            t1.TABLE_SCHEMA AS TABLE_SCHEMA,
+            t1.TABLE_CODE   AS TABLE_CODE,
+            t1.COL_CODE     AS COL_CODE,
+            t2.COL_RECORDS  AS COL_RECORDS,
+            t2.COL_DISTINCT AS COL_DISTINCT,
+            t2.MAX_LEN      AS MAX_LEN,
+            t2.MIN_LEN      AS MIN_LEN,
+            t2.AVG_LEN      AS AVG_LEN,
+            t2.SKEW_LEN     AS SKEW_LEN,
+            t2.KURT_LEN     AS KURT_LEN,
+            t2.MEDIAN_LEN   AS MEDIAN_LEN,
+            t2.VAR_LEN      AS VAR_LEN,
+            t2.HAS_CHINESE  AS HAS_CHINESE,
+            t2.TECH_CATE    AS TECH_CATE,
+            t1.COL_NUM      AS COL_NUM,
+            t1.COL_NAME     AS COL_NAME,
+            t1.COL_COMMENT  AS COL_COMMENT,
+            (
+                CASE
+                    WHEN (t1.COL_TYPE_JUDGE_RATE = 1.0)
+                    THEN t1.COL_TYPE
+                    ELSE (
+                            CASE
+                                WHEN (t2.MAX_LEN = t2.MIN_LEN)
+                                THEN 'CHAR'
+                                ELSE 'VARCHAR'
+                            END)
+                END)               AS COL_TYPE,
+            t1.COL_LENGTH          AS COL_LENGTH,
+            t1.COL_NULLABLE        AS COL_NULLABLE,
+            t1.COL_PK              AS COL_PK,
+            t1.IS_STD              AS IS_STD,
+            t1.CDVAL_NO            AS CDVAL_NO,
+            t1.COL_CHECK           AS COL_CHECK,
+            t1.COLTRA              AS COLTRA,
+            t1.COLFORMAT           AS COLFORMAT,
+            t1.TRATYPE             AS TRATYPE,
+            t1.ST_TM               AS ST_TM,
+            t1.END_TM              AS END_TM,
+            t1.DATA_SRC            AS DATA_SRC,
+            t1.COL_AUTOINCRE       AS COL_AUTOINCRE,
+            t1.COL_DEFULT          AS COL_DEFULT,
+            t1.COL_TYPE_JUDGE_RATE AS COL_TYPE_JUDGE_RATE
+        FROM
+            dbm_mmm_field_info_tab t1
+        JOIN
+            dbm_feature_tab t2
+        ON
+            ((
+                    t1.SYS_CLASS_CODE = t2.SYS_CLASS_CODE)
+            AND (
+                    t1.TABLE_SCHEMA = t2.TABLE_SCHEMA)
+            AND (
+                    t1.TABLE_CODE = t2.TABLE_CODE)
+            AND (
+                    t1.COL_CODE = t2.COL_CODE))
+    );
