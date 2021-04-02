@@ -22,8 +22,8 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	* @param name String 检验是否为主键的名字
 	* @return
 	*/
-	public static boolean isPrimaryKey(String name) { return __PrimaryKeys.contains(name); } 
-	public static Set<String> getPrimaryKeyNames() { return __PrimaryKeys; } 
+	public static boolean isPrimaryKey(String name) { return __PrimaryKeys.contains(name); }
+	public static Set<String> getPrimaryKeyNames() { return __PrimaryKeys; }
 	/** 数据对标分析配置表 */
 	static {
 		Set<String> __tmpPKS = new HashSet<>();
@@ -31,9 +31,31 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 		__tmpPKS.add("ori_table_code");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="dim_flag",value="是否进行维度划分(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
+	@DocBean(name ="sys_class_code",value="系统分类编号:",dataType = String.class,required = true)
+	private String sys_class_code;
+	@DocBean(name ="ori_table_code",value="原始表编号:",dataType = String.class,required = true)
+	private String ori_table_code;
+	@DocBean(name ="trans_table_code",value="转换后表编号:",dataType = String.class,required = false)
+	private String trans_table_code;
+	@DocBean(name ="etl_date",value="数据时间:",dataType = String.class,required = false)
+	private String etl_date;
+	@DocBean(name ="date_offset",value="时间偏移量:",dataType = String.class,required = false)
+	private String date_offset;
+	@DocBean(name ="feature_flag",value="是否进行字段特征分析:",dataType = String.class,required = true)
+	private String feature_flag;
+	@DocBean(name ="fd_flag",value="是否进行函数依赖分析:",dataType = String.class,required = true)
+	private String fd_flag;
+	@DocBean(name ="pk_flag",value="是否进行主键分析:",dataType = String.class,required = true)
+	private String pk_flag;
+	@DocBean(name ="fk_flag",value="是否进行单一外键分析:",dataType = String.class,required = true)
+	private String fk_flag;
+	@DocBean(name ="joint_fk_flag",value="是否进行联合外键分析:",dataType = String.class,required = true)
+	private String joint_fk_flag;
+	@DocBean(name ="fd_check_flag",value="是否进行函数依赖验证:",dataType = String.class,required = true)
+	private String fd_check_flag;
+	@DocBean(name ="dim_flag",value="是否进行维度划分:",dataType = String.class,required = true)
 	private String dim_flag;
-	@DocBean(name ="incre_to_full_flag",value="是否将表转为全量(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
+	@DocBean(name ="incre_to_full_flag",value="是否将表转为全量:",dataType = String.class,required = true)
 	private String incre_to_full_flag;
 	@DocBean(name ="ana_alg",value="分析算法:",dataType = String.class,required = true)
 	private String ana_alg;
@@ -45,85 +67,11 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	private String fk_ana_mode;
 	@DocBean(name ="joint_fk_ana_mode",value="联合外键分析模式:",dataType = String.class,required = false)
 	private String joint_fk_ana_mode;
-	@DocBean(name ="sys_class_code",value="系统分类编号:",dataType = String.class,required = true)
-	private String sys_class_code;
-	@DocBean(name ="ori_table_code",value="原始表编号:",dataType = String.class,required = true)
-	private String ori_table_code;
-	@DocBean(name ="trans_table_code",value="转换后表编号:",dataType = String.class,required = false)
-	private String trans_table_code;
-	@DocBean(name ="etl_date",value="数据时间:",dataType = String.class,required = false)
-	private String etl_date;
-	@DocBean(name ="date_offset",value="时间偏移量:",dataType = String.class,required = false)
-	private String date_offset;
-	@DocBean(name ="feature_flag",value="是否进行字段特征分析(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String feature_flag;
-	@DocBean(name ="fd_flag",value="是否进行函数依赖分析(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String fd_flag;
-	@DocBean(name ="pk_flag",value="是否进行主键分析(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String pk_flag;
-	@DocBean(name ="fk_flag",value="是否进行单一外键分析(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String fk_flag;
-	@DocBean(name ="joint_fk_flag",value="是否进行联合外键分析(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String joint_fk_flag;
-	@DocBean(name ="fd_check_flag",value="是否进行函数依赖验证(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String fd_check_flag;
+	@DocBean(name ="etl_date_filter",value="跑批日期过滤条件:",dataType = String.class,required = false)
+	private String etl_date_filter;
+	@DocBean(name ="end_date_filter",value="结束日期过滤条件:",dataType = String.class,required = false)
+	private String end_date_filter;
 
-	/** 取得：是否进行维度划分 */
-	public String getDim_flag(){
-		return dim_flag;
-	}
-	/** 设置：是否进行维度划分 */
-	public void setDim_flag(String dim_flag){
-		this.dim_flag=dim_flag;
-	}
-	/** 取得：是否将表转为全量 */
-	public String getIncre_to_full_flag(){
-		return incre_to_full_flag;
-	}
-	/** 设置：是否将表转为全量 */
-	public void setIncre_to_full_flag(String incre_to_full_flag){
-		this.incre_to_full_flag=incre_to_full_flag;
-	}
-	/** 取得：分析算法 */
-	public String getAna_alg(){
-		return ana_alg;
-	}
-	/** 设置：分析算法 */
-	public void setAna_alg(String ana_alg){
-		this.ana_alg=ana_alg;
-	}
-	/** 取得：函数依赖分析采样量 */
-	public String getFd_sample_count(){
-		return fd_sample_count;
-	}
-	/** 设置：函数依赖分析采样量 */
-	public void setFd_sample_count(String fd_sample_count){
-		this.fd_sample_count=fd_sample_count;
-	}
-	/** 取得：待分析表主键 */
-	public String getTo_ana_tb_pk(){
-		return to_ana_tb_pk;
-	}
-	/** 设置：待分析表主键 */
-	public void setTo_ana_tb_pk(String to_ana_tb_pk){
-		this.to_ana_tb_pk=to_ana_tb_pk;
-	}
-	/** 取得：外键分析模式 */
-	public String getFk_ana_mode(){
-		return fk_ana_mode;
-	}
-	/** 设置：外键分析模式 */
-	public void setFk_ana_mode(String fk_ana_mode){
-		this.fk_ana_mode=fk_ana_mode;
-	}
-	/** 取得：联合外键分析模式 */
-	public String getJoint_fk_ana_mode(){
-		return joint_fk_ana_mode;
-	}
-	/** 设置：联合外键分析模式 */
-	public void setJoint_fk_ana_mode(String joint_fk_ana_mode){
-		this.joint_fk_ana_mode=joint_fk_ana_mode;
-	}
 	/** 取得：系统分类编号 */
 	public String getSys_class_code(){
 		return sys_class_code;
@@ -211,5 +159,77 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	/** 设置：是否进行函数依赖验证 */
 	public void setFd_check_flag(String fd_check_flag){
 		this.fd_check_flag=fd_check_flag;
+	}
+	/** 取得：是否进行维度划分 */
+	public String getDim_flag(){
+		return dim_flag;
+	}
+	/** 设置：是否进行维度划分 */
+	public void setDim_flag(String dim_flag){
+		this.dim_flag=dim_flag;
+	}
+	/** 取得：是否将表转为全量 */
+	public String getIncre_to_full_flag(){
+		return incre_to_full_flag;
+	}
+	/** 设置：是否将表转为全量 */
+	public void setIncre_to_full_flag(String incre_to_full_flag){
+		this.incre_to_full_flag=incre_to_full_flag;
+	}
+	/** 取得：分析算法 */
+	public String getAna_alg(){
+		return ana_alg;
+	}
+	/** 设置：分析算法 */
+	public void setAna_alg(String ana_alg){
+		this.ana_alg=ana_alg;
+	}
+	/** 取得：函数依赖分析采样量 */
+	public String getFd_sample_count(){
+		return fd_sample_count;
+	}
+	/** 设置：函数依赖分析采样量 */
+	public void setFd_sample_count(String fd_sample_count){
+		this.fd_sample_count=fd_sample_count;
+	}
+	/** 取得：待分析表主键 */
+	public String getTo_ana_tb_pk(){
+		return to_ana_tb_pk;
+	}
+	/** 设置：待分析表主键 */
+	public void setTo_ana_tb_pk(String to_ana_tb_pk){
+		this.to_ana_tb_pk=to_ana_tb_pk;
+	}
+	/** 取得：外键分析模式 */
+	public String getFk_ana_mode(){
+		return fk_ana_mode;
+	}
+	/** 设置：外键分析模式 */
+	public void setFk_ana_mode(String fk_ana_mode){
+		this.fk_ana_mode=fk_ana_mode;
+	}
+	/** 取得：联合外键分析模式 */
+	public String getJoint_fk_ana_mode(){
+		return joint_fk_ana_mode;
+	}
+	/** 设置：联合外键分析模式 */
+	public void setJoint_fk_ana_mode(String joint_fk_ana_mode){
+		this.joint_fk_ana_mode=joint_fk_ana_mode;
+	}
+	/** 取得：跑批日期过滤条件 */
+	public String getEtl_date_filter() {
+		return etl_date_filter;
+	}
+	/** 设置：跑批日期过滤条件 */
+	public void setEtl_date_filter(String etl_date_filter) {
+		this.etl_date_filter = etl_date_filter;
+	}
+	/** 取得：结束日期过滤条件 */
+	public String getEnd_date_filter() {
+		return end_date_filter;
+	}
+	/** 设置：结束日期过滤条件 */
+	public void setEnd_date_filter(String end_date_filter) {
+		this.end_date_filter = end_date_filter;
 	}
 }
