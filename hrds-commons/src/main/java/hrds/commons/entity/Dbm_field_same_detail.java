@@ -33,25 +33,43 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 		__tmpPKS.add("fk_id");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
+	@DocBean(name ="fk_type",value="关联外键类型:",dataType = String.class,required = false)
+	private String fk_type;
+	@DocBean(name ="ana_time",value="分析时间:",dataType = String.class,required = false)
+	private String ana_time;
 	@DocBean(name ="left_sys_class_code",value="相等关系左部字段所属系统分类编码:",dataType = String.class,required = true)
 	private String left_sys_class_code;
 	@DocBean(name ="left_table_code",value="相等关系左部字段所属表编码:",dataType = String.class,required = true)
 	private String left_table_code;
 	@DocBean(name ="left_col_code",value="相等关系左部字段编码:",dataType = String.class,required = true)
 	private String left_col_code;
+	@DocBean(name ="fk_id",value="关联外键编号:",dataType = String.class,required = true)
+	private String fk_id;
 	@DocBean(name ="right_sys_class_code",value="相等关系右部字段所属系统分类编码:",dataType = String.class,required = true)
 	private String right_sys_class_code;
 	@DocBean(name ="right_table_code",value="相等关系右部字段所属表编码:",dataType = String.class,required = false)
 	private String right_table_code;
 	@DocBean(name ="right_col_code",value="相等关系右部字段编码:",dataType = String.class,required = false)
 	private String right_col_code;
-	@DocBean(name ="fk_id",value="关联外键编号:",dataType = String.class,required = true)
-	private String fk_id;
-	@DocBean(name ="fk_type",value="关联外键类型:",dataType = String.class,required = false)
-	private String fk_type;
-	@DocBean(name ="分析时间",value="分析时间:",dataType = String.class,required = false)
-	private String 分析时间;
+	@DocBean(name ="rel_type",value="相等类型:",dataType = String.class,required = false)
+	private String rel_type;
 
+	/** 取得：关联外键类型 */
+	public String getFk_type(){
+		return fk_type;
+	}
+	/** 设置：关联外键类型 */
+	public void setFk_type(String fk_type){
+		this.fk_type=fk_type;
+	}
+	/** 取得：分析时间 */
+	public String getAna_time(){
+		return ana_time;
+	}
+	/** 设置：分析时间 */
+	public void setAna_time(String ana_time){
+		this.ana_time=ana_time;
+	}
 	/** 取得：相等关系左部字段所属系统分类编码 */
 	public String getLeft_sys_class_code(){
 		return left_sys_class_code;
@@ -75,6 +93,14 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 	/** 设置：相等关系左部字段编码 */
 	public void setLeft_col_code(String left_col_code){
 		this.left_col_code=left_col_code;
+	}
+	/** 取得：关联外键编号 */
+	public String getFk_id(){
+		return fk_id;
+	}
+	/** 设置：关联外键编号 */
+	public void setFk_id(String fk_id){
+		this.fk_id=fk_id;
 	}
 	/** 取得：相等关系右部字段所属系统分类编码 */
 	public String getRight_sys_class_code(){
@@ -100,28 +126,12 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 	public void setRight_col_code(String right_col_code){
 		this.right_col_code=right_col_code;
 	}
-	/** 取得：关联外键编号 */
-	public String getFk_id(){
-		return fk_id;
+	/** 取得：相等类型 */
+	public String getRel_type(){
+		return rel_type;
 	}
-	/** 设置：关联外键编号 */
-	public void setFk_id(String fk_id){
-		this.fk_id=fk_id;
-	}
-	/** 取得：关联外键类型 */
-	public String getFk_type(){
-		return fk_type;
-	}
-	/** 设置：关联外键类型 */
-	public void setFk_type(String fk_type){
-		this.fk_type=fk_type;
-	}
-	/** 取得：分析时间 */
-	public String get分析时间(){
-		return 分析时间;
-	}
-	/** 设置：分析时间 */
-	public void set分析时间(String 分析时间){
-		this.分析时间=分析时间;
+	/** 设置：相等类型 */
+	public void setRel_type(String rel_type){
+		this.rel_type=rel_type;
 	}
 }

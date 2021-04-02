@@ -36,10 +36,10 @@ public class Dbm_joint_pk_tab extends ProjectTableEntity
 	private String sys_class_code;
 	@DocBean(name ="table_code",value="表编码:",dataType = String.class,required = true)
 	private String table_code;
-	@DocBean(name ="group_code",value="联合主键分组编码:",dataType = String.class,required = true)
-	private String group_code;
 	@DocBean(name ="col_code",value="主键字段编码:",dataType = String.class,required = true)
 	private String col_code;
+	@DocBean(name ="group_code",value="联合主键分组编码:",dataType = String.class,required = true)
+	private String group_code;
 
 	/** 取得：系统分类编码 */
 	public String getSys_class_code(){
@@ -57,14 +57,6 @@ public class Dbm_joint_pk_tab extends ProjectTableEntity
 	public void setTable_code(String table_code){
 		this.table_code=table_code;
 	}
-	/** 取得：联合主键分组编码 */
-	public String getGroup_code(){
-		return group_code;
-	}
-	/** 设置：联合主键分组编码 */
-	public void setGroup_code(String group_code){
-		this.group_code=group_code;
-	}
 	/** 取得：主键字段编码 */
 	public String getCol_code(){
 		return col_code;
@@ -72,5 +64,13 @@ public class Dbm_joint_pk_tab extends ProjectTableEntity
 	/** 设置：主键字段编码 */
 	public void setCol_code(String col_code){
 		this.col_code=col_code;
+	}
+	/** 取得：联合主键分组编码 */
+	public String getGroup_code(){
+		return group_code;
+	}
+	/** 设置：联合主键分组编码 */
+	public void setGroup_code(String group_code){
+		this.group_code=group_code;
 	}
 }
