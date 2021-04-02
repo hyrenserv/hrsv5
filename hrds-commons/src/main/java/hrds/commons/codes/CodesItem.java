@@ -167,6 +167,18 @@ public class CodesItem{
 	protected static final String dbmState=new String("DbmState");
 	/**数据库采集方式   */
 	protected static final String collectType=new String("CollectType");
+	/**StreamingPro输入输出的类型   */
+	protected static final String sdmSpInputOutputType=new String("SdmSpInputOutputType");
+	/**StreamingPro输入的数据模式   */
+	protected static final String sdmSpDataMode=new String("SdmSpDataMode");
+	/**StreamingPro输出模式   */
+	protected static final String sdmSpOutputMode=new String("SdmSpOutputMode");
+	/**StreamingPro文本文件格式   */
+	protected static final String sdmSpFileType=new String("SdmSpFileType");
+	/**StreamingPro流式数据的版本   */
+	protected static final String sdmSpStreamVer=new String("SdmSpStreamVer");
+	/**StreamingProREST返回处理方式   */
+	protected static final String sdmSpRsType=new String("SdmSpRsType");
 
 
 	public static final Map<String,Class> mapCat= new HashMap<String,Class>(100);
@@ -251,6 +263,12 @@ public class CodesItem{
 		mapCat.put(storeLayerDataSource,StoreLayerDataSource.class);
 		mapCat.put(dbmState,DbmState.class);
 		mapCat.put(collectType,CollectType.class);
+		mapCat.put(sdmSpInputOutputType,SdmSpInputOutputType.class);
+		mapCat.put(sdmSpDataMode,SdmSpDataMode.class);
+		mapCat.put(sdmSpOutputMode,SdmSpOutputMode.class);
+		mapCat.put(sdmSpFileType,SdmSpFileType.class);
+		mapCat.put(sdmSpStreamVer,SdmSpStreamVer.class);
+		mapCat.put(sdmSpRsType,SdmSpRsType.class);
 	}
 
 

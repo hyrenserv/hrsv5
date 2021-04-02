@@ -27,16 +27,12 @@ public class Dbm_field_same_result extends ProjectTableEntity
 	/** 数据对标类别划分分组结果表 */
 	static {
 		Set<String> __tmpPKS = new HashSet<>();
-		__tmpPKS.add("sys_class_code");
-		__tmpPKS.add("table_code");
 		__tmpPKS.add("col_code");
 		__tmpPKS.add("category_same");
+		__tmpPKS.add("sys_class_code");
+		__tmpPKS.add("table_code");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="sys_class_code",value="系统分类编码:",dataType = String.class,required = true)
-	private String sys_class_code;
-	@DocBean(name ="table_code",value="表编码:",dataType = String.class,required = true)
-	private String table_code;
 	@DocBean(name ="col_code",value="字段编码:",dataType = String.class,required = true)
 	private String col_code;
 	@DocBean(name ="category_same",value="类别编号:",dataType = Integer.class,required = true)
@@ -47,23 +43,11 @@ public class Dbm_field_same_result extends ProjectTableEntity
 	private Integer dim_order;
 	@DocBean(name ="ana_time",value="分析时间:",dataType = String.class,required = false)
 	private String ana_time;
+	@DocBean(name ="sys_class_code",value="系统分类编码:",dataType = String.class,required = true)
+	private String sys_class_code;
+	@DocBean(name ="table_code",value="表编码:",dataType = String.class,required = true)
+	private String table_code;
 
-	/** 取得：系统分类编码 */
-	public String getSys_class_code(){
-		return sys_class_code;
-	}
-	/** 设置：系统分类编码 */
-	public void setSys_class_code(String sys_class_code){
-		this.sys_class_code=sys_class_code;
-	}
-	/** 取得：表编码 */
-	public String getTable_code(){
-		return table_code;
-	}
-	/** 设置：表编码 */
-	public void setTable_code(String table_code){
-		this.table_code=table_code;
-	}
 	/** 取得：字段编码 */
 	public String getCol_code(){
 		return col_code;
@@ -121,5 +105,21 @@ public class Dbm_field_same_result extends ProjectTableEntity
 	/** 设置：分析时间 */
 	public void setAna_time(String ana_time){
 		this.ana_time=ana_time;
+	}
+	/** 取得：系统分类编码 */
+	public String getSys_class_code(){
+		return sys_class_code;
+	}
+	/** 设置：系统分类编码 */
+	public void setSys_class_code(String sys_class_code){
+		this.sys_class_code=sys_class_code;
+	}
+	/** 取得：表编码 */
+	public String getTable_code(){
+		return table_code;
+	}
+	/** 设置：表编码 */
+	public void setTable_code(String table_code){
+		this.table_code=table_code;
 	}
 }

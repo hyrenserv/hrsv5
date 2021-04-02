@@ -27,15 +27,13 @@ public class Dbm_mmm_field_info_tab extends ProjectTableEntity
 	/** 数据对标字段信息表 */
 	static {
 		Set<String> __tmpPKS = new HashSet<>();
-		__tmpPKS.add("sys_class_code");
 		__tmpPKS.add("table_schema");
 		__tmpPKS.add("table_code");
 		__tmpPKS.add("col_num");
 		__tmpPKS.add("col_code");
+		__tmpPKS.add("sys_class_code");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="sys_class_code",value="系统分类编号:",dataType = String.class,required = true)
-	private String sys_class_code;
 	@DocBean(name ="table_schema",value="表所属schema:",dataType = String.class,required = true)
 	private String table_schema;
 	@DocBean(name ="table_code",value="表编号:",dataType = String.class,required = true)
@@ -80,15 +78,9 @@ public class Dbm_mmm_field_info_tab extends ProjectTableEntity
 	private String col_autoincre;
 	@DocBean(name ="col_defult",value="字段值是否是默认值(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
 	private String col_defult;
+	@DocBean(name ="sys_class_code",value="系统分类编号:",dataType = String.class,required = true)
+	private String sys_class_code;
 
-	/** 取得：系统分类编号 */
-	public String getSys_class_code(){
-		return sys_class_code;
-	}
-	/** 设置：系统分类编号 */
-	public void setSys_class_code(String sys_class_code){
-		this.sys_class_code=sys_class_code;
-	}
 	/** 取得：表所属schema */
 	public String getTable_schema(){
 		return table_schema;
@@ -276,5 +268,13 @@ public class Dbm_mmm_field_info_tab extends ProjectTableEntity
 	/** 设置：字段值是否是默认值 */
 	public void setCol_defult(String col_defult){
 		this.col_defult=col_defult;
+	}
+	/** 取得：系统分类编号 */
+	public String getSys_class_code(){
+		return sys_class_code;
+	}
+	/** 设置：系统分类编号 */
+	public void setSys_class_code(String sys_class_code){
+		this.sys_class_code=sys_class_code;
 	}
 }
