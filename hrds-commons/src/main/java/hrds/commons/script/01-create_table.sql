@@ -2257,6 +2257,8 @@ FD_SAMPLE_COUNT                                   VARCHAR(8) NULL, --函数依�
 TO_ANA_TB_PK                                      VARCHAR(128) NULL, --待分析表主键
 FK_ANA_MODE                                       VARCHAR(32) NULL, --外键分析模式
 JOINT_FK_ANA_MODE                                 VARCHAR(32) NULL, --联合外键分析模式
+ETL_DATE_FILTER                                   CHAR(8) NULL, --跑批日期过滤条件
+END_DATE_FILTER                                   CHAR(8) NULL, --结束日期过滤条件
 CONSTRAINT DBM_ANALYSIS_CONF_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,ORI_TABLE_CODE)   );
 
 --数据对标分析进度表

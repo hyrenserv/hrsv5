@@ -30,10 +30,6 @@ public class Sdm_receive_conf extends ProjectTableEntity
 		__tmpPKS.add("sdm_receive_id");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="sdm_receive_id",value="流数据管理:",dataType = Long.class,required = true)
-	private Long sdm_receive_id;
-	@DocBean(name ="sdm_rec_port",value="流数据管理接收端口号:",dataType = String.class,required = false)
-	private String sdm_rec_port;
 	@DocBean(name ="ra_file_path",value="文本流文件路径:",dataType = String.class,required = true)
 	private String ra_file_path;
 	@DocBean(name ="remark",value="备注:",dataType = String.class,required = false)
@@ -108,29 +104,11 @@ public class Sdm_receive_conf extends ProjectTableEntity
 	private String run_way;
 	@DocBean(name ="sdm_agent_id",value="流数据管理agent_id:",dataType = Long.class,required = true)
 	private Long sdm_agent_id;
+	@DocBean(name ="sdm_receive_id",value="流数据管理:",dataType = Long.class,required = true)
+	private Long sdm_receive_id;
+	@DocBean(name ="sdm_rec_port",value="流数据管理接收端口号:",dataType = String.class,required = false)
+	private String sdm_rec_port;
 
-	/** 取得：流数据管理 */
-	public Long getSdm_receive_id(){
-		return sdm_receive_id;
-	}
-	/** 设置：流数据管理 */
-	public void setSdm_receive_id(Long sdm_receive_id){
-		this.sdm_receive_id=sdm_receive_id;
-	}
-	/** 设置：流数据管理 */
-	public void setSdm_receive_id(String sdm_receive_id){
-		if(!fd.ng.core.utils.StringUtil.isEmpty(sdm_receive_id)){
-			this.sdm_receive_id=new Long(sdm_receive_id);
-		}
-	}
-	/** 取得：流数据管理接收端口号 */
-	public String getSdm_rec_port(){
-		return sdm_rec_port;
-	}
-	/** 设置：流数据管理接收端口号 */
-	public void setSdm_rec_port(String sdm_rec_port){
-		this.sdm_rec_port=sdm_rec_port;
-	}
 	/** 取得：文本流文件路径 */
 	public String getRa_file_path(){
 		return ra_file_path;
@@ -444,5 +422,27 @@ public class Sdm_receive_conf extends ProjectTableEntity
 		if(!fd.ng.core.utils.StringUtil.isEmpty(sdm_agent_id)){
 			this.sdm_agent_id=new Long(sdm_agent_id);
 		}
+	}
+	/** 取得：流数据管理 */
+	public Long getSdm_receive_id(){
+		return sdm_receive_id;
+	}
+	/** 设置：流数据管理 */
+	public void setSdm_receive_id(Long sdm_receive_id){
+		this.sdm_receive_id=sdm_receive_id;
+	}
+	/** 设置：流数据管理 */
+	public void setSdm_receive_id(String sdm_receive_id){
+		if(!fd.ng.core.utils.StringUtil.isEmpty(sdm_receive_id)){
+			this.sdm_receive_id=new Long(sdm_receive_id);
+		}
+	}
+	/** 取得：流数据管理接收端口号 */
+	public String getSdm_rec_port(){
+		return sdm_rec_port;
+	}
+	/** 设置：流数据管理接收端口号 */
+	public void setSdm_rec_port(String sdm_rec_port){
+		this.sdm_rec_port=sdm_rec_port;
 	}
 }
