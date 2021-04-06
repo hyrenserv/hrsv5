@@ -67,6 +67,10 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	private String fk_ana_mode;
 	@DocBean(name ="joint_fk_ana_mode",value="联合外键分析模式:",dataType = String.class,required = false)
 	private String joint_fk_ana_mode;
+	@DocBean(name ="etl_date_filter",value="跑批日期过滤条件:",dataType = String.class,required = false)
+	private String etl_date_filter;
+	@DocBean(name ="end_date_filter",value="结束日期过滤条件:",dataType = String.class,required = false)
+	private String end_date_filter;
 
 	/** 取得：系统分类编号 */
 	public String getSys_class_code(){
@@ -211,5 +215,21 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	/** 设置：联合外键分析模式 */
 	public void setJoint_fk_ana_mode(String joint_fk_ana_mode){
 		this.joint_fk_ana_mode=joint_fk_ana_mode;
+	}
+	/** 取得：跑批日期过滤条件 */
+	public String getEtl_date_filter(){
+		return etl_date_filter;
+	}
+	/** 设置：跑批日期过滤条件 */
+	public void setEtl_date_filter(String etl_date_filter){
+		this.etl_date_filter=etl_date_filter;
+	}
+	/** 取得：结束日期过滤条件 */
+	public String getEnd_date_filter(){
+		return end_date_filter;
+	}
+	/** 设置：结束日期过滤条件 */
+	public void setEnd_date_filter(String end_date_filter){
+		this.end_date_filter=end_date_filter;
 	}
 }
