@@ -30,6 +30,8 @@ public class Sdm_cons_para extends ProjectTableEntity
 		__tmpPKS.add("sdm_conf_para_id");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
+	@DocBean(name ="sdm_consum_id",value="消费端配置id:",dataType = Long.class,required = true)
+	private Long sdm_consum_id;
 	@DocBean(name ="sdm_conf_para_id",value="sdm_conf_para_id:",dataType = Long.class,required = true)
 	private Long sdm_conf_para_id;
 	@DocBean(name ="sdm_conf_para_na",value="参数名称:",dataType = String.class,required = false)
@@ -38,9 +40,21 @@ public class Sdm_cons_para extends ProjectTableEntity
 	private String sdm_cons_para_val;
 	@DocBean(name ="remark",value="备注:",dataType = String.class,required = false)
 	private String remark;
-	@DocBean(name ="sdm_consum_id",value="消费端配置id:",dataType = Long.class,required = true)
-	private Long sdm_consum_id;
 
+	/** 取得：消费端配置id */
+	public Long getSdm_consum_id(){
+		return sdm_consum_id;
+	}
+	/** 设置：消费端配置id */
+	public void setSdm_consum_id(Long sdm_consum_id){
+		this.sdm_consum_id=sdm_consum_id;
+	}
+	/** 设置：消费端配置id */
+	public void setSdm_consum_id(String sdm_consum_id){
+		if(!fd.ng.core.utils.StringUtil.isEmpty(sdm_consum_id)){
+			this.sdm_consum_id=new Long(sdm_consum_id);
+		}
+	}
 	/** 取得：sdm_conf_para_id */
 	public Long getSdm_conf_para_id(){
 		return sdm_conf_para_id;
@@ -78,19 +92,5 @@ public class Sdm_cons_para extends ProjectTableEntity
 	/** 设置：备注 */
 	public void setRemark(String remark){
 		this.remark=remark;
-	}
-	/** 取得：消费端配置id */
-	public Long getSdm_consum_id(){
-		return sdm_consum_id;
-	}
-	/** 设置：消费端配置id */
-	public void setSdm_consum_id(Long sdm_consum_id){
-		this.sdm_consum_id=sdm_consum_id;
-	}
-	/** 设置：消费端配置id */
-	public void setSdm_consum_id(String sdm_consum_id){
-		if(!fd.ng.core.utils.StringUtil.isEmpty(sdm_consum_id)){
-			this.sdm_consum_id=new Long(sdm_consum_id);
-		}
 	}
 }

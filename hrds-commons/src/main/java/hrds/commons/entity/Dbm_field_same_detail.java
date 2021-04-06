@@ -33,10 +33,6 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 		__tmpPKS.add("fk_id");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="fk_type",value="关联外键类型:",dataType = String.class,required = false)
-	private String fk_type;
-	@DocBean(name ="ana_time",value="分析时间:",dataType = String.class,required = false)
-	private String ana_time;
 	@DocBean(name ="left_sys_class_code",value="相等关系左部字段所属系统分类编码:",dataType = String.class,required = true)
 	private String left_sys_class_code;
 	@DocBean(name ="left_table_code",value="相等关系左部字段所属表编码:",dataType = String.class,required = true)
@@ -53,23 +49,11 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 	private String right_col_code;
 	@DocBean(name ="rel_type",value="相等类型:",dataType = String.class,required = false)
 	private String rel_type;
+	@DocBean(name ="fk_type",value="关联外键类型:",dataType = String.class,required = false)
+	private String fk_type;
+	@DocBean(name ="ana_time",value="分析时间:",dataType = String.class,required = false)
+	private String ana_time;
 
-	/** 取得：关联外键类型 */
-	public String getFk_type(){
-		return fk_type;
-	}
-	/** 设置：关联外键类型 */
-	public void setFk_type(String fk_type){
-		this.fk_type=fk_type;
-	}
-	/** 取得：分析时间 */
-	public String getAna_time(){
-		return ana_time;
-	}
-	/** 设置：分析时间 */
-	public void setAna_time(String ana_time){
-		this.ana_time=ana_time;
-	}
 	/** 取得：相等关系左部字段所属系统分类编码 */
 	public String getLeft_sys_class_code(){
 		return left_sys_class_code;
@@ -133,5 +117,21 @@ public class Dbm_field_same_detail extends ProjectTableEntity
 	/** 设置：相等类型 */
 	public void setRel_type(String rel_type){
 		this.rel_type=rel_type;
+	}
+	/** 取得：关联外键类型 */
+	public String getFk_type(){
+		return fk_type;
+	}
+	/** 设置：关联外键类型 */
+	public void setFk_type(String fk_type){
+		this.fk_type=fk_type;
+	}
+	/** 取得：分析时间 */
+	public String getAna_time(){
+		return ana_time;
+	}
+	/** 设置：分析时间 */
+	public void setAna_time(String ana_time){
+		this.ana_time=ana_time;
 	}
 }

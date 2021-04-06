@@ -1,4 +1,442 @@
-﻿--文件源设置
+﻿--StreamingPro文本文件信息表
+DROP TABLE IF EXISTS SDM_SP_TEXTFILE ;
+CREATE TABLE SDM_SP_TEXTFILE(
+TSST_EXTFILE_ID                                   BIGINT default 0 NOT NULL, --文本文件信息表id
+SST_FILE_TYPE                                     CHAR(1) NOT NULL, --文件格式
+SST_FILE_PATH                                     VARCHAR(512) NOT NULL, --文件输入输出路径
+SST_IS_HEADER                                     CHAR(1) NOT NULL, --是否有表头
+SST_SCHEMA                                        VARCHAR(1024) NULL, --schema
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT SDM_SP_TEXTFILE_PK PRIMARY KEY(TSST_EXTFILE_ID)   );
+
+--组件信息表
+DROP TABLE IF EXISTS COMPONENT_INFO ;
+CREATE TABLE COMPONENT_INFO(
+COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
+COMP_NAME                                         VARCHAR(512) NOT NULL, --组件名称
+COMP_STATE                                        CHAR(1) NOT NULL, --组件状态
+COMP_VERSION                                      VARCHAR(100) NOT NULL, --组件版本
+ICON_INFO                                         VARCHAR(512) NULL, --图标
+COLOR_INFO                                        VARCHAR(512) NULL, --颜色
+COMP_TYPE                                         CHAR(1) NOT NULL, --组件类型
+COMP_REMARK                                       VARCHAR(512) NULL, --备注
+CONSTRAINT COMPONENT_INFO_PK PRIMARY KEY(COMP_ID)   );
+
+--StreamProRest配置信息表
+DROP TABLE IF EXISTS STREAMPRO_SETTING ;
+CREATE TABLE STREAMPRO_SETTING(
+RS_ID                                             BIGINT default 0 NOT NULL, --Rest Id
+RS_URL                                            VARCHAR(512) NOT NULL, --RestUrl地址
+RS_PROCESSING                                     CHAR(1) NULL, --返回值处理
+RS_TYPE                                           VARCHAR(200) NULL, --请求类型
+RS_PARA                                           VARCHAR(200) NOT NULL, --Rest请求参数
+SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
+CONSTRAINT STREAMPRO_SETTING_PK PRIMARY KEY(RS_ID)   );
+
+--组件参数
+DROP TABLE IF EXISTS COMPONENT_PARAM ;
+CREATE TABLE COMPONENT_PARAM(
+PARAM_ID                                          BIGINT default 0 NOT NULL, --主键参数id
+PARAM_NAME                                        VARCHAR(512) NOT NULL, --参数名称
+PARAM_VALUE                                       VARCHAR(100) NOT NULL, --参数value
+IS_MUST                                           CHAR(1) NOT NULL, --是否必要
+PARAM_REMARK                                      VARCHAR(512) NOT NULL, --备注
+COMP_ID                                           VARCHAR(20) NULL, --组件编号
+CONSTRAINT COMPONENT_PARAM_PK PRIMARY KEY(PARAM_ID)   );
+
+--REST数据库数据信息表
+DROP TABLE IF EXISTS SDM_REST_DATABASE ;
+CREATE TABLE SDM_REST_DATABASE(
+SSD_INFO_ID                                       BIGINT default 0 NOT NULL, --数据库信息表id
+SSD_TABLE_NAME                                    VARCHAR(100) NULL, --表名称
+SSD_DATABASE_TYPE                                 CHAR(2) NOT NULL, --数据库类型
+SSD_DATABASE_DRIVE                                VARCHAR(64) NOT NULL, --数据库驱动
+SSD_DATABASE_NAME                                 VARCHAR(100) NULL, --数据库名称
+SSD_IP                                            VARCHAR(50) NOT NULL, --数据库ip
+SSD_PORT                                          VARCHAR(10) NOT NULL, --端口
+SSD_USER_NAME                                     VARCHAR(100) NULL, --数据库用户名
+SSD_USER_PASSWORD                                 VARCHAR(100) NOT NULL, --用户密码
+SSD_JDBC_URL                                      VARCHAR(512) NOT NULL, --数据库jdbc连接的url
+RS_ID                                             BIGINT default 0 NULL, --Rest Id
+CONSTRAINT SDM_REST_DATABASE_PK PRIMARY KEY(SSD_INFO_ID)   );
+
+--代码信息表
+DROP TABLE IF EXISTS CODE_INFO ;
+CREATE TABLE CODE_INFO(
+CI_SP_CODE                                        VARCHAR(20) NOT NULL, --代码值
+CI_SP_CLASS                                       VARCHAR(20) NOT NULL, --所属类别号
+CI_SP_CLASSNAME                                   VARCHAR(80) NOT NULL, --类别名称
+CI_SP_NAME                                        VARCHAR(255) NOT NULL, --代码名称
+CI_SP_REMARK                                      VARCHAR(512) NULL, --备注
+CONSTRAINT CODE_INFO_PK PRIMARY KEY(CI_SP_CODE,CI_SP_CLASS)   );
+
+--REST流数据信息表
+DROP TABLE IF EXISTS SDM_REST_STREAM ;
+CREATE TABLE SDM_REST_STREAM(
+SSS_STREAM_ID                                     BIGINT default 0 NOT NULL, --流数据信息表id
+SSS_KAFKA_VERSION                                 CHAR(1) NOT NULL, --kafka版本
+SSS_TOPIC_NAME                                    VARCHAR(64) NOT NULL, --主题
+SSS_BOOTSTRAP_SERVER                              VARCHAR(256) NOT NULL, --流服务主机
+SSS_CONSUMER_OFFSET                               VARCHAR(64) NOT NULL, --偏移量设置
+RS_ID                                             BIGINT default 0 NULL, --Rest Id
+CONSTRAINT SDM_REST_STREAM_PK PRIMARY KEY(SSS_STREAM_ID)   );
+
+--请求Agent类型
+DROP TABLE IF EXISTS REQ_AGENTTYPE ;
+CREATE TABLE REQ_AGENTTYPE(
+REQ_ID                                            BIGINT default 0 NOT NULL, --请求ID
+REQ_NAME                                          VARCHAR(512) NOT NULL, --中文名称
+REQ_NO                                            CHAR(10) NULL, --请求编号
+REQ_REMARK                                        VARCHAR(80) NULL, --备注
+COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
+CONSTRAINT REQ_AGENTTYPE_PK PRIMARY KEY(REQ_ID)   );
+
+--组件菜单表
+DROP TABLE IF EXISTS COMPONENT_MENU ;
+CREATE TABLE COMPONENT_MENU(
+MENU_ID                                           BIGINT default 0 NOT NULL, --主键菜单id
+MENU_PATH                                         VARCHAR(200) NOT NULL, --菜单path
+USER_TYPE                                         CHAR(2) NOT NULL, --用户类型
+MENU_NAME                                         VARCHAR(200) NOT NULL, --菜单名称
+COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
+MENU_REMARK                                       VARCHAR(512) NULL, --备注
+CONSTRAINT COMPONENT_MENU_PK PRIMARY KEY(MENU_ID)   );
+
+--系统备份信息表
+DROP TABLE IF EXISTS SYS_DUMP ;
+CREATE TABLE SYS_DUMP(
+DUMP_ID                                           BIGINT default 0 NOT NULL, --备份id
+BAK_DATE                                          CHAR(8) NOT NULL, --备份日期
+BAK_TIME                                          CHAR(6) NOT NULL, --备份时间
+FILE_SIZE                                         VARCHAR(512) NOT NULL, --文件大小
+FILE_NAME                                         VARCHAR(512) NOT NULL, --文件名称
+HDFS_PATH                                         VARCHAR(512) NOT NULL, --文件存放hdfs路径
+LENGTH                                            VARCHAR(10) NOT NULL, --备份时长
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT SYS_DUMP_PK PRIMARY KEY(DUMP_ID)   );
+
+--流数据用户消费申请表
+DROP TABLE IF EXISTS SDM_USER_PERMISSION ;
+CREATE TABLE SDM_USER_PERMISSION(
+APP_ID                                            BIGINT default 0 NOT NULL, --申请id
+TOPIC_ID                                          BIGINT default 0 NOT NULL, --topic_id
+PRODUCE_USER                                      BIGINT default 0 NOT NULL, --用户ID
+CONSUME_USER                                      BIGINT default 0 NOT NULL, --用户ID
+SDM_RECEIVE_ID                                    BIGINT default 0 NOT NULL, --流数据管理
+APPLICATION_STATUS                                CHAR(1) NOT NULL, --流数据申请状态
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT SDM_USER_PERMISSION_PK PRIMARY KEY(APP_ID)   );
+
+--备份恢复信息表
+DROP TABLE IF EXISTS SYS_RECOVER ;
+CREATE TABLE SYS_RECOVER(
+RE_ID                                             BIGINT default 0 NOT NULL, --恢复id
+RE_DATE                                           CHAR(8) NOT NULL, --恢复日期
+RE_TIME                                           CHAR(6) NOT NULL, --恢复时间
+LENGTH                                            VARCHAR(10) NOT NULL, --恢复时长
+REMARK                                            VARCHAR(512) NULL, --备注
+DUMP_ID                                           BIGINT default 0 NOT NULL, --备份id
+CONSTRAINT SYS_RECOVER_PK PRIMARY KEY(RE_ID)   );
+
+--采集情况信息表
+DROP TABLE IF EXISTS COLLECT_CASE ;
+CREATE TABLE COLLECT_CASE(
+JOB_RS_ID                                         VARCHAR(40) NOT NULL, --作业执行结果ID
+COLLECT_TYPE                                      CHAR(1) NOT NULL, --采集类型
+JOB_TYPE                                          VARCHAR(10) NULL, --任务类型
+COLLECT_TOTAL                                     BIGINT default 0 NULL, --总共采集(文件)表
+COLECT_RECORD                                     DECIMAL(16) default 0 NOT NULL, --总共采集记录数
+COLLET_DATABASE_SIZE                              VARCHAR(100) NULL, --总共采集数据大小
+COLLECT_S_DATE                                    CHAR(8) NOT NULL, --开始采集日期
+COLLECT_S_TIME                                    CHAR(6) NOT NULL, --开始采集时间
+COLLECT_E_DATE                                    CHAR(8) NULL, --采集结束日期
+COLLECT_E_TIME                                    CHAR(6) NULL, --采集结束时间
+EXECUTE_LENGTH                                    VARCHAR(10) NULL, --运行总时长
+EXECUTE_STATE                                     CHAR(2) NOT NULL, --运行状态
+IS_AGAIN                                          CHAR(1) NOT NULL, --是否重跑
+AGAIN_NUM                                         BIGINT default 0 NULL, --重跑次数
+JOB_GROUP                                         VARCHAR(100) NOT NULL, --agent组ID
+TASK_CLASSIFY                                     VARCHAR(512) NULL, --任务分类（原子性）表名-顶级文件夹
+ETL_DATE                                          VARCHAR(18) NULL, --跑批日期
+AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
+COLLECT_SET_ID                                    BIGINT default 0 NOT NULL, --数据库设置id
+SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
+CC_REMARK                                         VARCHAR(512) NULL, --备注
+CONSTRAINT COLLECT_CASE_PK PRIMARY KEY(JOB_RS_ID)   );
+
+--Ftp采集设置
+DROP TABLE IF EXISTS FTP_COLLECT ;
+CREATE TABLE FTP_COLLECT(
+FTP_ID                                            BIGINT default 0 NOT NULL, --ftp采集id
+FTP_NUMBER                                        VARCHAR(200) NOT NULL, --ftp任务编号
+FTP_NAME                                          VARCHAR(512) NOT NULL, --ftp采集任务名称
+START_DATE                                        CHAR(8) NOT NULL, --开始日期
+END_DATE                                          CHAR(8) NOT NULL, --结束日期
+FTP_IP                                            VARCHAR(50) NOT NULL, --ftp服务IP
+FTP_PORT                                          VARCHAR(10) NOT NULL, --ftp服务器端口
+FTP_USERNAME                                      VARCHAR(512) NOT NULL, --ftp用户名
+FTP_PASSWORD                                      VARCHAR(100) NOT NULL, --用户密码
+FTP_DIR                                           VARCHAR(512) NOT NULL, --ftp服务器目录
+LOCAL_PATH                                        VARCHAR(512) NOT NULL, --本地路径
+FTP_RULE_PATH                                     CHAR(1) default '1' NOT NULL, --下级目录规则
+CHILD_FILE_PATH                                   VARCHAR(512) NULL, --下级文件路径
+CHILD_TIME                                        CHAR(1) NULL, --下级文件时间
+FILE_SUFFIX                                       VARCHAR(200) NULL, --获取文件后缀
+FTP_MODEL                                         CHAR(1) default '1' NOT NULL, --FTP推拉模式是为推模式
+RUN_WAY                                           CHAR(1) NOT NULL, --启动方式
+REMARK                                            VARCHAR(512) NULL, --备注
+IS_SENDOK                                         CHAR(1) NOT NULL, --是否完成
+IS_UNZIP                                          CHAR(1) NOT NULL, --是否解压
+REDUCE_TYPE                                       CHAR(1) NULL, --解压格式
+IS_READ_REALTIME                                  CHAR(1) NOT NULL, --是否实时读取
+REALTIME_INTERVAL                                 BIGINT default 0 NOT NULL, --实时读取间隔时间
+AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
+CONSTRAINT FTP_COLLECT_PK PRIMARY KEY(FTP_ID)   );
+
+--ftp已传输表
+DROP TABLE IF EXISTS FTP_TRANSFERED ;
+CREATE TABLE FTP_TRANSFERED(
+FTP_TRANSFERED_ID                                 VARCHAR(40) NOT NULL, --已传输表id-UUID
+FTP_ID                                            BIGINT default 0 NOT NULL, --ftp采集id
+TRANSFERED_NAME                                   VARCHAR(512) NOT NULL, --已传输文件名称
+FILE_PATH                                         VARCHAR(512) NOT NULL, --文件绝对路径
+FTP_FILEMD5                                       VARCHAR(40) NULL, --文件MD5
+FTP_DATE                                          CHAR(8) NOT NULL, --ftp日期
+FTP_TIME                                          CHAR(6) NOT NULL, --ftp时间
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT FTP_TRANSFERED_PK PRIMARY KEY(FTP_TRANSFERED_ID)   );
+
+--数据存储层配置属性表
+DROP TABLE IF EXISTS DATA_STORE_LAYER_ATTR ;
+CREATE TABLE DATA_STORE_LAYER_ATTR(
+DSLA_ID                                           BIGINT default 0 NOT NULL, --存储配置主键信息
+STORAGE_PROPERTY_KEY                              VARCHAR(512) NOT NULL, --属性key
+STORAGE_PROPERTY_VAL                              VARCHAR(512) NOT NULL, --属性value
+IS_FILE                                           CHAR(1) NOT NULL, --是否为配置文件
+DSLA_REMARK                                       VARCHAR(512) NULL, --备注
+DSL_ID                                            BIGINT default 0 NOT NULL, --存储层配置ID
+CONSTRAINT DATA_STORE_LAYER_ATTR_PK PRIMARY KEY(DSLA_ID)   );
+
+--错误信息表
+DROP TABLE IF EXISTS ERROR_INFO ;
+CREATE TABLE ERROR_INFO(
+ERROR_ID                                          BIGINT default 0 NOT NULL, --错误ID
+JOB_RS_ID                                         VARCHAR(40) NOT NULL, --作业执行结果ID
+ERROR_MSG                                         VARCHAR(15555) NULL, --error_msg
+CONSTRAINT ERROR_INFO_PK PRIMARY KEY(ERROR_ID)   );
+
+--信号文件入库信息
+DROP TABLE IF EXISTS SIGNAL_FILE ;
+CREATE TABLE SIGNAL_FILE(
+SIGNAL_ID                                         BIGINT default 0 NOT NULL, --信号id
+IS_INTO_HBASE                                     CHAR(1) NOT NULL, --是否入hbase
+IS_COMPRESSION                                    CHAR(1) default '0' NOT NULL, --Hbase是使用压缩
+IS_INTO_HIVE                                      CHAR(1) NOT NULL, --是否入hive
+IS_MPP                                            CHAR(1) NOT NULL, --是否为MPP
+TABLE_TYPE                                        CHAR(1) NOT NULL, --是内部表还是外部表
+IS_FULLINDEX                                      CHAR(1) NOT NULL, --是否创建全文索引
+FILE_FORMAT                                       CHAR(1) NOT NULL, --文件格式
+IS_SOLR_HBASE                                     CHAR(1) default '1' NOT NULL, --是否使用solrOnHbase
+IS_CBD                                            CHAR(1) default '1' NOT NULL, --是否使用carbondata
+DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
+CONSTRAINT SIGNAL_FILE_PK PRIMARY KEY(SIGNAL_ID)   );
+
+--表存储信息
+DROP TABLE IF EXISTS TABLE_STORAGE_INFO ;
+CREATE TABLE TABLE_STORAGE_INFO(
+STORAGE_ID                                        BIGINT default 0 NOT NULL, --储存编号
+FILE_FORMAT                                       CHAR(1) default '1' NOT NULL, --文件格式
+STORAGE_TYPE                                      CHAR(1) NOT NULL, --进数方式
+IS_ZIPPER                                         CHAR(1) NOT NULL, --是否拉链存储
+STORAGE_TIME                                      BIGINT default 0 NOT NULL, --存储期限（以天为单位）
+HYREN_NAME                                        VARCHAR(100) NOT NULL, --进库之后拼接的表名
+TABLE_ID                                          BIGINT default 0 NULL, --表名ID
+CONSTRAINT TABLE_STORAGE_INFO_PK PRIMARY KEY(STORAGE_ID)   );
+
+--数据源
+DROP TABLE IF EXISTS DATA_SOURCE ;
+CREATE TABLE DATA_SOURCE(
+SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
+DATASOURCE_NUMBER                                 VARCHAR(100) NULL, --数据源编号
+DATASOURCE_NAME                                   VARCHAR(512) NOT NULL, --数据源名称
+SOURCE_REMARK                                     VARCHAR(512) NULL, --数据源详细描述
+CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
+CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
+CREATE_USER_ID                                    BIGINT default 0 NOT NULL, --用户ID
+DATASOURCE_REMARK                                 VARCHAR(512) NULL, --备注
+CONSTRAINT DATA_SOURCE_PK PRIMARY KEY(SOURCE_ID)   );
+
+--数据源与部门关系
+DROP TABLE IF EXISTS SOURCE_RELATION_DEP ;
+CREATE TABLE SOURCE_RELATION_DEP(
+SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
+DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
+CONSTRAINT SOURCE_RELATION_DEP_PK PRIMARY KEY(SOURCE_ID,DEP_ID)   );
+
+--Agent信息表
+DROP TABLE IF EXISTS AGENT_INFO ;
+CREATE TABLE AGENT_INFO(
+AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
+AGENT_NAME                                        VARCHAR(512) NOT NULL, --Agent名称
+AGENT_TYPE                                        CHAR(1) NOT NULL, --agent类别
+AGENT_IP                                          VARCHAR(50) NOT NULL, --Agent所在服务器IP
+AGENT_PORT                                        VARCHAR(10) NULL, --agent服务器端口
+AGENT_STATUS                                      CHAR(1) NOT NULL, --agent状态
+CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
+CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
+SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+CONSTRAINT AGENT_INFO_PK PRIMARY KEY(AGENT_ID)   );
+
+--源系统数据库设置
+DROP TABLE IF EXISTS DATABASE_SET ;
+CREATE TABLE DATABASE_SET(
+DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
+AGENT_ID                                          BIGINT default 0 NULL, --Agent_id
+HOST_NAME                                         VARCHAR(512) NULL, --主机名
+DATABASE_NUMBER                                   VARCHAR(10) NULL, --数据库设置编号
+SYSTEM_TYPE                                       VARCHAR(512) NULL, --操作系统类型
+TASK_NAME                                         VARCHAR(512) NULL, --数据库采集任务名称
+DATABASE_NAME                                     VARCHAR(512) NULL, --数据库名称
+DATABASE_PAD                                      VARCHAR(100) NULL, --数据库密码
+DATABASE_DRIVE                                    VARCHAR(512) NULL, --数据库驱动
+DATABASE_TYPE                                     CHAR(2) NULL, --数据库类型
+USER_NAME                                         VARCHAR(512) NULL, --用户名称
+DATABASE_IP                                       VARCHAR(50) NULL, --数据库服务器IP
+DATABASE_PORT                                     VARCHAR(10) NULL, --数据库端口
+DB_AGENT                                          CHAR(1) NOT NULL, --是否DB文件数据采集
+DATABASE_SEPARATORR                               VARCHAR(512) NULL, --数据采用分隔符
+ROW_SEPARATOR                                     VARCHAR(512) NULL, --数据行分隔符
+PLANE_URL                                         VARCHAR(512) NULL, --DB文件数据字典位置
+IS_SENDOK                                         CHAR(1) NOT NULL, --是否设置完成并发送成功
+CP_OR                                             VARCHAR(512) NULL, --清洗顺序
+JDBC_URL                                          VARCHAR(512) NULL, --数据库连接地址
+COLLECT_TYPE                                      CHAR(1) NOT NULL, --数据库采集方式
+DSL_ID                                            BIGINT default 0 NULL, --存储层配置ID
+CLASSIFY_ID                                       BIGINT default 0 NOT NULL, --分类id
+CONSTRAINT DATABASE_SET_PK PRIMARY KEY(DATABASE_ID)   );
+
+--清洗作业参数属性表
+DROP TABLE IF EXISTS CLEAN_PARAMETER ;
+CREATE TABLE CLEAN_PARAMETER(
+C_ID                                              BIGINT default 0 NOT NULL, --清洗参数编号
+CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
+FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
+CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
+FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
+FIELD                                             VARCHAR(512) NULL, --原字段
+REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
+DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
+CONSTRAINT CLEAN_PARAMETER_PK PRIMARY KEY(C_ID)   );
+
+--数据库对应表
+DROP TABLE IF EXISTS TABLE_INFO ;
+CREATE TABLE TABLE_INFO(
+TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
+TABLE_NAME                                        VARCHAR(512) NOT NULL, --表名
+TABLE_CH_NAME                                     VARCHAR(512) NOT NULL, --中文名称
+REC_NUM_DATE                                      CHAR(8) NOT NULL, --数据获取时间
+TABLE_COUNT                                       VARCHAR(16) default '0' NULL, --记录数
+DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
+SOURCE_TABLEID                                    VARCHAR(512) NULL, --源表ID
+VALID_S_DATE                                      CHAR(8) NOT NULL, --有效开始日期
+VALID_E_DATE                                      CHAR(8) NOT NULL, --有效结束日期
+UNLOAD_TYPE                                       CHAR(1) NULL, --落地文件-卸数方式
+SQL                                               VARCHAR(6000) NULL, --自定义sql语句
+TI_OR                                             VARCHAR(512) NULL, --清洗顺序
+IS_MD5                                            CHAR(1) NOT NULL, --是否使用MD5
+IS_REGISTER                                       CHAR(1) NOT NULL, --是否仅登记
+IS_CUSTOMIZE_SQL                                  CHAR(1) NOT NULL, --是否并行抽取中的自定义sql
+IS_PARALLEL                                       CHAR(1) NOT NULL, --是否并行抽取
+IS_USER_DEFINED                                   CHAR(1) default '1' NOT NULL, --是否sql抽取
+PAGE_SQL                                          VARCHAR(6000) NULL, --分页sql
+PAGEPARALLELS                                     INTEGER default 0 NULL, --分页并行数
+DATAINCREMENT                                     INTEGER default 0 NULL, --每天数据增量
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT TABLE_INFO_PK PRIMARY KEY(TABLE_ID)   );
+
+--表清洗参数信息
+DROP TABLE IF EXISTS TABLE_CLEAN ;
+CREATE TABLE TABLE_CLEAN(
+TABLE_CLEAN_ID                                    BIGINT default 0 NOT NULL, --清洗参数编号
+CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
+FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
+CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
+FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
+FIELD                                             VARCHAR(512) NULL, --原字段
+REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
+TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
+CONSTRAINT TABLE_CLEAN_PK PRIMARY KEY(TABLE_CLEAN_ID)   );
+
+--列清洗参数信息
+DROP TABLE IF EXISTS COLUMN_CLEAN ;
+CREATE TABLE COLUMN_CLEAN(
+COL_CLEAN_ID                                      BIGINT default 0 NOT NULL, --清洗参数编号
+CONVERT_FORMAT                                    VARCHAR(512) NULL, --转换格式
+OLD_FORMAT                                        VARCHAR(512) NULL, --原始格式
+CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
+FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
+CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
+FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
+CODENAME                                          VARCHAR(512) NULL, --码值名称
+CODESYS                                           VARCHAR(512) NULL, --码值所属系统
+FIELD                                             VARCHAR(512) NULL, --原字段
+REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
+COLUMN_ID                                         BIGINT default 0 NOT NULL, --字段ID
+CONSTRAINT COLUMN_CLEAN_PK PRIMARY KEY(COL_CLEAN_ID)   );
+
+--Agent下载信息
+DROP TABLE IF EXISTS AGENT_DOWN_INFO ;
+CREATE TABLE AGENT_DOWN_INFO(
+DOWN_ID                                           BIGINT default 0 NOT NULL, --下载编号(primary)
+AGENT_NAME                                        VARCHAR(512) NOT NULL, --Agent名称
+AGENT_IP                                          VARCHAR(50) NOT NULL, --Agent IP
+AGENT_PORT                                        VARCHAR(10) NOT NULL, --Agent端口
+USER_NAME                                         VARCHAR(10) NULL, --用户名
+PASSWD                                            VARCHAR(10) NULL, --密码
+SAVE_DIR                                          VARCHAR(512) NOT NULL, --存放目录
+LOG_DIR                                           VARCHAR(512) NOT NULL, --日志目录
+DEPLOY                                            CHAR(1) NOT NULL, --是否部署
+AI_DESC                                           VARCHAR(200) NULL, --描述
+AGENT_CONTEXT                                     VARCHAR(200) NOT NULL, --agent的context
+AGENT_PATTERN                                     VARCHAR(200) NOT NULL, --agent的访问路径
+AGENT_TYPE                                        CHAR(1) NOT NULL, --agent类别
+AGENT_ID                                          BIGINT default 0 NULL, --Agent_id
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT AGENT_DOWN_INFO_PK PRIMARY KEY(DOWN_ID)   );
+
+--表对应的字段
+DROP TABLE IF EXISTS TABLE_COLUMN ;
+CREATE TABLE TABLE_COLUMN(
+COLUMN_ID                                         BIGINT default 0 NOT NULL, --字段ID
+IS_GET                                            CHAR(1) default '0' NULL, --是否采集
+IS_PRIMARY_KEY                                    CHAR(1) NOT NULL, --是否为主键
+COLUMN_NAME                                       VARCHAR(512) NOT NULL, --列名
+COLUMN_TYPE                                       VARCHAR(512) NULL, --列字段类型
+COLUMN_CH_NAME                                    VARCHAR(512) NULL, --列中文名称
+TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
+VALID_S_DATE                                      CHAR(8) NOT NULL, --有效开始日期
+VALID_E_DATE                                      CHAR(8) NOT NULL, --有效结束日期
+IS_ALIVE                                          CHAR(1) default '1' NOT NULL, --是否保留原字段
+IS_NEW                                            CHAR(1) default '1' NOT NULL, --是否为变化生成
+IS_ZIPPER_FIELD                                   CHAR(1) NOT NULL, --是否为拉链字段
+TC_OR                                             VARCHAR(512) NULL, --清洗顺序
+TC_REMARK                                         VARCHAR(512) NULL, --备注
+CONSTRAINT TABLE_COLUMN_PK PRIMARY KEY(COLUMN_ID)   );
+
+--采集任务分类表
+DROP TABLE IF EXISTS COLLECT_JOB_CLASSIFY ;
+CREATE TABLE COLLECT_JOB_CLASSIFY(
+CLASSIFY_ID                                       BIGINT default 0 NOT NULL, --分类id
+CLASSIFY_NUM                                      VARCHAR(512) NOT NULL, --分类编号
+CLASSIFY_NAME                                     VARCHAR(512) NOT NULL, --分类名称
+REMARK                                            VARCHAR(512) NULL, --备注
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
+CONSTRAINT COLLECT_JOB_CLASSIFY_PK PRIMARY KEY(CLASSIFY_ID)   );
+
+--文件源设置
 DROP TABLE IF EXISTS FILE_SOURCE ;
 CREATE TABLE FILE_SOURCE(
 FILE_SOURCE_ID                                    BIGINT default 0 NOT NULL, --文件源ID
@@ -1275,45 +1713,6 @@ LABEL_SIZE                                        VARCHAR(32) NULL, --标题大�
 DASHBOARD_ID                                      BIGINT default 0 NULL, --仪表板id
 CONSTRAINT AUTO_LABEL_INFO_PK PRIMARY KEY(LABEL_ID)   );
 
---作业定义表
-DROP TABLE IF EXISTS ETL_JOB_DEF ;
-CREATE TABLE ETL_JOB_DEF(
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
-ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
-PRO_TYPE                                          VARCHAR(50) NOT NULL, --作业程序类型
-PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
-PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
-PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
-LOG_DIC                                           VARCHAR(512) NULL, --日志目录
-DISP_FREQ                                         CHAR(1) NULL, --调度频率
-DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
-DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
-DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
-JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
-JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
-JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
-CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
-CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
-OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
-OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
-CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
-COMMENTS                                          VARCHAR(512) NULL, --备注信息
-TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
-JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
-JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
-JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
-UPD_TIME                                          VARCHAR(50) NULL, --更新日期
-EXE_FREQUENCY                                     INTEGER default 0 NOT NULL, --每隔(分钟)执行
-EXE_NUM                                           INTEGER default 0 NULL, --执行次数
-COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
-LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
-STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
-END_TIME                                          VARCHAR(20) NULL, --结束执行时间
-CONSTRAINT ETL_JOB_DEF_PK PRIMARY KEY(ETL_JOB,ETL_SYS_CD)   );
-
 --组件汇总表
 DROP TABLE IF EXISTS AUTO_COMP_SUM ;
 CREATE TABLE AUTO_COMP_SUM(
@@ -1341,44 +1740,6 @@ UPDATE_USER                                       BIGINT default 0 NULL, --用�
 CONDITION_SQL                                     VARCHAR(2048) NULL, --条件SQL
 CONSTRAINT AUTO_COMP_SUM_PK PRIMARY KEY(COMPONENT_ID)   );
 
---作业调度表
-DROP TABLE IF EXISTS ETL_JOB_CUR ;
-CREATE TABLE ETL_JOB_CUR(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
-ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
-PRO_TYPE                                          VARCHAR(50) NULL, --作业程序类型
-PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
-PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
-PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
-LOG_DIC                                           VARCHAR(512) NULL, --日志目录
-DISP_FREQ                                         CHAR(1) NULL, --调度频率
-DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
-DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
-DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
-JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
-JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
-JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
-CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
-CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
-OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
-OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
-CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
-COMMENTS                                          VARCHAR(512) NULL, --备注信息
-TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
-JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
-JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
-JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
-EXE_FREQUENCY                                     BIGINT default 0 NULL, --每隔(分钟)执行
-EXE_NUM                                           INTEGER default 0 NULL, --执行次数
-COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
-LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
-STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
-END_TIME                                          VARCHAR(20) NULL, --结束执行时间
-CONSTRAINT ETL_JOB_CUR_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB)   );
-
 --仪表板分割线表
 DROP TABLE IF EXISTS AUTO_LINE_INFO ;
 CREATE TABLE AUTO_LINE_INFO(
@@ -1392,32 +1753,6 @@ LINE_LENGTH                                       BIGINT default 0 NOT NULL, --�
 LINE_WEIGHT                                       BIGINT default 0 NOT NULL, --分割线宽度
 DASHBOARD_ID                                      BIGINT default 0 NOT NULL, --仪表板id
 CONSTRAINT AUTO_LINE_INFO_PK PRIMARY KEY(LINE_ID)   );
-
---用户信息表
-DROP TABLE IF EXISTS SYS_USER ;
-CREATE TABLE SYS_USER(
-USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
-CREATE_ID                                         BIGINT default 0 NOT NULL, --建立用户ID
-DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
-ROLE_ID                                           BIGINT default 0 NOT NULL, --角色ID
-USER_NAME                                         VARCHAR(512) NOT NULL, --用户名称
-USER_PASSWORD                                     VARCHAR(100) NOT NULL, --用户密码
-USER_EMAIL                                        VARCHAR(100) NULL, --邮箱
-USER_MOBILE                                       VARCHAR(20) NULL, --移动电话
-USERIS_ADMIN                                      CHAR(1) default '1' NOT NULL, --是否为管理员
-USER_TYPE                                         CHAR(2) NULL, --用户类型
-USERTYPE_GROUP                                    VARCHAR(512) NULL, --用户类型组
-LOGIN_IP                                          VARCHAR(50) NULL, --登录IP
-LOGIN_DATE                                        CHAR(8) NULL, --最后登录时间
-USER_STATE                                        CHAR(1) NOT NULL, --用户状态
-CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
-CREATE_TIME                                       CHAR(6) NULL, --创建时间
-UPDATE_DATE                                       CHAR(8) NULL, --更新日期
-UPDATE_TIME                                       CHAR(6) NULL, --更新时间
-USER_REMARK                                       VARCHAR(512) NULL, --备注
-TOKEN                                             VARCHAR(40) default '0' NOT NULL, --token
-VALID_TIME                                        VARCHAR(40) default '0' NOT NULL, --token有效时间
-CONSTRAINT SYS_USER_PK PRIMARY KEY(USER_ID)   );
 
 --仪表板边框组件信息表
 DROP TABLE IF EXISTS AUTO_FRAME_INFO ;
@@ -1435,44 +1770,6 @@ LENGTH                                            BIGINT default 0 NOT NULL, --�
 WIDTH                                             BIGINT default 0 NOT NULL, --组件宽度
 DASHBOARD_ID                                      BIGINT default 0 NOT NULL, --仪表板id
 CONSTRAINT AUTO_FRAME_INFO_PK PRIMARY KEY(FRAME_ID)   );
-
---作业历史表
-DROP TABLE IF EXISTS ETL_JOB_DISP_HIS ;
-CREATE TABLE ETL_JOB_DISP_HIS(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-CURR_BATH_DATE                                    VARCHAR(30) NOT NULL, --当前批量日期
-SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
-ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
-PRO_TYPE                                          VARCHAR(50) NULL, --作业程序类型
-PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
-PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
-PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
-LOG_DIC                                           VARCHAR(512) NULL, --日志目录
-DISP_FREQ                                         CHAR(1) NULL, --调度频率
-DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
-DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
-DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
-JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
-JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
-JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
-CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
-CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
-OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
-OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
-COMMENTS                                          VARCHAR(512) NULL, --备注信息
-TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
-JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
-JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
-JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
-EXE_FREQUENCY                                     BIGINT default 0 NULL, --每隔(分钟)执行	exe_frequency
-EXE_NUM                                           INTEGER default 0 NULL, --执行次数
-COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
-LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
-STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
-END_TIME                                          VARCHAR(20) NULL, --结束执行时间
-CONSTRAINT ETL_JOB_DISP_HIS_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB,CURR_BATH_DATE)   );
 
 --字体属性信息表
 DROP TABLE IF EXISTS AUTO_FONT_INFO ;
@@ -1494,17 +1791,6 @@ FONT_CORR_TNAME                                   VARCHAR(100) NULL, --字体属
 FONT_CORR_ID                                      BIGINT default 0 NOT NULL, --字体属性对应的编号
 CONSTRAINT AUTO_FONT_INFO_PK PRIMARY KEY(FONT_ID)   );
 
---作业依赖关系表
-DROP TABLE IF EXISTS ETL_DEPENDENCY ;
-CREATE TABLE ETL_DEPENDENCY(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-PRE_ETL_SYS_CD                                    VARCHAR(100) NOT NULL, --上游系统代码
-PRE_ETL_JOB                                       VARCHAR(512) NOT NULL, --上游作业名
-STATUS                                            CHAR(1) NULL, --状态
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
-CONSTRAINT ETL_DEPENDENCY_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB,PRE_ETL_SYS_CD,PRE_ETL_JOB)   );
-
 --轴配置信息表
 DROP TABLE IF EXISTS AUTO_AXIS_INFO ;
 CREATE TABLE AUTO_AXIS_INFO(
@@ -1523,15 +1809,6 @@ SILENT                                            CHAR(1) NOT NULL, --坐标轴�
 COMPONENT_ID                                      BIGINT default 0 NOT NULL, --组件ID
 CONSTRAINT AUTO_AXIS_INFO_PK PRIMARY KEY(AXIS_ID)   );
 
---作业资源关系表
-DROP TABLE IF EXISTS ETL_JOB_RESOURCE_RELA ;
-CREATE TABLE ETL_JOB_RESOURCE_RELA(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-RESOURCE_TYPE                                     VARCHAR(100) NULL, --资源使用类型
-RESOURCE_REQ                                      INTEGER default 0 NULL, --资源需求数
-CONSTRAINT ETL_JOB_RESOURCE_RELA_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB)   );
-
 --轴线配置信息表
 DROP TABLE IF EXISTS AUTO_AXISLINE_INFO ;
 CREATE TABLE AUTO_AXISLINE_INFO(
@@ -1542,17 +1819,6 @@ SYMBOL                                            VARCHAR(32) NULL, --轴线箭�
 SYMBOLOFFSET                                      BIGINT default 0 NOT NULL, --轴线箭头偏移量
 AXIS_ID                                           BIGINT default 0 NULL, --轴编号
 CONSTRAINT AUTO_AXISLINE_INFO_PK PRIMARY KEY(AXISLINE_ID)   );
-
---作业模版参数表
-DROP TABLE IF EXISTS ETL_JOB_TEMP_PARA ;
-CREATE TABLE ETL_JOB_TEMP_PARA(
-ETL_TEMP_PARA_ID                                  BIGINT default 0 NOT NULL, --模版参数主键
-ETL_PARA_TYPE                                     VARCHAR(512) NOT NULL, --参数类型
-ETL_JOB_PRO_PARA                                  VARCHAR(512) NOT NULL, --参数名称
-ETL_JOB_PARA_SIZE                                 VARCHAR(512) NOT NULL, --参数
-ETL_PRO_PARA_SORT                                 BIGINT default 0 NOT NULL, --参数排序
-ETL_TEMP_ID                                       BIGINT default 0 NOT NULL, --模版ID
-CONSTRAINT ETL_JOB_TEMP_PARA_PK PRIMARY KEY(ETL_TEMP_PARA_ID)   );
 
 --轴标签配置信息表
 DROP TABLE IF EXISTS AUTO_AXISLABEL_INFO ;
@@ -1566,16 +1832,6 @@ FORMATTER                                         VARCHAR(100) NULL, --内容格
 AXIS_ID                                           BIGINT default 0 NULL, --轴编号
 CONSTRAINT AUTO_AXISLABEL_INFO_PK PRIMARY KEY(LABLE_ID)   );
 
---资源登记表
-DROP TABLE IF EXISTS ETL_RESOURCE ;
-CREATE TABLE ETL_RESOURCE(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-RESOURCE_TYPE                                     VARCHAR(100) NOT NULL, --资源使用类型
-RESOURCE_MAX                                      INTEGER default 0 NULL, --资源阀值
-RESOURCE_USED                                     INTEGER default 0 NULL, --已使用数
-MAIN_SERV_SYNC                                    CHAR(1) NOT NULL, --主服务器同步标志
-CONSTRAINT ETL_RESOURCE_PK PRIMARY KEY(ETL_SYS_CD,RESOURCE_TYPE)   );
-
 --表格配置信息表
 DROP TABLE IF EXISTS AUTO_TABLE_INFO ;
 CREATE TABLE AUTO_TABLE_INFO(
@@ -1586,15 +1842,6 @@ IS_ZEBRALINE                                      CHAR(1) NOT NULL, --是否使�
 ZL_BACKGROUND                                     VARCHAR(16) NULL, --斑马线颜色
 COMPONENT_ID                                      BIGINT default 0 NULL, --组件ID
 CONSTRAINT AUTO_TABLE_INFO_PK PRIMARY KEY(CONFIG_ID)   );
-
---模版作业信息表
-DROP TABLE IF EXISTS ETL_JOB_TEMP ;
-CREATE TABLE ETL_JOB_TEMP(
-ETL_TEMP_ID                                       BIGINT default 0 NOT NULL, --模版ID
-ETL_TEMP_TYPE                                     VARCHAR(512) NOT NULL, --模版名称
-PRO_DIC                                           VARCHAR(512) NOT NULL, --模版shell路径
-PRO_NAME                                          VARCHAR(512) NOT NULL, --模版shell名称
-CONSTRAINT ETL_JOB_TEMP_PK PRIMARY KEY(ETL_TEMP_ID)   );
 
 --组件图例信息表
 DROP TABLE IF EXISTS AUTO_LEGEND_INFO ;
@@ -1628,30 +1875,6 @@ BORDERRADIUS                                      BIGINT default 0 NULL, --圆�
 ANIMATION                                         CHAR(1) NULL, --图例翻页动画
 COMPONENT_ID                                      BIGINT default 0 NULL, --组件ID
 CONSTRAINT AUTO_LEGEND_INFO_PK PRIMARY KEY(LEGEND_ID)   );
-
---作业干预表
-DROP TABLE IF EXISTS ETL_JOB_HAND ;
-CREATE TABLE ETL_JOB_HAND(
-EVENT_ID                                          VARCHAR(30) NOT NULL, --干预发生时间
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-ETL_HAND_TYPE                                     CHAR(2) NULL, --干预类型
-PRO_PARA                                          VARCHAR(512) NULL, --干预参数
-HAND_STATUS                                       CHAR(1) NULL, --干预状态
-ST_TIME                                           VARCHAR(30) NULL, --开始时间
-END_TIME                                          VARCHAR(30) NULL, --结束时间
-WARNING                                           VARCHAR(80) NULL, --错误信息
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --同步标志位
-CONSTRAINT ETL_JOB_HAND_PK PRIMARY KEY(EVENT_ID,ETL_SYS_CD,ETL_JOB)   );
-
---子系统定义表
-DROP TABLE IF EXISTS ETL_SUB_SYS_LIST ;
-CREATE TABLE ETL_SUB_SYS_LIST(
-SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-SUB_SYS_DESC                                      VARCHAR(200) NULL, --子系统描述
-COMMENTS                                          VARCHAR(512) NULL, --备注信息
-CONSTRAINT ETL_SUB_SYS_LIST_PK PRIMARY KEY(SUB_SYS_CD,ETL_SYS_CD)   );
 
 --图表配置信息表
 DROP TABLE IF EXISTS AUTO_CHARTSCONFIG ;
@@ -1691,16 +1914,6 @@ POLYLINE                                          CHAR(1) NOT NULL, --是多段�
 COMPONENT_ID                                      BIGINT default 0 NULL, --组件ID
 CONSTRAINT AUTO_CHARTSCONFIG_PK PRIMARY KEY(CONFIG_ID)   );
 
---参数登记
-DROP TABLE IF EXISTS ETL_PARA ;
-CREATE TABLE ETL_PARA(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-PARA_CD                                           VARCHAR(50) NOT NULL, --变量代码
-PARA_VAL                                          VARCHAR(512) NULL, --变量值
-PARA_TYPE                                         VARCHAR(50) NULL, --变量类型
-PARA_DESC                                         VARCHAR(200) NULL, --作业描述
-CONSTRAINT ETL_PARA_PK PRIMARY KEY(ETL_SYS_CD,PARA_CD)   );
-
 --图表配置区域样式信息表
 DROP TABLE IF EXISTS AUTO_AREASTYLE ;
 CREATE TABLE AUTO_AREASTYLE(
@@ -1714,21 +1927,6 @@ SHADOWOFFSETX                                     BIGINT default 0 NOT NULL, --�
 SHADOWOFFSETY                                     BIGINT default 0 NOT NULL, --阴影垂直偏移距离
 CONFIG_ID                                         BIGINT default 0 NULL, --配置编号
 CONSTRAINT AUTO_AREASTYLE_PK PRIMARY KEY(STYLE_ID)   );
-
---干预历史表
-DROP TABLE IF EXISTS ETL_JOB_HAND_HIS ;
-CREATE TABLE ETL_JOB_HAND_HIS(
-EVENT_ID                                          VARCHAR(30) NOT NULL, --干预发生时间
-ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_HAND_TYPE                                     CHAR(2) NULL, --干预类型
-PRO_PARA                                          VARCHAR(512) NULL, --干预参数
-HAND_STATUS                                       CHAR(1) NULL, --干预状态
-ST_TIME                                           VARCHAR(30) NULL, --开始时间
-END_TIME                                          VARCHAR(30) NULL, --结束时间
-WARNING                                           VARCHAR(80) NULL, --错误信息
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --同步标志位
-CONSTRAINT ETL_JOB_HAND_HIS_PK PRIMARY KEY(EVENT_ID,ETL_JOB,ETL_SYS_CD)   );
 
 --图形文本标签表
 DROP TABLE IF EXISTS AUTO_LABEL ;
@@ -1745,29 +1943,6 @@ LABEL_CORR_TNAME                                  VARCHAR(32) NULL, --标签对�
 LABEL_CORR_ID                                     BIGINT default 0 NOT NULL, --标签对于的编号
 CONSTRAINT AUTO_LABEL_PK PRIMARY KEY(LABLE_ID)   );
 
---作业工程登记表
-DROP TABLE IF EXISTS ETL_SYS ;
-CREATE TABLE ETL_SYS(
-ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
-ETL_SYS_NAME                                      VARCHAR(512) NOT NULL, --工程名称
-ETL_SERV_IP                                       VARCHAR(50) NULL, --etl服务器ip
-ETL_SERV_PORT                                     VARCHAR(10) NULL, --etl服务器端口
-CONTACT_PERSON                                    VARCHAR(512) NULL, --联系人
-CONTACT_PHONE                                     VARCHAR(20) NULL, --联系电话
-COMMENTS                                          VARCHAR(512) NULL, --备注信息
-CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
-BATH_SHIFT_TIME                                   VARCHAR(30) NULL, --系统日切时间
-MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
-SYS_RUN_STATUS                                    CHAR(1) NULL, --系统状态
-USER_NAME                                         VARCHAR(512) NULL, --主机服务器用户名
-USER_PWD                                          VARCHAR(512) NULL, --主机用户密码
-SERV_FILE_PATH                                    VARCHAR(512) NULL, --部署服务器路径
-ETL_CONTEXT                                       VARCHAR(512) NULL, --访问根
-ETL_PATTERN                                       VARCHAR(512) NULL, --访问路径
-REMARKS                                           VARCHAR(512) NULL, --备注
-USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
-CONSTRAINT ETL_SYS_PK PRIMARY KEY(ETL_SYS_CD)   );
-
 --数据库采集周期
 DROP TABLE IF EXISTS TABLE_CYCLE ;
 CREATE TABLE TABLE_CYCLE(
@@ -1777,13 +1952,6 @@ INTERVAL_TIME                                     BIGINT default 0 NOT NULL, --�
 OVER_DATE                                         CHAR(8) NOT NULL, --结束日期
 TC_REMARK                                         VARCHAR(512) NULL, --备注
 CONSTRAINT TABLE_CYCLE_PK PRIMARY KEY(TC_ID)   );
-
---主键生成表
-DROP TABLE IF EXISTS KEYTABLE ;
-CREATE TABLE KEYTABLE(
-KEY_NAME                                          VARCHAR(80) NOT NULL, --key_name
-KEY_VALUE                                         INTEGER default 0 NULL, --value
-CONSTRAINT KEYTABLE_PK PRIMARY KEY(KEY_NAME)   );
 
 --carbondata预聚合信息表
 DROP TABLE IF EXISTS CB_PREAGGREGATE ;
@@ -1797,16 +1965,6 @@ AGG_TIME                                          CHAR(6) NOT NULL, --时间
 AGG_STATUS                                        CHAR(3) default '105' NULL, --预聚合是否成功
 REMARK                                            VARCHAR(512) NULL, --备注
 CONSTRAINT CB_PREAGGREGATE_PK PRIMARY KEY(AGG_ID)   );
-
---系统参数配置
-DROP TABLE IF EXISTS SYS_PARA ;
-CREATE TABLE SYS_PARA(
-PARA_ID                                           BIGINT default 0 NOT NULL, --参数ID
-PARA_NAME                                         VARCHAR(512) NULL, --para_name
-PARA_VALUE                                        VARCHAR(512) NULL, --para_value
-PARA_TYPE                                         VARCHAR(512) NULL, --para_type
-REMARK                                            VARCHAR(512) NULL, --备注
-CONSTRAINT SYS_PARA_PK PRIMARY KEY(PARA_ID)   );
 
 --流数据管理数据源
 DROP TABLE IF EXISTS SDM_DATA_SOURCE ;
@@ -1879,16 +2037,6 @@ CREATE_TIME                                       CHAR(6) NOT NULL, --创建时�
 USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
 CONSTRAINT SDM_TOPIC_INFO_PK PRIMARY KEY(TOPIC_ID)   );
 
---部门信息表
-DROP TABLE IF EXISTS DEPARTMENT_INFO ;
-CREATE TABLE DEPARTMENT_INFO(
-DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
-DEP_NAME                                          VARCHAR(512) NOT NULL, --部门名称
-CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
-CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
-DEP_REMARK                                        VARCHAR(512) NULL, --备注
-CONSTRAINT DEPARTMENT_INFO_PK PRIMARY KEY(DEP_ID)   );
-
 --流数据管理消费端配置表
 DROP TABLE IF EXISTS SDM_CONSUME_CONF ;
 CREATE TABLE SDM_CONSUME_CONF(
@@ -1909,27 +2057,6 @@ REMARK                                            VARCHAR(512) NULL, --备注
 USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
 CONSTRAINT SDM_CONSUME_CONF_PK PRIMARY KEY(SDM_CONSUM_ID)   );
 
---角色信息表
-DROP TABLE IF EXISTS SYS_ROLE ;
-CREATE TABLE SYS_ROLE(
-ROLE_ID                                           BIGINT default 0 NOT NULL, --角色ID
-ROLE_NAME                                         VARCHAR(512) NOT NULL, --角色名称
-ROLE_REMARK                                       VARCHAR(512) NULL, --备注
-CONSTRAINT SYS_ROLE_PK PRIMARY KEY(ROLE_ID)   );
-
---组件信息表
-DROP TABLE IF EXISTS COMPONENT_INFO ;
-CREATE TABLE COMPONENT_INFO(
-COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
-COMP_NAME                                         VARCHAR(512) NOT NULL, --组件名称
-COMP_STATE                                        CHAR(1) NOT NULL, --组件状态
-COMP_VERSION                                      VARCHAR(100) NOT NULL, --组件版本
-ICON_INFO                                         VARCHAR(512) NULL, --图标
-COLOR_INFO                                        VARCHAR(512) NULL, --颜色
-COMP_TYPE                                         CHAR(1) NOT NULL, --组件类型
-COMP_REMARK                                       VARCHAR(512) NULL, --备注
-CONSTRAINT COMPONENT_INFO_PK PRIMARY KEY(COMP_ID)   );
-
 --流数据管理消费端参数表
 DROP TABLE IF EXISTS SDM_CONS_PARA ;
 CREATE TABLE SDM_CONS_PARA(
@@ -1939,17 +2066,6 @@ REMARK                                            VARCHAR(512) NULL, --备注
 SDM_CONS_PARA_VAL                                 VARCHAR(100) NULL, --参数值
 SDM_CONSUM_ID                                     BIGINT default 0 NOT NULL, --消费端配置id
 CONSTRAINT SDM_CONS_PARA_PK PRIMARY KEY(SDM_CONF_PARA_ID)   );
-
---组件参数
-DROP TABLE IF EXISTS COMPONENT_PARAM ;
-CREATE TABLE COMPONENT_PARAM(
-PARAM_ID                                          BIGINT default 0 NOT NULL, --主键参数id
-PARAM_NAME                                        VARCHAR(512) NOT NULL, --参数名称
-PARAM_VALUE                                       VARCHAR(100) NOT NULL, --参数value
-IS_MUST                                           CHAR(1) NOT NULL, --是否必要
-PARAM_REMARK                                      VARCHAR(512) NOT NULL, --备注
-COMP_ID                                           VARCHAR(20) NULL, --组件编号
-CONSTRAINT COMPONENT_PARAM_PK PRIMARY KEY(PARAM_ID)   );
 
 --流数据管理接收端配置表
 DROP TABLE IF EXISTS SDM_RECEIVE_CONF ;
@@ -1995,16 +2111,6 @@ RUN_WAY                                           CHAR(1) NOT NULL, --启动方�
 SDM_AGENT_ID                                      BIGINT default 0 NOT NULL, --流数据管理agent_id
 CONSTRAINT SDM_RECEIVE_CONF_PK PRIMARY KEY(SDM_RECEIVE_ID)   );
 
---代码信息表
-DROP TABLE IF EXISTS CODE_INFO ;
-CREATE TABLE CODE_INFO(
-CI_SP_CODE                                        VARCHAR(20) NOT NULL, --代码值
-CI_SP_CLASS                                       VARCHAR(20) NOT NULL, --所属类别号
-CI_SP_CLASSNAME                                   VARCHAR(80) NOT NULL, --类别名称
-CI_SP_NAME                                        VARCHAR(255) NOT NULL, --代码名称
-CI_SP_REMARK                                      VARCHAR(512) NULL, --备注
-CONSTRAINT CODE_INFO_PK PRIMARY KEY(CI_SP_CODE,CI_SP_CLASS)   );
-
 --流数据管理消息信息表
 DROP TABLE IF EXISTS SDM_MESS_INFO ;
 CREATE TABLE SDM_MESS_INFO(
@@ -2019,16 +2125,6 @@ REMARK                                            VARCHAR(512) NULL, --备注
 SDM_RECEIVE_ID                                    BIGINT default 0 NOT NULL, --流数据管理
 CONSTRAINT SDM_MESS_INFO_PK PRIMARY KEY(MESS_INFO_ID)   );
 
---请求Agent类型
-DROP TABLE IF EXISTS REQ_AGENTTYPE ;
-CREATE TABLE REQ_AGENTTYPE(
-REQ_ID                                            BIGINT default 0 NOT NULL, --请求ID
-REQ_NAME                                          VARCHAR(512) NOT NULL, --中文名称
-REQ_NO                                            CHAR(10) NULL, --请求编号
-REQ_REMARK                                        VARCHAR(80) NULL, --备注
-COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
-CONSTRAINT REQ_AGENTTYPE_PK PRIMARY KEY(REQ_ID)   );
-
 --流数据管理接收参数表
 DROP TABLE IF EXISTS SDM_REC_PARAM ;
 CREATE TABLE SDM_REC_PARAM(
@@ -2037,17 +2133,6 @@ SDM_PARAM_KEY                                     VARCHAR(200) NOT NULL, --接�
 SDM_PARAM_VALUE                                   VARCHAR(200) NOT NULL, --接收端参数value值
 SDM_RECEIVE_ID                                    BIGINT default 0 NOT NULL, --流数据管理
 CONSTRAINT SDM_REC_PARAM_PK PRIMARY KEY(REC_PARAM_ID)   );
-
---组件菜单表
-DROP TABLE IF EXISTS COMPONENT_MENU ;
-CREATE TABLE COMPONENT_MENU(
-MENU_ID                                           BIGINT default 0 NOT NULL, --主键菜单id
-MENU_PATH                                         VARCHAR(200) NOT NULL, --菜单path
-USER_TYPE                                         CHAR(2) NOT NULL, --用户类型
-MENU_NAME                                         VARCHAR(200) NOT NULL, --菜单名称
-COMP_ID                                           VARCHAR(20) NOT NULL, --组件编号
-MENU_REMARK                                       VARCHAR(512) NULL, --备注
-CONSTRAINT COMPONENT_MENU_PK PRIMARY KEY(MENU_ID)   );
 
 --流数据管理消费目的地管理
 DROP TABLE IF EXISTS SDM_CONSUME_DES ;
@@ -2069,19 +2154,6 @@ SDM_CONSUM_ID                                     BIGINT default 0 NOT NULL, --�
 SDM_CONF_PARA_ID                                  BIGINT default 0 NOT NULL, --sdm_conf_para_id
 CONSTRAINT SDM_CONSUME_DES_PK PRIMARY KEY(SDM_DES_ID)   );
 
---系统备份信息表
-DROP TABLE IF EXISTS SYS_DUMP ;
-CREATE TABLE SYS_DUMP(
-DUMP_ID                                           BIGINT default 0 NOT NULL, --备份id
-BAK_DATE                                          CHAR(8) NOT NULL, --备份日期
-BAK_TIME                                          CHAR(6) NOT NULL, --备份时间
-FILE_SIZE                                         VARCHAR(512) NOT NULL, --文件大小
-FILE_NAME                                         VARCHAR(512) NOT NULL, --文件名称
-HDFS_PATH                                         VARCHAR(512) NOT NULL, --文件存放hdfs路径
-LENGTH                                            VARCHAR(10) NOT NULL, --备份时长
-REMARK                                            VARCHAR(512) NULL, --备注
-CONSTRAINT SYS_DUMP_PK PRIMARY KEY(DUMP_ID)   );
-
 --任务/topic映射表
 DROP TABLE IF EXISTS SDM_KSQL_TABLE ;
 CREATE TABLE SDM_KSQL_TABLE(
@@ -2099,17 +2171,6 @@ JOB_DESC                                          VARCHAR(200) NULL, --任务描
 AUTO_OFFSET                                       VARCHAR(10) NULL, --数据拉取初始位置
 TABLE_REMARK                                      VARCHAR(6000) NULL, --备注
 CONSTRAINT SDM_KSQL_TABLE_PK PRIMARY KEY(SDM_KSQL_ID)   );
-
---备份恢复信息表
-DROP TABLE IF EXISTS SYS_RECOVER ;
-CREATE TABLE SYS_RECOVER(
-RE_ID                                             BIGINT default 0 NOT NULL, --恢复id
-RE_DATE                                           CHAR(8) NOT NULL, --恢复日期
-RE_TIME                                           CHAR(6) NOT NULL, --恢复时间
-LENGTH                                            VARCHAR(10) NOT NULL, --恢复时长
-REMARK                                            VARCHAR(512) NULL, --备注
-DUMP_ID                                           BIGINT default 0 NOT NULL, --备份id
-CONSTRAINT SYS_RECOVER_PK PRIMARY KEY(RE_ID)   );
 
 --ksql字段配置
 DROP TABLE IF EXISTS SDM_CON_KSQL ;
@@ -2136,32 +2197,6 @@ ADVANCE_INTERVAL                                  BIGINT default 0 NOT NULL, --�
 WINDOW_REMARK                                     VARCHAR(512) NULL, --备注
 CONSTRAINT SDM_KSQL_WINDOW_PK PRIMARY KEY(SDM_WIN_ID)   );
 
---采集情况信息表
-DROP TABLE IF EXISTS COLLECT_CASE ;
-CREATE TABLE COLLECT_CASE(
-JOB_RS_ID                                         VARCHAR(40) NOT NULL, --作业执行结果ID
-COLLECT_TYPE                                      CHAR(1) NOT NULL, --采集类型
-JOB_TYPE                                          VARCHAR(10) NULL, --任务类型
-COLLECT_TOTAL                                     BIGINT default 0 NULL, --总共采集(文件)表
-COLECT_RECORD                                     DECIMAL(16) default 0 NOT NULL, --总共采集记录数
-COLLET_DATABASE_SIZE                              VARCHAR(100) NULL, --总共采集数据大小
-COLLECT_S_DATE                                    CHAR(8) NOT NULL, --开始采集日期
-COLLECT_S_TIME                                    CHAR(6) NOT NULL, --开始采集时间
-COLLECT_E_DATE                                    CHAR(8) NULL, --采集结束日期
-COLLECT_E_TIME                                    CHAR(6) NULL, --采集结束时间
-EXECUTE_LENGTH                                    VARCHAR(10) NULL, --运行总时长
-EXECUTE_STATE                                     CHAR(2) NOT NULL, --运行状态
-IS_AGAIN                                          CHAR(1) NOT NULL, --是否重跑
-AGAIN_NUM                                         BIGINT default 0 NULL, --重跑次数
-JOB_GROUP                                         VARCHAR(100) NOT NULL, --agent组ID
-TASK_CLASSIFY                                     VARCHAR(512) NULL, --任务分类（原子性）表名-顶级文件夹
-ETL_DATE                                          VARCHAR(18) NULL, --跑批日期
-AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
-COLLECT_SET_ID                                    BIGINT default 0 NOT NULL, --数据库设置id
-SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
-CC_REMARK                                         VARCHAR(512) NULL, --备注
-CONSTRAINT COLLECT_CASE_PK PRIMARY KEY(JOB_RS_ID)   );
-
 --数据消费至二进制文件
 DROP TABLE IF EXISTS SDM_CONER_FILE ;
 CREATE TABLE SDM_CONER_FILE(
@@ -2172,278 +2207,6 @@ TIME_INTERVAL                                     VARCHAR(10) NOT NULL, --获取
 REMARK                                            VARCHAR(512) NULL, --备注
 SDM_DES_ID                                        BIGINT default 0 NOT NULL, --配置id
 CONSTRAINT SDM_CONER_FILE_PK PRIMARY KEY(FILE_ID)   );
-
---Ftp采集设置
-DROP TABLE IF EXISTS FTP_COLLECT ;
-CREATE TABLE FTP_COLLECT(
-FTP_ID                                            BIGINT default 0 NOT NULL, --ftp采集id
-FTP_NUMBER                                        VARCHAR(200) NOT NULL, --ftp任务编号
-FTP_NAME                                          VARCHAR(512) NOT NULL, --ftp采集任务名称
-START_DATE                                        CHAR(8) NOT NULL, --开始日期
-END_DATE                                          CHAR(8) NOT NULL, --结束日期
-FTP_IP                                            VARCHAR(50) NOT NULL, --ftp服务IP
-FTP_PORT                                          VARCHAR(10) NOT NULL, --ftp服务器端口
-FTP_USERNAME                                      VARCHAR(512) NOT NULL, --ftp用户名
-FTP_PASSWORD                                      VARCHAR(100) NOT NULL, --用户密码
-FTP_DIR                                           VARCHAR(512) NOT NULL, --ftp服务器目录
-LOCAL_PATH                                        VARCHAR(512) NOT NULL, --本地路径
-FTP_RULE_PATH                                     CHAR(1) default '1' NOT NULL, --下级目录规则
-CHILD_FILE_PATH                                   VARCHAR(512) NULL, --下级文件路径
-CHILD_TIME                                        CHAR(1) NULL, --下级文件时间
-FILE_SUFFIX                                       VARCHAR(200) NULL, --获取文件后缀
-FTP_MODEL                                         CHAR(1) default '1' NOT NULL, --FTP推拉模式是为推模式
-RUN_WAY                                           CHAR(1) NOT NULL, --启动方式
-REMARK                                            VARCHAR(512) NULL, --备注
-IS_SENDOK                                         CHAR(1) NOT NULL, --是否完成
-IS_UNZIP                                          CHAR(1) NOT NULL, --是否解压
-REDUCE_TYPE                                       CHAR(1) NULL, --解压格式
-IS_READ_REALTIME                                  CHAR(1) NOT NULL, --是否实时读取
-REALTIME_INTERVAL                                 BIGINT default 0 NOT NULL, --实时读取间隔时间
-AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
-CONSTRAINT FTP_COLLECT_PK PRIMARY KEY(FTP_ID)   );
-
---ftp已传输表
-DROP TABLE IF EXISTS FTP_TRANSFERED ;
-CREATE TABLE FTP_TRANSFERED(
-FTP_TRANSFERED_ID                                 VARCHAR(40) NOT NULL, --已传输表id-UUID
-FTP_ID                                            BIGINT default 0 NOT NULL, --ftp采集id
-TRANSFERED_NAME                                   VARCHAR(512) NOT NULL, --已传输文件名称
-FILE_PATH                                         VARCHAR(512) NOT NULL, --文件绝对路径
-FTP_FILEMD5                                       VARCHAR(40) NULL, --文件MD5
-FTP_DATE                                          CHAR(8) NOT NULL, --ftp日期
-FTP_TIME                                          CHAR(6) NOT NULL, --ftp时间
-REMARK                                            VARCHAR(512) NULL, --备注
-CONSTRAINT FTP_TRANSFERED_PK PRIMARY KEY(FTP_TRANSFERED_ID)   );
-
---数据存储层配置属性表
-DROP TABLE IF EXISTS DATA_STORE_LAYER_ATTR ;
-CREATE TABLE DATA_STORE_LAYER_ATTR(
-DSLA_ID                                           BIGINT default 0 NOT NULL, --存储配置主键信息
-STORAGE_PROPERTY_KEY                              VARCHAR(512) NOT NULL, --属性key
-STORAGE_PROPERTY_VAL                              VARCHAR(512) NOT NULL, --属性value
-IS_FILE                                           CHAR(1) NOT NULL, --是否为配置文件
-DSLA_REMARK                                       VARCHAR(512) NULL, --备注
-DSL_ID                                            BIGINT default 0 NOT NULL, --存储层配置ID
-CONSTRAINT DATA_STORE_LAYER_ATTR_PK PRIMARY KEY(DSLA_ID)   );
-
---错误信息表
-DROP TABLE IF EXISTS ERROR_INFO ;
-CREATE TABLE ERROR_INFO(
-ERROR_ID                                          BIGINT default 0 NOT NULL, --错误ID
-JOB_RS_ID                                         VARCHAR(40) NOT NULL, --作业执行结果ID
-ERROR_MSG                                         VARCHAR(15555) NULL, --error_msg
-CONSTRAINT ERROR_INFO_PK PRIMARY KEY(ERROR_ID)   );
-
---信号文件入库信息
-DROP TABLE IF EXISTS SIGNAL_FILE ;
-CREATE TABLE SIGNAL_FILE(
-SIGNAL_ID                                         BIGINT default 0 NOT NULL, --信号id
-IS_INTO_HBASE                                     CHAR(1) NOT NULL, --是否入hbase
-IS_COMPRESSION                                    CHAR(1) default '0' NOT NULL, --Hbase是使用压缩
-IS_INTO_HIVE                                      CHAR(1) NOT NULL, --是否入hive
-IS_MPP                                            CHAR(1) NOT NULL, --是否为MPP
-TABLE_TYPE                                        CHAR(1) NOT NULL, --是内部表还是外部表
-IS_FULLINDEX                                      CHAR(1) NOT NULL, --是否创建全文索引
-FILE_FORMAT                                       CHAR(1) NOT NULL, --文件格式
-IS_SOLR_HBASE                                     CHAR(1) default '1' NOT NULL, --是否使用solrOnHbase
-IS_CBD                                            CHAR(1) default '1' NOT NULL, --是否使用carbondata
-DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
-CONSTRAINT SIGNAL_FILE_PK PRIMARY KEY(SIGNAL_ID)   );
-
---表存储信息
-DROP TABLE IF EXISTS TABLE_STORAGE_INFO ;
-CREATE TABLE TABLE_STORAGE_INFO(
-STORAGE_ID                                        BIGINT default 0 NOT NULL, --储存编号
-FILE_FORMAT                                       CHAR(1) default '1' NOT NULL, --文件格式
-STORAGE_TYPE                                      CHAR(1) NOT NULL, --进数方式
-IS_ZIPPER                                         CHAR(1) NOT NULL, --是否拉链存储
-STORAGE_TIME                                      BIGINT default 0 NOT NULL, --存储期限（以天为单位）
-HYREN_NAME                                        VARCHAR(100) NOT NULL, --进库之后拼接的表名
-TABLE_ID                                          BIGINT default 0 NULL, --表名ID
-CONSTRAINT TABLE_STORAGE_INFO_PK PRIMARY KEY(STORAGE_ID)   );
-
---数据源
-DROP TABLE IF EXISTS DATA_SOURCE ;
-CREATE TABLE DATA_SOURCE(
-SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
-DATASOURCE_NUMBER                                 VARCHAR(100) NULL, --数据源编号
-DATASOURCE_NAME                                   VARCHAR(512) NOT NULL, --数据源名称
-SOURCE_REMARK                                     VARCHAR(512) NULL, --数据源详细描述
-CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
-CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
-CREATE_USER_ID                                    BIGINT default 0 NOT NULL, --用户ID
-DATASOURCE_REMARK                                 VARCHAR(512) NULL, --备注
-CONSTRAINT DATA_SOURCE_PK PRIMARY KEY(SOURCE_ID)   );
-
---数据源与部门关系
-DROP TABLE IF EXISTS SOURCE_RELATION_DEP ;
-CREATE TABLE SOURCE_RELATION_DEP(
-SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
-DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
-CONSTRAINT SOURCE_RELATION_DEP_PK PRIMARY KEY(SOURCE_ID,DEP_ID)   );
-
---Agent信息表
-DROP TABLE IF EXISTS AGENT_INFO ;
-CREATE TABLE AGENT_INFO(
-AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
-AGENT_NAME                                        VARCHAR(512) NOT NULL, --Agent名称
-AGENT_TYPE                                        CHAR(1) NOT NULL, --agent类别
-AGENT_IP                                          VARCHAR(50) NOT NULL, --Agent所在服务器IP
-AGENT_PORT                                        VARCHAR(10) NULL, --agent服务器端口
-AGENT_STATUS                                      CHAR(1) NOT NULL, --agent状态
-CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
-CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
-SOURCE_ID                                         BIGINT default 0 NOT NULL, --数据源ID
-USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
-CONSTRAINT AGENT_INFO_PK PRIMARY KEY(AGENT_ID)   );
-
---源系统数据库设置
-DROP TABLE IF EXISTS DATABASE_SET ;
-CREATE TABLE DATABASE_SET(
-DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
-AGENT_ID                                          BIGINT default 0 NULL, --Agent_id
-HOST_NAME                                         VARCHAR(512) NULL, --主机名
-DATABASE_NUMBER                                   VARCHAR(10) NULL, --数据库设置编号
-SYSTEM_TYPE                                       VARCHAR(512) NULL, --操作系统类型
-TASK_NAME                                         VARCHAR(512) NULL, --数据库采集任务名称
-DATABASE_NAME                                     VARCHAR(512) NULL, --数据库名称
-DATABASE_PAD                                      VARCHAR(100) NULL, --数据库密码
-DATABASE_DRIVE                                    VARCHAR(512) NULL, --数据库驱动
-DATABASE_TYPE                                     CHAR(2) NULL, --数据库类型
-USER_NAME                                         VARCHAR(512) NULL, --用户名称
-DATABASE_IP                                       VARCHAR(50) NULL, --数据库服务器IP
-DATABASE_PORT                                     VARCHAR(10) NULL, --数据库端口
-DB_AGENT                                          CHAR(1) NOT NULL, --是否DB文件数据采集
-DATABASE_SEPARATORR                               VARCHAR(512) NULL, --数据采用分隔符
-ROW_SEPARATOR                                     VARCHAR(512) NULL, --数据行分隔符
-PLANE_URL                                         VARCHAR(512) NULL, --DB文件数据字典位置
-IS_SENDOK                                         CHAR(1) NOT NULL, --是否设置完成并发送成功
-CP_OR                                             VARCHAR(512) NULL, --清洗顺序
-JDBC_URL                                          VARCHAR(512) NULL, --数据库连接地址
-COLLECT_TYPE                                      CHAR(1) NOT NULL, --数据库采集方式
-DSL_ID                                            BIGINT default 0 NULL, --存储层配置ID
-CLASSIFY_ID                                       BIGINT default 0 NOT NULL, --分类id
-CONSTRAINT DATABASE_SET_PK PRIMARY KEY(DATABASE_ID)   );
-
---清洗作业参数属性表
-DROP TABLE IF EXISTS CLEAN_PARAMETER ;
-CREATE TABLE CLEAN_PARAMETER(
-C_ID                                              BIGINT default 0 NOT NULL, --清洗参数编号
-CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
-FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
-CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
-FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
-FIELD                                             VARCHAR(512) NULL, --原字段
-REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
-DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
-CONSTRAINT CLEAN_PARAMETER_PK PRIMARY KEY(C_ID)   );
-
---数据库对应表
-DROP TABLE IF EXISTS TABLE_INFO ;
-CREATE TABLE TABLE_INFO(
-TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
-TABLE_NAME                                        VARCHAR(512) NOT NULL, --表名
-TABLE_CH_NAME                                     VARCHAR(512) NOT NULL, --中文名称
-REC_NUM_DATE                                      CHAR(8) NOT NULL, --数据获取时间
-TABLE_COUNT                                       VARCHAR(16) default '0' NULL, --记录数
-DATABASE_ID                                       BIGINT default 0 NOT NULL, --数据库设置id
-SOURCE_TABLEID                                    VARCHAR(512) NULL, --源表ID
-VALID_S_DATE                                      CHAR(8) NOT NULL, --有效开始日期
-VALID_E_DATE                                      CHAR(8) NOT NULL, --有效结束日期
-UNLOAD_TYPE                                       CHAR(1) NULL, --落地文件-卸数方式
-SQL                                               VARCHAR(6000) NULL, --自定义sql语句
-TI_OR                                             VARCHAR(512) NULL, --清洗顺序
-IS_MD5                                            CHAR(1) NOT NULL, --是否使用MD5
-IS_REGISTER                                       CHAR(1) NOT NULL, --是否仅登记
-IS_CUSTOMIZE_SQL                                  CHAR(1) NOT NULL, --是否并行抽取中的自定义sql
-IS_PARALLEL                                       CHAR(1) NOT NULL, --是否并行抽取
-IS_USER_DEFINED                                   CHAR(1) default '1' NOT NULL, --是否sql抽取
-PAGE_SQL                                          VARCHAR(6000) NULL, --分页sql
-PAGEPARALLELS                                     INTEGER default 0 NULL, --分页并行数
-DATAINCREMENT                                     INTEGER default 0 NULL, --每天数据增量
-REMARK                                            VARCHAR(512) NULL, --备注
-CONSTRAINT TABLE_INFO_PK PRIMARY KEY(TABLE_ID)   );
-
---表清洗参数信息
-DROP TABLE IF EXISTS TABLE_CLEAN ;
-CREATE TABLE TABLE_CLEAN(
-TABLE_CLEAN_ID                                    BIGINT default 0 NOT NULL, --清洗参数编号
-CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
-FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
-CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
-FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
-FIELD                                             VARCHAR(512) NULL, --原字段
-REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
-TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
-CONSTRAINT TABLE_CLEAN_PK PRIMARY KEY(TABLE_CLEAN_ID)   );
-
---列清洗参数信息
-DROP TABLE IF EXISTS COLUMN_CLEAN ;
-CREATE TABLE COLUMN_CLEAN(
-COL_CLEAN_ID                                      BIGINT default 0 NOT NULL, --清洗参数编号
-CONVERT_FORMAT                                    VARCHAR(512) NULL, --转换格式
-OLD_FORMAT                                        VARCHAR(512) NULL, --原始格式
-CLEAN_TYPE                                        CHAR(1) NOT NULL, --清洗方式
-FILLING_TYPE                                      CHAR(1) NULL, --补齐方式
-CHARACTER_FILLING                                 VARCHAR(512) NULL, --补齐字符
-FILLING_LENGTH                                    BIGINT default 0 NULL, --补齐长度
-CODENAME                                          VARCHAR(512) NULL, --码值名称
-CODESYS                                           VARCHAR(512) NULL, --码值所属系统
-FIELD                                             VARCHAR(512) NULL, --原字段
-REPLACE_FEILD                                     VARCHAR(512) NULL, --替换字段
-COLUMN_ID                                         BIGINT default 0 NOT NULL, --字段ID
-CONSTRAINT COLUMN_CLEAN_PK PRIMARY KEY(COL_CLEAN_ID)   );
-
---Agent下载信息
-DROP TABLE IF EXISTS AGENT_DOWN_INFO ;
-CREATE TABLE AGENT_DOWN_INFO(
-DOWN_ID                                           BIGINT default 0 NOT NULL, --下载编号(primary)
-AGENT_NAME                                        VARCHAR(512) NOT NULL, --Agent名称
-AGENT_IP                                          VARCHAR(50) NOT NULL, --Agent IP
-AGENT_PORT                                        VARCHAR(10) NOT NULL, --Agent端口
-USER_NAME                                         VARCHAR(10) NULL, --用户名
-PASSWD                                            VARCHAR(10) NULL, --密码
-SAVE_DIR                                          VARCHAR(512) NOT NULL, --存放目录
-LOG_DIR                                           VARCHAR(512) NOT NULL, --日志目录
-DEPLOY                                            CHAR(1) NOT NULL, --是否部署
-AI_DESC                                           VARCHAR(200) NULL, --描述
-AGENT_CONTEXT                                     VARCHAR(200) NOT NULL, --agent的context
-AGENT_PATTERN                                     VARCHAR(200) NOT NULL, --agent的访问路径
-AGENT_TYPE                                        CHAR(1) NOT NULL, --agent类别
-AGENT_ID                                          BIGINT default 0 NULL, --Agent_id
-USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
-REMARK                                            VARCHAR(512) NULL, --备注
-CONSTRAINT AGENT_DOWN_INFO_PK PRIMARY KEY(DOWN_ID)   );
-
---表对应的字段
-DROP TABLE IF EXISTS TABLE_COLUMN ;
-CREATE TABLE TABLE_COLUMN(
-COLUMN_ID                                         BIGINT default 0 NOT NULL, --字段ID
-IS_GET                                            CHAR(1) default '0' NULL, --是否采集
-IS_PRIMARY_KEY                                    CHAR(1) NOT NULL, --是否为主键
-COLUMN_NAME                                       VARCHAR(512) NOT NULL, --列名
-COLUMN_TYPE                                       VARCHAR(512) NULL, --列字段类型
-COLUMN_CH_NAME                                    VARCHAR(512) NULL, --列中文名称
-TABLE_ID                                          BIGINT default 0 NOT NULL, --表名ID
-VALID_S_DATE                                      CHAR(8) NOT NULL, --有效开始日期
-VALID_E_DATE                                      CHAR(8) NOT NULL, --有效结束日期
-IS_ALIVE                                          CHAR(1) default '1' NOT NULL, --是否保留原字段
-IS_NEW                                            CHAR(1) default '1' NOT NULL, --是否为变化生成
-IS_ZIPPER_FIELD                                   CHAR(1) NOT NULL, --是否为拉链字段
-TC_OR                                             VARCHAR(512) NULL, --清洗顺序
-TC_REMARK                                         VARCHAR(512) NULL, --备注
-CONSTRAINT TABLE_COLUMN_PK PRIMARY KEY(COLUMN_ID)   );
-
---采集任务分类表
-DROP TABLE IF EXISTS COLLECT_JOB_CLASSIFY ;
-CREATE TABLE COLLECT_JOB_CLASSIFY(
-CLASSIFY_ID                                       BIGINT default 0 NOT NULL, --分类id
-CLASSIFY_NUM                                      VARCHAR(512) NOT NULL, --分类编号
-CLASSIFY_NAME                                     VARCHAR(512) NOT NULL, --分类名称
-REMARK                                            VARCHAR(512) NULL, --备注
-USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
-AGENT_ID                                          BIGINT default 0 NOT NULL, --Agent_id
-CONSTRAINT COLLECT_JOB_CLASSIFY_PK PRIMARY KEY(CLASSIFY_ID)   );
 
 --数据对标字段信息表
 DROP TABLE IF EXISTS DBM_MMM_FIELD_INFO_TAB ;
@@ -2549,6 +2312,45 @@ ST_TM                                             VARCHAR(32) NOT NULL, --开始
 END_TM                                            VARCHAR(32) NOT NULL, --结束时间
 CONSTRAINT DBM_FEATURE_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE,COL_CODE)   );
 
+--作业定义表
+DROP TABLE IF EXISTS ETL_JOB_DEF ;
+CREATE TABLE ETL_JOB_DEF(
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
+ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
+PRO_TYPE                                          VARCHAR(50) NOT NULL, --作业程序类型
+PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
+PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
+PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
+LOG_DIC                                           VARCHAR(512) NULL, --日志目录
+DISP_FREQ                                         CHAR(1) NULL, --调度频率
+DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
+DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
+DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
+JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
+JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
+JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
+CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
+CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
+OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
+OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
+CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
+COMMENTS                                          VARCHAR(512) NULL, --备注信息
+TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
+JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
+JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
+JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
+UPD_TIME                                          VARCHAR(50) NULL, --更新日期
+EXE_FREQUENCY                                     INTEGER default 0 NOT NULL, --每隔(分钟)执行
+EXE_NUM                                           INTEGER default 0 NULL, --执行次数
+COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
+LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
+STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
+END_TIME                                          VARCHAR(20) NULL, --结束执行时间
+CONSTRAINT ETL_JOB_DEF_PK PRIMARY KEY(ETL_JOB,ETL_SYS_CD)   );
+
 --数据对标外键信息表
 DROP TABLE IF EXISTS DBM_FK_INFO_TAB ;
 CREATE TABLE DBM_FK_INFO_TAB(
@@ -2567,6 +2369,44 @@ DATA_SRC                                          CHAR(5) NULL, --数据来源
 ID                                                VARCHAR(64) NULL, --外键信息表主键uuid存储
 CONSTRAINT DBM_FK_INFO_TAB_PK PRIMARY KEY(FK_SYS_CLASS_CODE,FK_NAME,FK_TABLE_OWNER,FK_TABLE_CODE,FK_COL_CODE,SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
 
+--作业调度表
+DROP TABLE IF EXISTS ETL_JOB_CUR ;
+CREATE TABLE ETL_JOB_CUR(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
+ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
+PRO_TYPE                                          VARCHAR(50) NULL, --作业程序类型
+PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
+PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
+PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
+LOG_DIC                                           VARCHAR(512) NULL, --日志目录
+DISP_FREQ                                         CHAR(1) NULL, --调度频率
+DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
+DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
+DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
+JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
+JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
+JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
+CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
+CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
+OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
+OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
+CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
+COMMENTS                                          VARCHAR(512) NULL, --备注信息
+TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
+JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
+JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
+JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
+EXE_FREQUENCY                                     BIGINT default 0 NULL, --每隔(分钟)执行
+EXE_NUM                                           INTEGER default 0 NULL, --执行次数
+COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
+LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
+STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
+END_TIME                                          VARCHAR(20) NULL, --结束执行时间
+CONSTRAINT ETL_JOB_CUR_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB)   );
+
 --数据对标类别划分详细记录表
 DROP TABLE IF EXISTS DBM_FIELD_SAME_DETAIL ;
 CREATE TABLE DBM_FIELD_SAME_DETAIL(
@@ -2581,6 +2421,32 @@ REL_TYPE                                          VARCHAR(10) NULL, --相等类�
 FK_TYPE                                           CHAR(1) NULL, --关联外键类型
 ANA_TIME                                          VARCHAR(32) NULL, --分析时间
 CONSTRAINT DBM_FIELD_SAME_DETAIL_PK PRIMARY KEY(LEFT_SYS_CLASS_CODE,LEFT_TABLE_CODE,LEFT_COL_CODE,FK_ID)   );
+
+--用户信息表
+DROP TABLE IF EXISTS SYS_USER ;
+CREATE TABLE SYS_USER(
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+CREATE_ID                                         BIGINT default 0 NOT NULL, --建立用户ID
+DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
+ROLE_ID                                           BIGINT default 0 NOT NULL, --角色ID
+USER_NAME                                         VARCHAR(512) NOT NULL, --用户名称
+USER_PASSWORD                                     VARCHAR(100) NOT NULL, --用户密码
+USER_EMAIL                                        VARCHAR(100) NULL, --邮箱
+USER_MOBILE                                       VARCHAR(20) NULL, --移动电话
+USERIS_ADMIN                                      CHAR(1) default '1' NOT NULL, --是否为管理员
+USER_TYPE                                         CHAR(2) NULL, --用户类型
+USERTYPE_GROUP                                    VARCHAR(512) NULL, --用户类型组
+LOGIN_IP                                          VARCHAR(50) NULL, --登录IP
+LOGIN_DATE                                        CHAR(8) NULL, --最后登录时间
+USER_STATE                                        CHAR(1) NOT NULL, --用户状态
+CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
+CREATE_TIME                                       CHAR(6) NULL, --创建时间
+UPDATE_DATE                                       CHAR(8) NULL, --更新日期
+UPDATE_TIME                                       CHAR(6) NULL, --更新时间
+USER_REMARK                                       VARCHAR(512) NULL, --备注
+TOKEN                                             VARCHAR(40) default '0' NOT NULL, --token
+VALID_TIME                                        VARCHAR(40) default '0' NOT NULL, --token有效时间
+CONSTRAINT SYS_USER_PK PRIMARY KEY(USER_ID)   );
 
 --数据对标维度划分结果表
 DROP TABLE IF EXISTS DBM_FIELD_CATE_RESULT ;
@@ -2597,6 +2463,44 @@ DIM_ORDER                                         INTEGER default 0 NULL, --同�
 DEL_FLAG                                          CHAR(1) NULL, --子集关系删除标识
 CONSTRAINT DBM_FIELD_CATE_RESULT_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE)   );
 
+--作业历史表
+DROP TABLE IF EXISTS ETL_JOB_DISP_HIS ;
+CREATE TABLE ETL_JOB_DISP_HIS(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+CURR_BATH_DATE                                    VARCHAR(30) NOT NULL, --当前批量日期
+SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
+ETL_JOB_DESC                                      VARCHAR(200) NULL, --作业描述
+PRO_TYPE                                          VARCHAR(50) NULL, --作业程序类型
+PRO_DIC                                           VARCHAR(512) NULL, --作业程序目录
+PRO_NAME                                          VARCHAR(512) NULL, --作业程序名称
+PRO_PARA                                          VARCHAR(1000) NULL, --作业程序参数
+LOG_DIC                                           VARCHAR(512) NULL, --日志目录
+DISP_FREQ                                         CHAR(1) NULL, --调度频率
+DISP_OFFSET                                       INTEGER default 0 NULL, --调度时间位移
+DISP_TYPE                                         CHAR(1) NULL, --调度触发方式
+DISP_TIME                                         VARCHAR(30) NULL, --调度触发时间
+JOB_EFF_FLAG                                      CHAR(1) NULL, --作业有效标志
+JOB_PRIORITY                                      INTEGER default 0 NULL, --作业优先级
+JOB_DISP_STATUS                                   CHAR(1) NULL, --作业调度状态
+CURR_ST_TIME                                      VARCHAR(30) NULL, --开始时间
+CURR_END_TIME                                     VARCHAR(30) NULL, --结束时间
+OVERLENGTH_VAL                                    INTEGER default 0 NULL, --超长阀值
+OVERTIME_VAL                                      INTEGER default 0 NULL, --超时阀值
+COMMENTS                                          VARCHAR(512) NULL, --备注信息
+TODAY_DISP                                        CHAR(1) NULL, --当天是否调度
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
+JOB_PROCESS_ID                                    VARCHAR(100) NULL, --作业进程号
+JOB_PRIORITY_CURR                                 INTEGER default 0 NULL, --作业当前优先级
+JOB_RETURN_VAL                                    INTEGER default 0 NULL, --作业返回值
+EXE_FREQUENCY                                     BIGINT default 0 NULL, --每隔(分钟)执行	exe_frequency
+EXE_NUM                                           INTEGER default 0 NULL, --执行次数
+COM_EXE_NUM                                       INTEGER default 0 NULL, --已经执行次数
+LAST_EXE_TIME                                     VARCHAR(20) NULL, --上次执行时间
+STAR_TIME                                         VARCHAR(20) NULL, --开始执行时间
+END_TIME                                          VARCHAR(20) NULL, --结束执行时间
+CONSTRAINT ETL_JOB_DISP_HIS_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB,CURR_BATH_DATE)   );
+
 --数据对标联合主键关系表
 DROP TABLE IF EXISTS DBM_JOINT_PK_TAB ;
 CREATE TABLE DBM_JOINT_PK_TAB(
@@ -2606,6 +2510,17 @@ COL_CODE                                          VARCHAR(100) NOT NULL, --主�
 GROUP_CODE                                        VARCHAR(32) NOT NULL, --联合主键分组编码
 CONSTRAINT DBM_JOINT_PK_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE)   );
 
+--作业依赖关系表
+DROP TABLE IF EXISTS ETL_DEPENDENCY ;
+CREATE TABLE ETL_DEPENDENCY(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+PRE_ETL_SYS_CD                                    VARCHAR(100) NOT NULL, --上游系统代码
+PRE_ETL_JOB                                       VARCHAR(512) NOT NULL, --上游作业名
+STATUS                                            CHAR(1) NULL, --状态
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
+CONSTRAINT ETL_DEPENDENCY_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB,PRE_ETL_SYS_CD,PRE_ETL_JOB)   );
+
 --数据对标原始表名映射表
 DROP TABLE IF EXISTS DBM_ALIAS_MAPPING ;
 CREATE TABLE DBM_ALIAS_MAPPING(
@@ -2614,6 +2529,15 @@ ALIAS_TABLE_CODE                                  VARCHAR(10) NOT NULL, --原始
 ORIGIN_TABLE_CODE                                 VARCHAR(100) NOT NULL, --原始表表名
 SYS_CLASS_CODE                                    VARCHAR(20) NOT NULL, --系统分类编号
 CONSTRAINT DBM_ALIAS_MAPPING_PK PRIMARY KEY(ALIAS_NUMBER,ALIAS_TABLE_CODE,ORIGIN_TABLE_CODE,SYS_CLASS_CODE)   );
+
+--作业资源关系表
+DROP TABLE IF EXISTS ETL_JOB_RESOURCE_RELA ;
+CREATE TABLE ETL_JOB_RESOURCE_RELA(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+RESOURCE_TYPE                                     VARCHAR(100) NULL, --资源使用类型
+RESOURCE_REQ                                      INTEGER default 0 NULL, --资源需求数
+CONSTRAINT ETL_JOB_RESOURCE_RELA_PK PRIMARY KEY(ETL_SYS_CD,ETL_JOB)   );
 
 --数据对标联合外键关系表
 DROP TABLE IF EXISTS DBM_JOINT_FK_TAB ;
@@ -2627,6 +2551,27 @@ TABLE_CODE                                        VARCHAR(100) NULL, --从表表
 COL_CODE                                          VARCHAR(100) NULL, --外键字段编码
 CONSTRAINT DBM_JOINT_FK_TAB_PK PRIMARY KEY(FK_SYS_CLASS_CODE,FK_TABLE_CODE,FK_COL_CODE)   );
 
+--作业模版参数表
+DROP TABLE IF EXISTS ETL_JOB_TEMP_PARA ;
+CREATE TABLE ETL_JOB_TEMP_PARA(
+ETL_TEMP_PARA_ID                                  BIGINT default 0 NOT NULL, --模版参数主键
+ETL_PARA_TYPE                                     VARCHAR(512) NOT NULL, --参数类型
+ETL_JOB_PRO_PARA                                  VARCHAR(512) NOT NULL, --参数名称
+ETL_JOB_PARA_SIZE                                 VARCHAR(512) NOT NULL, --参数
+ETL_PRO_PARA_SORT                                 BIGINT default 0 NOT NULL, --参数排序
+ETL_TEMP_ID                                       BIGINT default 0 NOT NULL, --模版ID
+CONSTRAINT ETL_JOB_TEMP_PARA_PK PRIMARY KEY(ETL_TEMP_PARA_ID)   );
+
+--资源登记表
+DROP TABLE IF EXISTS ETL_RESOURCE ;
+CREATE TABLE ETL_RESOURCE(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+RESOURCE_TYPE                                     VARCHAR(100) NOT NULL, --资源使用类型
+RESOURCE_MAX                                      INTEGER default 0 NULL, --资源阀值
+RESOURCE_USED                                     INTEGER default 0 NULL, --已使用数
+MAIN_SERV_SYNC                                    CHAR(1) NOT NULL, --主服务器同步标志
+CONSTRAINT ETL_RESOURCE_PK PRIMARY KEY(ETL_SYS_CD,RESOURCE_TYPE)   );
+
 --数据对标单表函数依赖关系表
 DROP TABLE IF EXISTS DBM_FUNCTION_DEPENDENCY_TAB ;
 CREATE TABLE DBM_FUNCTION_DEPENDENCY_TAB(
@@ -2639,6 +2584,30 @@ PROC_DT                                           VARCHAR(32) NULL, --计算日�
 FD_LEVEL                                          INTEGER default 0 NULL, --函数依赖关系级别
 CONSTRAINT DBM_FUNCTION_DEPENDENCY_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
 
+--模版作业信息表
+DROP TABLE IF EXISTS ETL_JOB_TEMP ;
+CREATE TABLE ETL_JOB_TEMP(
+ETL_TEMP_ID                                       BIGINT default 0 NOT NULL, --模版ID
+ETL_TEMP_TYPE                                     VARCHAR(512) NOT NULL, --模版名称
+PRO_DIC                                           VARCHAR(512) NOT NULL, --模版shell路径
+PRO_NAME                                          VARCHAR(512) NOT NULL, --模版shell名称
+CONSTRAINT ETL_JOB_TEMP_PK PRIMARY KEY(ETL_TEMP_ID)   );
+
+--作业干预表
+DROP TABLE IF EXISTS ETL_JOB_HAND ;
+CREATE TABLE ETL_JOB_HAND(
+EVENT_ID                                          VARCHAR(30) NOT NULL, --干预发生时间
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+ETL_HAND_TYPE                                     CHAR(2) NULL, --干预类型
+PRO_PARA                                          VARCHAR(512) NULL, --干预参数
+HAND_STATUS                                       CHAR(1) NULL, --干预状态
+ST_TIME                                           VARCHAR(30) NULL, --开始时间
+END_TIME                                          VARCHAR(30) NULL, --结束时间
+WARNING                                           VARCHAR(80) NULL, --错误信息
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --同步标志位
+CONSTRAINT ETL_JOB_HAND_PK PRIMARY KEY(EVENT_ID,ETL_SYS_CD,ETL_JOB)   );
+
 --数据对标类别划分分组结果表
 DROP TABLE IF EXISTS DBM_FIELD_SAME_RESULT ;
 CREATE TABLE DBM_FIELD_SAME_RESULT(
@@ -2650,6 +2619,15 @@ DIFF_FLG                                          INTEGER default 0 NULL, --区�
 DIM_ORDER                                         INTEGER default 0 NULL, --同类别字段排序编号
 ANA_TIME                                          VARCHAR(32) NULL, --分析时间
 CONSTRAINT DBM_FIELD_SAME_RESULT_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_CODE,COL_CODE,CATEGORY_SAME)   );
+
+--子系统定义表
+DROP TABLE IF EXISTS ETL_SUB_SYS_LIST ;
+CREATE TABLE ETL_SUB_SYS_LIST(
+SUB_SYS_CD                                        VARCHAR(100) NOT NULL, --子系统代码
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+SUB_SYS_DESC                                      VARCHAR(200) NULL, --子系统描述
+COMMENTS                                          VARCHAR(512) NULL, --备注信息
+CONSTRAINT ETL_SUB_SYS_LIST_PK PRIMARY KEY(SUB_SYS_CD,ETL_SYS_CD)   );
 
 --数据对标码值信息表
 DROP TABLE IF EXISTS DBM_CODE_INFO_TAB ;
@@ -2681,6 +2659,16 @@ DATA_SRC                                          CHAR(5) NULL, --数据来源
 COL_NUM                                           INTEGER default 0 NOT NULL, --表字段数
 CONSTRAINT DBM_MMM_TAB_INFO_TAB_PK PRIMARY KEY(SYS_CLASS_CODE,TABLE_SCHEMA,TABLE_CODE)   );
 
+--参数登记
+DROP TABLE IF EXISTS ETL_PARA ;
+CREATE TABLE ETL_PARA(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+PARA_CD                                           VARCHAR(50) NOT NULL, --变量代码
+PARA_VAL                                          VARCHAR(512) NULL, --变量值
+PARA_TYPE                                         VARCHAR(50) NULL, --变量类型
+PARA_DESC                                         VARCHAR(200) NULL, --作业描述
+CONSTRAINT ETL_PARA_PK PRIMARY KEY(ETL_SYS_CD,PARA_CD)   );
+
 --数据对标节点信息表
 DROP TABLE IF EXISTS DBM_MMM_NODE_INFO ;
 CREATE TABLE DBM_MMM_NODE_INFO(
@@ -2692,6 +2680,21 @@ SYS_CLASS_CODE                                    VARCHAR(20) NULL, --系统分�
 DATA_SRC                                          VARCHAR(5) NULL, --数据来源
 CONSTRAINT DBM_MMM_NODE_INFO_PK PRIMARY KEY(NODE_CODE,NODE_NAME,NODE_TYPE)   );
 
+--干预历史表
+DROP TABLE IF EXISTS ETL_JOB_HAND_HIS ;
+CREATE TABLE ETL_JOB_HAND_HIS(
+EVENT_ID                                          VARCHAR(30) NOT NULL, --干预发生时间
+ETL_JOB                                           VARCHAR(512) NOT NULL, --作业名
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_HAND_TYPE                                     CHAR(2) NULL, --干预类型
+PRO_PARA                                          VARCHAR(512) NULL, --干预参数
+HAND_STATUS                                       CHAR(1) NULL, --干预状态
+ST_TIME                                           VARCHAR(30) NULL, --开始时间
+END_TIME                                          VARCHAR(30) NULL, --结束时间
+WARNING                                           VARCHAR(80) NULL, --错误信息
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --同步标志位
+CONSTRAINT ETL_JOB_HAND_HIS_PK PRIMARY KEY(EVENT_ID,ETL_JOB,ETL_SYS_CD)   );
+
 --StreamingPro作业信息表
 DROP TABLE IF EXISTS SDM_SP_JOBINFO ;
 CREATE TABLE SDM_SP_JOBINFO(
@@ -2701,6 +2704,29 @@ SSJ_JOB_DESC                                      VARCHAR(200) NULL, --作业描
 SSJ_STRATEGY                                      VARCHAR(512) NOT NULL, --作业执行策略
 USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
 CONSTRAINT SDM_SP_JOBINFO_PK PRIMARY KEY(SSJ_JOB_ID)   );
+
+--作业工程登记表
+DROP TABLE IF EXISTS ETL_SYS ;
+CREATE TABLE ETL_SYS(
+ETL_SYS_CD                                        VARCHAR(100) NOT NULL, --工程代码
+ETL_SYS_NAME                                      VARCHAR(512) NOT NULL, --工程名称
+ETL_SERV_IP                                       VARCHAR(50) NULL, --etl服务器ip
+ETL_SERV_PORT                                     VARCHAR(10) NULL, --etl服务器端口
+CONTACT_PERSON                                    VARCHAR(512) NULL, --联系人
+CONTACT_PHONE                                     VARCHAR(20) NULL, --联系电话
+COMMENTS                                          VARCHAR(512) NULL, --备注信息
+CURR_BATH_DATE                                    VARCHAR(30) NULL, --当前批量日期
+BATH_SHIFT_TIME                                   VARCHAR(30) NULL, --系统日切时间
+MAIN_SERV_SYNC                                    CHAR(1) NULL, --主服务器同步标志
+SYS_RUN_STATUS                                    CHAR(1) NULL, --系统状态
+USER_NAME                                         VARCHAR(512) NULL, --主机服务器用户名
+USER_PWD                                          VARCHAR(512) NULL, --主机用户密码
+SERV_FILE_PATH                                    VARCHAR(512) NULL, --部署服务器路径
+ETL_CONTEXT                                       VARCHAR(512) NULL, --访问根
+ETL_PATTERN                                       VARCHAR(512) NULL, --访问路径
+REMARKS                                           VARCHAR(512) NULL, --备注
+USER_ID                                           BIGINT default 0 NOT NULL, --用户ID
+CONSTRAINT ETL_SYS_PK PRIMARY KEY(ETL_SYS_CD)   );
 
 --StreamingPro作业输入信息表
 DROP TABLE IF EXISTS SDM_JOB_INPUT ;
@@ -2716,6 +2742,13 @@ INPUT_DATA_TYPE                                   CHAR(1) NOT NULL, --数据模�
 SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
 CONSTRAINT SDM_JOB_INPUT_PK PRIMARY KEY(SDM_INFO_ID)   );
 
+--主键生成表
+DROP TABLE IF EXISTS KEYTABLE ;
+CREATE TABLE KEYTABLE(
+KEY_NAME                                          VARCHAR(80) NOT NULL, --key_name
+KEY_VALUE                                         INTEGER default 0 NULL, --value
+CONSTRAINT KEYTABLE_PK PRIMARY KEY(KEY_NAME)   );
+
 --StreamingPro作业分析信息表
 DROP TABLE IF EXISTS SDM_SP_ANALYSIS ;
 CREATE TABLE SDM_SP_ANALYSIS(
@@ -2725,6 +2758,16 @@ ANALYSIS_TABLE_NAME                               VARCHAR(64) NOT NULL, --输出
 ANALYSIS_SQL                                      VARCHAR(8000) NOT NULL, --分析sql
 SSJ_JOB_ID                                        BIGINT default 0 NOT NULL, --作业id
 CONSTRAINT SDM_SP_ANALYSIS_PK PRIMARY KEY(SSA_INFO_ID)   );
+
+--系统参数配置
+DROP TABLE IF EXISTS SYS_PARA ;
+CREATE TABLE SYS_PARA(
+PARA_ID                                           BIGINT default 0 NOT NULL, --参数ID
+PARA_NAME                                         VARCHAR(512) NULL, --para_name
+PARA_VALUE                                        VARCHAR(512) NULL, --para_value
+PARA_TYPE                                         VARCHAR(512) NULL, --para_type
+REMARK                                            VARCHAR(512) NULL, --备注
+CONSTRAINT SYS_PARA_PK PRIMARY KEY(PARA_ID)   );
 
 --StreamingPro作业输出信息表
 DROP TABLE IF EXISTS SDM_SP_OUTPUT ;
@@ -2764,6 +2807,16 @@ SSD_JDBC_URL                                      VARCHAR(512) NOT NULL, --数�
 SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
 CONSTRAINT SDM_SP_DATABASE_PK PRIMARY KEY(SSD_INFO_ID)   );
 
+--部门信息表
+DROP TABLE IF EXISTS DEPARTMENT_INFO ;
+CREATE TABLE DEPARTMENT_INFO(
+DEP_ID                                            BIGINT default 0 NOT NULL, --部门ID
+DEP_NAME                                          VARCHAR(512) NOT NULL, --部门名称
+CREATE_DATE                                       CHAR(8) NOT NULL, --创建日期
+CREATE_TIME                                       CHAR(6) NOT NULL, --创建时间
+DEP_REMARK                                        VARCHAR(512) NULL, --备注
+CONSTRAINT DEPARTMENT_INFO_PK PRIMARY KEY(DEP_ID)   );
+
 --StreamingPro流数据信息表
 DROP TABLE IF EXISTS SDM_SP_STREAM ;
 CREATE TABLE SDM_SP_STREAM(
@@ -2775,52 +2828,11 @@ SSS_CONSUMER_OFFSET                               VARCHAR(64) NOT NULL, --偏移
 SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
 CONSTRAINT SDM_SP_STREAM_PK PRIMARY KEY(SSS_STREAM_ID)   );
 
---StreamingPro文本文件信息表
-DROP TABLE IF EXISTS SDM_SP_TEXTFILE ;
-CREATE TABLE SDM_SP_TEXTFILE(
-TSST_EXTFILE_ID                                   BIGINT default 0 NOT NULL, --文本文件信息表id
-SST_FILE_TYPE                                     CHAR(1) NOT NULL, --文件格式
-SST_FILE_PATH                                     VARCHAR(512) NOT NULL, --文件输入输出路径
-SST_IS_HEADER                                     CHAR(1) NOT NULL, --是否有表头
-SST_SCHEMA                                        VARCHAR(1024) NULL, --schema
-SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
-CONSTRAINT SDM_SP_TEXTFILE_PK PRIMARY KEY(TSST_EXTFILE_ID)   );
-
---StreamProRest配置信息表
-DROP TABLE IF EXISTS STREAMPRO_SETTING ;
-CREATE TABLE STREAMPRO_SETTING(
-RS_ID                                             BIGINT default 0 NOT NULL, --Rest Id
-RS_URL                                            VARCHAR(512) NOT NULL, --RestUrl地址
-RS_PROCESSING                                     CHAR(1) NULL, --返回值处理
-RS_TYPE                                           VARCHAR(200) NULL, --请求类型
-RS_PARA                                           VARCHAR(200) NOT NULL, --Rest请求参数
-SDM_INFO_ID                                       BIGINT default 0 NOT NULL, --作业输入信息表id
-CONSTRAINT STREAMPRO_SETTING_PK PRIMARY KEY(RS_ID)   );
-
---REST数据库数据信息表
-DROP TABLE IF EXISTS SDM_REST_DATABASE ;
-CREATE TABLE SDM_REST_DATABASE(
-SSD_INFO_ID                                       BIGINT default 0 NOT NULL, --数据库信息表id
-SSD_TABLE_NAME                                    VARCHAR(100) NULL, --表名称
-SSD_DATABASE_TYPE                                 CHAR(2) NOT NULL, --数据库类型
-SSD_DATABASE_DRIVE                                VARCHAR(64) NOT NULL, --数据库驱动
-SSD_DATABASE_NAME                                 VARCHAR(100) NULL, --数据库名称
-SSD_IP                                            VARCHAR(50) NOT NULL, --数据库ip
-SSD_PORT                                          VARCHAR(10) NOT NULL, --端口
-SSD_USER_NAME                                     VARCHAR(100) NULL, --数据库用户名
-SSD_USER_PASSWORD                                 VARCHAR(100) NOT NULL, --用户密码
-SSD_JDBC_URL                                      VARCHAR(512) NOT NULL, --数据库jdbc连接的url
-RS_ID                                             BIGINT default 0 NULL, --Rest Id
-CONSTRAINT SDM_REST_DATABASE_PK PRIMARY KEY(SSD_INFO_ID)   );
-
---REST流数据信息表
-DROP TABLE IF EXISTS SDM_REST_STREAM ;
-CREATE TABLE SDM_REST_STREAM(
-SSS_STREAM_ID                                     BIGINT default 0 NOT NULL, --流数据信息表id
-SSS_KAFKA_VERSION                                 CHAR(1) NOT NULL, --kafka版本
-SSS_TOPIC_NAME                                    VARCHAR(64) NOT NULL, --主题
-SSS_BOOTSTRAP_SERVER                              VARCHAR(256) NOT NULL, --流服务主机
-SSS_CONSUMER_OFFSET                               VARCHAR(64) NOT NULL, --偏移量设置
-RS_ID                                             BIGINT default 0 NULL, --Rest Id
-CONSTRAINT SDM_REST_STREAM_PK PRIMARY KEY(SSS_STREAM_ID)   );
+--角色信息表
+DROP TABLE IF EXISTS SYS_ROLE ;
+CREATE TABLE SYS_ROLE(
+ROLE_ID                                           BIGINT default 0 NOT NULL, --角色ID
+ROLE_NAME                                         VARCHAR(512) NOT NULL, --角色名称
+ROLE_REMARK                                       VARCHAR(512) NULL, --备注
+CONSTRAINT SYS_ROLE_PK PRIMARY KEY(ROLE_ID)   );
 
