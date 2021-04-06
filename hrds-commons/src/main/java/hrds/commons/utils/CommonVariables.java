@@ -1,14 +1,16 @@
 package hrds.commons.utils;
 
 import fd.ng.core.annotation.DocClass;
+import hrds.commons.codes.IsFlag;
 
 @DocClass(desc = "项目中经常用到的变量值", author = "BY-HLL", createdate = "2020/1/7 0007 上午 10:38")
 public class CommonVariables {
 
 	/**
-	 * 是否有大数据环境
+	 * 非结构化,文件采集是否
 	 */
-	public static final boolean HAS_HADOOP_ENV = "HD".equalsIgnoreCase(PropertyParaValue.getString("ver_type", "DB"));
+	public static final boolean FILE_COLLECTION_IS_WRITE_HADOOP = IsFlag.Shi.getCode().equals(PropertyParaValue.getString(
+		"file_collection_is_write_hadoop", IsFlag.Fou.getCode()));
 	/**
 	 * 开启kerberos认证后,服务认证实例名
 	 */
@@ -20,7 +22,7 @@ public class CommonVariables {
 	public static final String SOLR_IMPL_CLASS_NAME = PropertyParaValue.getString("solrclassname",
 		"hrds.commons.hadoop.solr.impl.SolrOperatorImpl5_3_1");
 	/**
-	 * solr的collection's name
+	 * solr的collection's name 非结构化,文件采集
 	 */
 	public static final String SOLR_COLLECTION = PropertyParaValue.getString("collection",
 		"HrdsFullTextIndexing");

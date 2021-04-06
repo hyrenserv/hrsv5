@@ -327,7 +327,7 @@ public class AvroOper {
 		InputStream is = null;
 		DataFileStream<Object> reader = null;
 		try {
-			if (JobConstant.HAS_HADOOP_ENV) {
+			if (JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP) {
 				//TODO
 				fs = FileSystem.get(ConfigReader.getConfiguration(
 						System.getProperty("user.dir") + File.separator + "conf" + File.separator,
