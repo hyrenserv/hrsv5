@@ -14,7 +14,6 @@ import hrds.commons.utils.jsch.SFTPChannel;
 import hrds.commons.utils.jsch.SFTPDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.Path;
 
 import java.io.File;
 
@@ -52,7 +51,7 @@ public class BatchShell {
 				throw (BusinessException) e;
 			} else {
 				throw new AppSystemException(e);
-            }
+			}
 		}
 	}
 
@@ -65,20 +64,17 @@ public class BatchShell {
 	private static void copyFileToRemote(String localPath, String remotePath) {
 		try {
 			// 1.构建连接远程机器的对象
-
 			SFTPDetails sftpDetails = new SFTPDetails();
 			sftpDetails.setHost(PropertyParaUtil.getString("hyren_host", ""));
-			sftpDetails.setPort(22);
+			sftpDetails.setPort(Integer.parseInt(PropertyParaUtil.getString("sftp_port", "22")));
 			sftpDetails.setUser_name(PropertyParaUtil.getString("hyren_user", ""));
 			sftpDetails.setPwd(PropertyParaUtil.getString("hyren_pwd", ""));
-
 			Session shellSession = SFTPChannel.getJSchSession(sftpDetails, 0);
 			// 2.为了防止远程文件夹不存在，先创建文件夹
 			String mkdir = "mkdir -p " + remotePath;
 			String execCommandByJSch = SFTPChannel.execCommandByJSch(shellSession, mkdir);
 			logger.info(execCommandByJSch);
 			long fileSize = new File(localPath).length();
-
 			// 3.传输文件到远程服务器，并设置监控，打印传输文件百分比
 			SFTPChannel channel = new SFTPChannel();
 			ChannelSftp chSftp = channel.getChannel(sftpDetails, 60000);
