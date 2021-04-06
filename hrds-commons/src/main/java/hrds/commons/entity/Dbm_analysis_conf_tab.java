@@ -31,20 +31,6 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 		__tmpPKS.add("ori_table_code");
 		__PrimaryKeys = Collections.unmodifiableSet(__tmpPKS);
 	}
-	@DocBean(name ="dim_flag",value="是否进行维度划分(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String dim_flag;
-	@DocBean(name ="incre_to_full_flag",value="是否将表转为全量(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
-	private String incre_to_full_flag;
-	@DocBean(name ="ana_alg",value="分析算法:",dataType = String.class,required = true)
-	private String ana_alg;
-	@DocBean(name ="fd_sample_count",value="函数依赖分析采样量:",dataType = String.class,required = false)
-	private String fd_sample_count;
-	@DocBean(name ="to_ana_tb_pk",value="待分析表主键:",dataType = String.class,required = false)
-	private String to_ana_tb_pk;
-	@DocBean(name ="fk_ana_mode",value="外键分析模式:",dataType = String.class,required = false)
-	private String fk_ana_mode;
-	@DocBean(name ="joint_fk_ana_mode",value="联合外键分析模式:",dataType = String.class,required = false)
-	private String joint_fk_ana_mode;
 	@DocBean(name ="sys_class_code",value="系统分类编号:",dataType = String.class,required = true)
 	private String sys_class_code;
 	@DocBean(name ="ori_table_code",value="原始表编号:",dataType = String.class,required = true)
@@ -67,63 +53,21 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	private String joint_fk_flag;
 	@DocBean(name ="fd_check_flag",value="是否进行函数依赖验证(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
 	private String fd_check_flag;
+	@DocBean(name ="dim_flag",value="是否进行维度划分(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
+	private String dim_flag;
+	@DocBean(name ="incre_to_full_flag",value="是否将表转为全量(IsFlag):1-是<Shi> 0-否<Fou> ",dataType = String.class,required = true)
+	private String incre_to_full_flag;
+	@DocBean(name ="ana_alg",value="分析算法:",dataType = String.class,required = true)
+	private String ana_alg;
+	@DocBean(name ="fd_sample_count",value="函数依赖分析采样量:",dataType = String.class,required = false)
+	private String fd_sample_count;
+	@DocBean(name ="to_ana_tb_pk",value="待分析表主键:",dataType = String.class,required = false)
+	private String to_ana_tb_pk;
+	@DocBean(name ="fk_ana_mode",value="外键分析模式:",dataType = String.class,required = false)
+	private String fk_ana_mode;
+	@DocBean(name ="joint_fk_ana_mode",value="联合外键分析模式:",dataType = String.class,required = false)
+	private String joint_fk_ana_mode;
 
-	/** 取得：是否进行维度划分 */
-	public String getDim_flag(){
-		return dim_flag;
-	}
-	/** 设置：是否进行维度划分 */
-	public void setDim_flag(String dim_flag){
-		this.dim_flag=dim_flag;
-	}
-	/** 取得：是否将表转为全量 */
-	public String getIncre_to_full_flag(){
-		return incre_to_full_flag;
-	}
-	/** 设置：是否将表转为全量 */
-	public void setIncre_to_full_flag(String incre_to_full_flag){
-		this.incre_to_full_flag=incre_to_full_flag;
-	}
-	/** 取得：分析算法 */
-	public String getAna_alg(){
-		return ana_alg;
-	}
-	/** 设置：分析算法 */
-	public void setAna_alg(String ana_alg){
-		this.ana_alg=ana_alg;
-	}
-	/** 取得：函数依赖分析采样量 */
-	public String getFd_sample_count(){
-		return fd_sample_count;
-	}
-	/** 设置：函数依赖分析采样量 */
-	public void setFd_sample_count(String fd_sample_count){
-		this.fd_sample_count=fd_sample_count;
-	}
-	/** 取得：待分析表主键 */
-	public String getTo_ana_tb_pk(){
-		return to_ana_tb_pk;
-	}
-	/** 设置：待分析表主键 */
-	public void setTo_ana_tb_pk(String to_ana_tb_pk){
-		this.to_ana_tb_pk=to_ana_tb_pk;
-	}
-	/** 取得：外键分析模式 */
-	public String getFk_ana_mode(){
-		return fk_ana_mode;
-	}
-	/** 设置：外键分析模式 */
-	public void setFk_ana_mode(String fk_ana_mode){
-		this.fk_ana_mode=fk_ana_mode;
-	}
-	/** 取得：联合外键分析模式 */
-	public String getJoint_fk_ana_mode(){
-		return joint_fk_ana_mode;
-	}
-	/** 设置：联合外键分析模式 */
-	public void setJoint_fk_ana_mode(String joint_fk_ana_mode){
-		this.joint_fk_ana_mode=joint_fk_ana_mode;
-	}
 	/** 取得：系统分类编号 */
 	public String getSys_class_code(){
 		return sys_class_code;
@@ -211,5 +155,61 @@ public class Dbm_analysis_conf_tab extends ProjectTableEntity
 	/** 设置：是否进行函数依赖验证 */
 	public void setFd_check_flag(String fd_check_flag){
 		this.fd_check_flag=fd_check_flag;
+	}
+	/** 取得：是否进行维度划分 */
+	public String getDim_flag(){
+		return dim_flag;
+	}
+	/** 设置：是否进行维度划分 */
+	public void setDim_flag(String dim_flag){
+		this.dim_flag=dim_flag;
+	}
+	/** 取得：是否将表转为全量 */
+	public String getIncre_to_full_flag(){
+		return incre_to_full_flag;
+	}
+	/** 设置：是否将表转为全量 */
+	public void setIncre_to_full_flag(String incre_to_full_flag){
+		this.incre_to_full_flag=incre_to_full_flag;
+	}
+	/** 取得：分析算法 */
+	public String getAna_alg(){
+		return ana_alg;
+	}
+	/** 设置：分析算法 */
+	public void setAna_alg(String ana_alg){
+		this.ana_alg=ana_alg;
+	}
+	/** 取得：函数依赖分析采样量 */
+	public String getFd_sample_count(){
+		return fd_sample_count;
+	}
+	/** 设置：函数依赖分析采样量 */
+	public void setFd_sample_count(String fd_sample_count){
+		this.fd_sample_count=fd_sample_count;
+	}
+	/** 取得：待分析表主键 */
+	public String getTo_ana_tb_pk(){
+		return to_ana_tb_pk;
+	}
+	/** 设置：待分析表主键 */
+	public void setTo_ana_tb_pk(String to_ana_tb_pk){
+		this.to_ana_tb_pk=to_ana_tb_pk;
+	}
+	/** 取得：外键分析模式 */
+	public String getFk_ana_mode(){
+		return fk_ana_mode;
+	}
+	/** 设置：外键分析模式 */
+	public void setFk_ana_mode(String fk_ana_mode){
+		this.fk_ana_mode=fk_ana_mode;
+	}
+	/** 取得：联合外键分析模式 */
+	public String getJoint_fk_ana_mode(){
+		return joint_fk_ana_mode;
+	}
+	/** 设置：联合外键分析模式 */
+	public void setJoint_fk_ana_mode(String joint_fk_ana_mode){
+		this.joint_fk_ana_mode=joint_fk_ana_mode;
 	}
 }
