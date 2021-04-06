@@ -205,7 +205,7 @@ public class FileOperations {
 		Path path = new Path(file_avro_path);
 		DatumReader<GenericRecord> reader = new GenericDatumReader<>();
 		//判断是否有Hadoop环境如果有,则查询HDFS上文件
-		if (CommonVariables.HAS_HADOOP_ENV) {
+		if (CommonVariables.FILE_COLLECTION_IS_WRITE_HADOOP) {
 			Configuration conf = ConfigReader.getConfiguration();
 			try (SeekableInput in = new FsInput(path, conf)) {
 				fileReader = new DataFileReader<>(in, reader);

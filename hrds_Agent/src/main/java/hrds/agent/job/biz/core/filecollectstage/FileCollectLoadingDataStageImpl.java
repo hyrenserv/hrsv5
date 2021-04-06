@@ -48,7 +48,7 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 			+ DataSourceType.DCL.getCode() + File.separator + paramBean.getFcs_id() + File.separator
 			+ paramBean.getFile_source_id() + File.separator + BIGFILENAME, true);
 		//如果有Hadoop环境,则创建HDFS文件目录
-		if (JobConstant.HAS_HADOOP_ENV) {
+		if (JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP) {
 			//TODO 创建hdfs文件夹,这里agent需要制定参数，选择目的地的话应该从目的地取配置
 			try (HdfsOperator operator = new HdfsOperator(
 				System.getProperty("user.dir") + File.separator + "conf" + File.separator,
@@ -85,7 +85,7 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 				String jobRsId = queueJb.getString("job_rs_id");
 				long watcherId = queueJb.getLong("watcher_id");
 				//对其做处理（有Hadoop环境上传hdfs,没有Hadoop环境传输到服务器本地硬盘下）
-				BatchShell.execStationaryHDFSShell(avroFileAbsolutionPath, fileCollectHdfsPath, JobConstant.HAS_HADOOP_ENV);
+				BatchShell.execStationaryHDFSShell(avroFileAbsolutionPath, fileCollectHdfsPath, JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP);
 				//判断如果是大文件，则只做文件上传处理，大文件的信息记录在其他队列中，这里直接取下一个队列的数据
 				if (IsFlag.Shi.getCode().equals(queueJb.getString("isBigFile"))) {
 					continue;
@@ -95,7 +95,7 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 				//传输文件并入库，入hbase
 				logger.info("处理  -->" + avroPath.getName());
 				//不是hadoop版获取本地的卸数的Avro文件
-				if (!JobConstant.HAS_HADOOP_ENV) {
+				if (!JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP) {
 					avroPath = new Path(avroFileAbsolutionPath);
 				}
 				//获取AvroBeans
