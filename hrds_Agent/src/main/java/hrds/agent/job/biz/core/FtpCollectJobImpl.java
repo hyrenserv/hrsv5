@@ -23,6 +23,7 @@ import hrds.commons.exception.BusinessException;
 import hrds.commons.utils.Constant;
 import hrds.commons.utils.DeCompressionUtil;
 import hrds.commons.utils.MapDBHelper;
+import hrds.commons.utils.jsch.SFTPDetails;
 import hrds.commons.utils.jsch.SftpOperate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,14 +59,14 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "ftp采集执行的主方法",
-			logicStep = "1.获取ftp_id根据ftp_id判断任务是否是重复发送，实时的仍然在继续运行，是则中断上一个实时线程" +
-					"2.开始执行ftp采集，根据当前任务id将线程放入存放线程的集合" +
-					"3.判断是否是实时读取，如果不是实时读取，只进一次此循环就会退出" +
-					"4.根据ftp表的信息初始化sftp对象" +
-					"5.根据下级目录类型定义ftp拉取或者推送的下级目录" +
-					"6.判断是推送还是拉取，根据不同的模式建立目录，并推送或拉取文件" +
-					"7.判断实时读取间隔时间为0或为空时为防止循环死读，默认线程休眠1秒" +
-					"8.任务结束，根据当前任务id移除线程")
+		logicStep = "1.获取ftp_id根据ftp_id判断任务是否是重复发送，实时的仍然在继续运行，是则中断上一个实时线程" +
+			"2.开始执行ftp采集，根据当前任务id将线程放入存放线程的集合" +
+			"3.判断是否是实时读取，如果不是实时读取，只进一次此循环就会退出" +
+			"4.根据ftp表的信息初始化sftp对象" +
+			"5.根据下级目录类型定义ftp拉取或者推送的下级目录" +
+			"6.判断是推送还是拉取，根据不同的模式建立目录，并推送或拉取文件" +
+			"7.判断实时读取间隔时间为0或为空时为防止循环死读，默认线程休眠1秒" +
+			"8.任务结束，根据当前任务id移除线程")
 	@Return(desc = "作业执行信息对象", range = "不能为空")
 	@Override
 	public JobStatusInfo runJob() {
@@ -81,7 +82,7 @@ public class FtpCollectJobImpl implements JobInterface {
 		String statusFilePath = Constant.JOBINFOPATH + ftpId + File.separator + Constant.JOBFILENAME;
 		//JobStatusInfo对象，表示一个作业的状态
 		JobStatusInfo jobStatus = JobStatusInfoUtil.getStartJobStatusInfo(statusFilePath,
-				ftpId, "ftp_collect");
+			ftpId, "ftp_collect");
 		String is_read_realtime = ftp_collect.getIs_read_realtime();
 		Long realtime_interval = ftp_collect.getRealtime_interval();
 		String ftpDir = ftp_collect.getFtp_dir();
@@ -110,9 +111,10 @@ public class FtpCollectJobImpl implements JobInterface {
 					is_real_time = false;
 				}
 				//为了防止
-				try (SftpOperate sftp = new SftpOperate(ftp_collect.getFtp_ip(), ftp_collect.getFtp_username(),
-						StringUtil.unicode2String(ftp_collect.getFtp_password()),
-						Integer.parseInt(ftp_collect.getFtp_port()))) {
+				SFTPDetails sftpDetails = SftpOperate.getSftpDetails(ftp_collect.getFtp_ip(), ftp_collect.getFtp_username(),
+					StringUtil.unicode2String(ftp_collect.getFtp_password()),
+					Integer.parseInt(ftp_collect.getFtp_port()));
+				try (SftpOperate sftp = new SftpOperate(sftpDetails)) {
 					//4.根据ftp表的信息初始化sftp对象
 					//5.根据下级目录类型定义ftp拉取或者推送的下级目录
 					String ftpFolderName;
@@ -134,7 +136,7 @@ public class FtpCollectJobImpl implements JobInterface {
 					//6.判断是推送还是拉取，根据不同的模式建立目录，并推送或拉取文件
 					//根据ftpId获取MapDB操作类的对象
 					try (MapDBHelper mapDBHelper = new MapDBHelper(Constant.MAPDBPATH + ftpId,
-							ftpId + ".db")) {
+						ftpId + ".db")) {
 						ConcurrentMap<String, String> fileNameHTreeMap = mapDBHelper.htMap(ftpId, 25 * 12);
 						if (IsFlag.Shi.getCode().equals(ftp_collect.getFtp_model())) {
 							String currentFTPDir;
@@ -152,7 +154,7 @@ public class FtpCollectJobImpl implements JobInterface {
 								currentLoadDir = localPath + "/" + ftpFolderName;
 							}
 							transferGet(ftpDir, currentLoadDir, sftp, ftp_collect.getIs_unzip(),
-									ftp_collect.getReduce_type(), fileSuffix, mapDBHelper, fileNameHTreeMap);
+								ftp_collect.getReduce_type(), fileSuffix, mapDBHelper, fileNameHTreeMap);
 						}
 					} catch (Exception e) {
 						log.error("创建或打开mapDB文件失败，ftp传输失败", e);
@@ -195,8 +197,8 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "验证目录是否存在，不存在则创建目录",
-			logicStep = "1.判断文件是否存在，存在返回true" +
-					"2.不存在，创建目录并返回")
+		logicStep = "1.判断文件是否存在，存在返回true" +
+			"2.不存在，创建目录并返回")
 	@Param(name = "filePath", desc = "需要验证的路径", range = "不能为空")
 	@Return(desc = "目录是否存在的返回值，true表示存在", range = "不会为空")
 	private boolean validateDirectory(String filePath) {
@@ -211,8 +213,8 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "下级目录规则如果是采取按时间，则根据用户定义的时间区间来建立目录",
-			logicStep = "1.获取当前服务器的日期时间" +
-					"2.根据时间的精确度来截取时间")
+		logicStep = "1.获取当前服务器的日期时间" +
+			"2.根据时间的精确度来截取时间")
 	@Param(name = "childTime", desc = "按时间建立的下级文件夹类型", range = "不能为空")
 	@Return(desc = "需要创建的时间文件夹名称", range = "不会为空")
 	private String getDateDir(String childTime) {
@@ -238,13 +240,13 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "将远程目录下的指定后缀名下的文件ftp拉取到本地的机器目录",
-			logicStep = "1.验证本地需要传输的目录文件是否存在，不存在则创建" +
-					"2.根据文件后缀拉取远程目录下的文件" +
-					"3.遍历拉取到的远程文件对象" +
-					"4.判断是文件夹，递归调用本方法" +
-					"5.不是文件夹，判断文件有没有被拉取过，没有拉取过则调用sftp方法拉取文件" +
-					"6.判断是否需要解压，需要解压则根据对应的压缩方式将文件解压到本地" +
-					"7.将拉取成功的文件放到MapDB，提交mapDB")
+		logicStep = "1.验证本地需要传输的目录文件是否存在，不存在则创建" +
+			"2.根据文件后缀拉取远程目录下的文件" +
+			"3.遍历拉取到的远程文件对象" +
+			"4.判断是文件夹，递归调用本方法" +
+			"5.不是文件夹，判断文件有没有被拉取过，没有拉取过则调用sftp方法拉取文件" +
+			"6.判断是否需要解压，需要解压则根据对应的压缩方式将文件解压到本地" +
+			"7.将拉取成功的文件放到MapDB，提交mapDB")
 	@Param(name = "ftpDir", desc = "待传输的文件所在远程机器的目录", range = "不能为空")
 	@Param(name = "destDir", desc = "需要拉取到的本地目录", range = "不能为空")
 	@Param(name = "sftp", desc = "sftp操作类", range = "不能为空")
@@ -254,7 +256,7 @@ public class FtpCollectJobImpl implements JobInterface {
 	@Param(name = "mapDBHelper", desc = "mapDB数据库操作类", range = "不可为空")
 	@Param(name = "fileNameHTreeMap", desc = "mapDB数据库表的操作类", range = "不可为空")
 	private void transferGet(String ftpDir, String destDir, SftpOperate sftp, String isUnzip, String deCompressWay,
-							 String fileSuffix, MapDBHelper mapDBHelper, ConcurrentMap<String, String> fileNameHTreeMap) {
+	                         String fileSuffix, MapDBHelper mapDBHelper, ConcurrentMap<String, String> fileNameHTreeMap) {
 		JSONObject object = new JSONObject();
 		//1.验证本地需要传输的目录文件是否存在，不存在则创建
 		boolean flag = validateDirectory(destDir);
@@ -288,13 +290,13 @@ public class FtpCollectJobImpl implements JobInterface {
 				//4.判断是文件夹，递归调用本方法
 				if (lsEntry.getAttrs().isDir()) {
 					transferGet(tmpFtpDir, tmpDestDir, sftp, isUnzip, deCompressWay, fileSuffix,
-							mapDBHelper, fileNameHTreeMap);
+						mapDBHelper, fileNameHTreeMap);
 				} else {
 					//5.不是文件夹，判断文件有没有被拉取过，没有拉取过则调用sftp方法拉取文件
 					if (!fileNameHTreeMap.containsKey(tmpFtpDir)
-							|| (fileNameHTreeMap.containsKey(tmpFtpDir)
-							&& !fileNameHTreeMap.get(tmpFtpDir)
-							.equals(lsEntry.getAttrs().getMtimeString()))) {
+						|| (fileNameHTreeMap.containsKey(tmpFtpDir)
+						&& !fileNameHTreeMap.get(tmpFtpDir)
+						.equals(lsEntry.getAttrs().getMtimeString()))) {
 						sftp.transferFile(tmpFtpDir, destDir);
 						boolean isSuccessful;
 						//6.判断是否需要解压，需要解压则根据对应的压缩方式将文件解压到本地
@@ -321,7 +323,7 @@ public class FtpCollectJobImpl implements JobInterface {
 							object.put("ftpTime", DateUtil.getSysTime());
 							object.put("end", false);
 							FtpConsumerThread.queueMap.get(ftp_collect.getFtp_id()
-									.toString()).put(object.toJSONString());
+								.toString()).put(object.toJSONString());
 							object.clear();
 						} else {
 							throw new BusinessException("解压文件失败！！！");
@@ -336,11 +338,11 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "将本地目录下的指定后缀名下的文件ftp推送到远程的机器目录",
-			logicStep = "1.创建远程需要ftp的目录" +
-					"2.根据mapDB的记录和该目录下文件属性过滤文件" +
-					"3.判断是文件还是文件夹" +
-					"4.文件夹则将此目录作为ftp目录递归调用本方法" +
-					"5.是文件则调用sftp，推送文件到远程服务器，存到mapDB，提交mapDB")
+		logicStep = "1.创建远程需要ftp的目录" +
+			"2.根据mapDB的记录和该目录下文件属性过滤文件" +
+			"3.判断是文件还是文件夹" +
+			"4.文件夹则将此目录作为ftp目录递归调用本方法" +
+			"5.是文件则调用sftp，推送文件到远程服务器，存到mapDB，提交mapDB")
 	@Param(name = "ftpDir", desc = "ftp推送的远程机器的目录", range = "不能为空")
 	@Param(name = "localPath", desc = "本地目录", range = "不能为空")
 	@Param(name = "sftp", desc = "sftp操作类", range = "不能为空")
@@ -348,7 +350,7 @@ public class FtpCollectJobImpl implements JobInterface {
 	@Param(name = "mapDBHelper", desc = "mapDB数据库操作类", range = "不可为空")
 	@Param(name = "fileNameHTreeMap", desc = "mapDB数据库表的操作类", range = "不可为空")
 	private void transferPut(String ftpDir, String localPath, SftpOperate sftp, String fileSuffix,
-							 MapDBHelper mapDBHelper, ConcurrentMap<String, String> fileNameHTreeMap) {
+	                         MapDBHelper mapDBHelper, ConcurrentMap<String, String> fileNameHTreeMap) {
 		JSONObject object = new JSONObject();
 		//数据可访问权限处理方式：此方法不需要对数据可访问权限处理
 		try {
@@ -359,14 +361,14 @@ public class FtpCollectJobImpl implements JobInterface {
 			//如果系统配置的是以MD5计算增量
 			if (JobConstant.FILECHANGESTYPEMD5) {
 				files = new File(localPath).listFiles((file) -> (!fileNameHTreeMap.containsKey(
-						file.getAbsolutePath()) || file.isDirectory() || (fileNameHTreeMap.containsKey(
-						file.getAbsolutePath()) && !fileNameHTreeMap.get(file.getAbsolutePath()).
-						equals(MD5Util.md5File(file)))));
+					file.getAbsolutePath()) || file.isDirectory() || (fileNameHTreeMap.containsKey(
+					file.getAbsolutePath()) && !fileNameHTreeMap.get(file.getAbsolutePath()).
+					equals(MD5Util.md5File(file)))));
 			} else {
 				files = new File(localPath).listFiles((file) -> (!fileNameHTreeMap.containsKey(
-						file.getAbsolutePath()) || file.isDirectory() || (fileNameHTreeMap.containsKey(
-						file.getAbsolutePath()) && !fileNameHTreeMap.get(file.getAbsolutePath()).
-						equals(String.valueOf(file.lastModified())))));
+					file.getAbsolutePath()) || file.isDirectory() || (fileNameHTreeMap.containsKey(
+					file.getAbsolutePath()) && !fileNameHTreeMap.get(file.getAbsolutePath()).
+					equals(String.valueOf(file.lastModified())))));
 			}
 			if (files != null && files.length > 0) {
 				for (File file : files) {
@@ -381,7 +383,7 @@ public class FtpCollectJobImpl implements JobInterface {
 					if (file.isDirectory()) {
 						//4.文件夹则将此目录作为ftp目录递归调用本方法
 						transferPut(tmpFtpDir, file.getAbsolutePath(), sftp, fileSuffix, mapDBHelper,
-								fileNameHTreeMap); // 获取文件绝对路径
+							fileNameHTreeMap); // 获取文件绝对路径
 					} else {
 						//5.是文件则调用sftp，推送文件到远程服务器，存到mapDB，提交mapDB
 						if (StringUtil.isBlank(fileSuffix) || fileName.endsWith(fileSuffix)) {
@@ -405,7 +407,7 @@ public class FtpCollectJobImpl implements JobInterface {
 							object.put("ftpTime", DateUtil.getSysTime());
 							object.put("end", false);
 							FtpConsumerThread.queueMap.get(ftp_collect.getFtp_id()
-									.toString()).put(object.toJSONString());
+								.toString()).put(object.toJSONString());
 							object.clear();
 						}
 					}
@@ -418,10 +420,10 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "获取远程目录下数字文件夹，取数字最大的文件夹加一",
-			logicStep = "1.取远程文件夹下的所有文件夹的集合" +
-					"2.遍历集合，取为数字的文件夹的最大值" +
-					"3.取不到则返回0" +
-					"4.取到则返回最大文件夹数字加1")
+		logicStep = "1.取远程文件夹下的所有文件夹的集合" +
+			"2.遍历集合，取为数字的文件夹的最大值" +
+			"3.取不到则返回0" +
+			"4.取到则返回最大文件夹数字加1")
 	@Param(name = "dir", desc = "文件夹路径", range = "不能为空")
 	@Param(name = "sftp", desc = "远程操作类", range = "远程操作类")
 	@Return(desc = "该文件夹下数值最大的文件夹加一", range = "不会为空")
@@ -449,10 +451,10 @@ public class FtpCollectJobImpl implements JobInterface {
 	}
 
 	@Method(desc = "获取目录下数字文件夹，取数字最大的文件夹加一",
-			logicStep = "1.取当前文件夹下的所有为数字的文件夹的集合" +
-					"2.判断集合是否为空，为空则返回字符串0" +
-					"3.不为空则遍历集合，取最大值" +
-					"4.返回最大值加一")
+		logicStep = "1.取当前文件夹下的所有为数字的文件夹的集合" +
+			"2.判断集合是否为空，为空则返回字符串0" +
+			"3.不为空则遍历集合，取最大值" +
+			"4.返回最大值加一")
 	@Param(name = "dir", desc = "文件夹路径", range = "不能为空")
 	@Return(desc = "该文件夹下数值最大的文件夹加一", range = "不会为空")
 	private String localNumberDir(String dir) {

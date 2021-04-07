@@ -1,22 +1,28 @@
 package hrds.agent.job.biz.core.filecollectstage;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jcraft.jsch.ChannelSftp;
 import fd.ng.core.annotation.DocClass;
+import fd.ng.core.annotation.Method;
+import fd.ng.core.annotation.Param;
 import fd.ng.core.utils.FileNameUtils;
 import hrds.agent.job.biz.bean.AvroBean;
 import hrds.agent.job.biz.bean.FileCollectParamBean;
 import hrds.agent.job.biz.constant.JobConstant;
 import hrds.agent.job.biz.core.filecollectstage.methods.AvroBeanProcess;
 import hrds.agent.job.biz.core.filecollectstage.methods.AvroOper;
-import hrds.agent.job.biz.utils.BatchShell;
 import hrds.agent.job.biz.utils.PropertyParaUtil;
 import hrds.agent.trans.biz.unstructuredfilecollect.FileCollectJob;
 import hrds.commons.codes.DataSourceType;
 import hrds.commons.codes.IsFlag;
 import hrds.commons.exception.AppSystemException;
+import hrds.commons.exception.BusinessException;
 import hrds.commons.hadoop.hadoop_helper.HdfsOperator;
 import hrds.commons.hadoop.readconfig.ConfigReader;
 import hrds.commons.utils.MapDBHelper;
+import hrds.commons.utils.jsch.FileProgressMonitor;
+import hrds.commons.utils.jsch.SFTPDetails;
+import hrds.commons.utils.jsch.SftpOperate;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.logging.log4j.LogManager;
@@ -85,7 +91,11 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 				String jobRsId = queueJb.getString("job_rs_id");
 				long watcherId = queueJb.getLong("watcher_id");
 				//对其做处理（有Hadoop环境上传hdfs,没有Hadoop环境传输到服务器本地硬盘下）
-				BatchShell.execStationaryHDFSShell(avroFileAbsolutionPath, fileCollectHdfsPath, JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP);
+				if (JobConstant.FILE_COLLECTION_IS_WRITE_HADOOP) {
+					copyFileToHDFS(avroFileAbsolutionPath, fileCollectHdfsPath);
+				} else {
+					copyFileToRemote(avroFileAbsolutionPath, fileCollectHdfsPath);
+				}
 				//判断如果是大文件，则只做文件上传处理，大文件的信息记录在其他队列中，这里直接取下一个队列的数据
 				if (IsFlag.Shi.getCode().equals(queueJb.getString("isBigFile"))) {
 					continue;
@@ -101,13 +111,15 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 				//获取AvroBeans
 				List<AvroBean> avroBeans = AvroOper.getAvroBeans(avroPath);
 				AvroBeanProcess abp = new AvroBeanProcess(fileCollectParamBean, sysDate, jobRsId);
-				//判断是否入solr
+				//TODO 目前只保存到solr和 Source_file_attribute
+				// 判断是否入solr
 				if (IsFlag.Shi.getCode().equals(fileCollectParamBean.getIs_solr())) {
 					abp.saveInSolr(avroBeans);
 				}
-				//保存采集文件的源信息
-				List<String[]> hbaseList = abp.saveMetaData(avroBeans, fileNameHTreeMap);
-				//如果有Hadoop环境,则存入HBase,否则存Psql TODO 目前只保存到solr和 Source_file_attribute
+				//Source_file_attribute 保存采集文件的源信息,如果需要保存到HBase或者psql,获取saveMetaData的返回结果然后保存
+				abp.saveMetaData(avroBeans, fileNameHTreeMap);
+//				List<String[]> hbaseList = abp.saveMetaData(avroBeans, fileNameHTreeMap);
+				//如果有Hadoop环境,则存入HBase,否则存Psql
 //				if (JobConstant.HAS_HADOOP_ENV) {
 //					//存入HBase
 //					abp.saveInHbase(hbaseList);
@@ -146,5 +158,57 @@ public class FileCollectLoadingDataStageImpl implements Callable<String> {
 		}
 		mapDBHelper.commit();
 		logger.info("提交到mapDB");
+	}
+
+	@Method(desc = "执行上传文件到hdfs", logicStep = "1.调用hdfs操作类将本地文件上传到hdfs")
+	@Param(name = "localPath", desc = "本地文件路径", range = "不可为空")
+	@Param(name = "hdfsPath", desc = "hdfs文件路径", range = "不可为空")
+	private static void copyFileToHDFS(String localPath, String hdfsPath) {
+		// 1.调用hdfs操作类将本地文件上传到hdfs TODO
+		try (HdfsOperator operator = new HdfsOperator(System.getProperty("user.dir") + File.separator + "conf" + File.separator,
+			PropertyParaUtil.getString("platform", ConfigReader.PlatformType.normal.toString()),
+			PropertyParaUtil.getString("principle.name", "admin@HADOOP.COM"),
+			PropertyParaUtil.getString("HADOOP_USER_NAME", "hyshf"))) {
+			operator.upLoad(localPath, hdfsPath, true);
+		} catch (Exception e) {
+			if (e instanceof BusinessException) {
+				throw (BusinessException) e;
+			} else {
+				throw new AppSystemException(e);
+			}
+		}
+	}
+
+	@Method(
+		desc = "执行上传文件到远程服务器",
+		logicStep =
+			"1.判断是否有hadoop环境，调用对应的方法" + "2.为了防止远程文件夹不存在，先创建文件夹" + "3.传输文件到远程服务器，并设置监控，打印传输文件百分比")
+	@Param(name = "localPath", desc = "本地文件路径", range = "不可为空")
+	@Param(name = "hdfsPath", desc = "hdfs文件路径", range = "不可为空")
+	private static void copyFileToRemote(String localPath, String remotePath) {
+		// 1.构建连接远程机器的对象
+		SFTPDetails sftpDetails = new SFTPDetails();
+		sftpDetails.setHost(PropertyParaUtil.getString("hyren_host", ""));
+		sftpDetails.setUser_name(PropertyParaUtil.getString("hyren_user", ""));
+		sftpDetails.setPwd(PropertyParaUtil.getString("hyren_pwd", ""));
+		sftpDetails.setPort(Integer.parseInt(PropertyParaUtil.getString("sftp_port", "22")));
+		try {
+			// 初始化 sftpOperate 操作对象
+			SftpOperate sftpOperate = new SftpOperate(sftpDetails);
+			// 2.为了防止远程文件夹不存在，先创建文件夹
+			sftpOperate.scpMkdir(remotePath);
+			long fileSize = new File(localPath).length();
+			// 3.传输文件到远程服务器，并设置监控，打印传输文件百分比
+			sftpOperate.channelSftp.put(localPath, remotePath, new FileProgressMonitor(fileSize), ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.quit();
+			sftpOperate.close();
+		} catch (Exception e) {
+			logger.error("拷贝本地文件到服务器: " + sftpDetails.getHost() + " 失败! 执行异常: ", e.getMessage());
+			if (e instanceof BusinessException) {
+				throw (BusinessException) e;
+			} else {
+				throw new AppSystemException(e);
+			}
+		}
 	}
 }
