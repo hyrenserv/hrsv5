@@ -10,6 +10,7 @@ INSERT INTO sys_para VALUES ('7', 'system_language', 'zh_CN', 'system.properties
 INSERT INTO sys_para VALUES ('8', 'sys_dateformat', 'yyyy-MM-dd', 'system.properties', '系统日期参数格式化定义');
 INSERT INTO sys_para VALUES ('9', 'hyren_pwd', 'q1w2e3',  'system.properties', '系统默认海云用户的密码');
 INSERT INTO sys_para VALUES ('10', 'is_save_operation_log', '0', 'system.properties', '是否保存操作日志 (1:是,0:否)');
+INSERT INTO sys_para VALUES ('11', 'hyren_user', 'hyshf',  'system.properties', '系统默认海云用户名');
 -- 公共配置
 INSERT INTO sys_para VALUES ('101', 'solrclassname', 'hrds.commons.hadoop.solr.impl.SolrOperatorImpl5_3_1', 'common.properties', 'solr具体实现类全名hrds.commons.hadoop.solr.impl.SolrOperatorImpl5_3_1');
 INSERT INTO sys_para VALUES ('102', 'zkHost', 'hdp001.beyondsoft.com:2181,hdp002.beyondsoft.com:2181,hdp003.beyondsoft.com:2181/solr', 'common.properties', 'solr的zookeeper配置');
