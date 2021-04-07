@@ -119,10 +119,9 @@ public class SftpOperate implements Closeable {
 	/**
 	 * exec 执行命令,需要返回值
 	 *
-	 * @param session Session
 	 * @param command 命令
 	 */
-	public static String execCommandByJSch(Session session, String command) throws JSchException, IOException {
+	public String execCommandByJSch(String command) throws JSchException, IOException {
 		command = FileNameUtils.normalize(command, true);
 		logger.info("执行命令为: " + command);
 		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
