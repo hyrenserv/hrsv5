@@ -226,7 +226,7 @@ public class SftpOperate implements Closeable {
 	 * @param ftpPort     int
 	 * @return SFTPDetails Map<String, String>
 	 */
-	public SFTPDetails getSftpDetails(String ftpHost, String ftpUserName, String ftpPassword, int ftpPort) {
+	public static SFTPDetails getSftpDetails(String ftpHost, String ftpUserName, String ftpPassword, int ftpPort) {
 		return new SFTPDetails(ftpHost, ftpUserName, ftpPassword, ftpPort);
 	}
 
