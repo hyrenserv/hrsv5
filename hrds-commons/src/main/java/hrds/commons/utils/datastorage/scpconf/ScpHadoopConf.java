@@ -1,7 +1,6 @@
 package hrds.commons.utils.datastorage.scpconf;
 
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 import fd.ng.core.annotation.DocClass;
@@ -12,12 +11,13 @@ import hrds.commons.entity.Data_store_layer;
 import hrds.commons.entity.Data_store_layer_attr;
 import hrds.commons.exception.BusinessException;
 import hrds.commons.utils.jsch.AgentDeploy;
-import hrds.commons.utils.jsch.SFTPChannel;
+import hrds.commons.utils.jsch.SftpOperate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @DocClass(desc = "将存储层的配置文件cp到Agent目录", author = "Mr.Lee", createdate = "2020-02-17 13:31")
 public class ScpHadoopConf {
@@ -31,11 +31,10 @@ public class ScpHadoopConf {
 	/**
 	 * 1 : 将配置目下的配置文件使用SCP的方式复制到Agent目录下 2 : 将配置文件复制到agent路径下后,将配置文件修改为Hadoop固定的配置文件名称
 	 *
-	 * @param targetPath   : 目标路径
-	 * @param chSftp       : sftp通道
-	 * @param shellSession : 连接的Session信息
+	 * @param targetPath  : 目标路径
+	 * @param sftpOperate : sftp操作对象
 	 */
-	public static void scpConfToAgent(String targetPath, ChannelSftp chSftp, Session shellSession) {
+	public static void scpConfToAgent(String targetPath, SftpOperate sftpOperate) {
 
 		// FIXME 这里上传的存储文件地址如果是固定的,则取一次即可...待确定
 		try (DatabaseWrapper db = new DatabaseWrapper()) {
@@ -68,11 +67,10 @@ public class ScpHadoopConf {
 							LOGGER.info("本地文件: " + localFilePath + " 不存在,跳过!!!");
 						} else {
 							// 检查目录是否存在,不存在就创建目录
-							SFTPChannel.execCommandByJSchNoRs(shellSession,
-								"mkdir -p " + targetMachineConf);
+							sftpOperate.execCommandByJSchNoRs("mkdir -p " + targetMachineConf);
 							LOGGER.info("开始传输集群XML: " + localFilePath + " 到目录 :" + targetMachineConf);
 							// 将本地文件 sftp到远程目录下
-							chSftp.put(localFilePath, targetMachineConf);
+							sftpOperate.channelSftp.put(localFilePath, targetMachineConf);
 						}
 
 						// 修改传输完成后的文件名称,传输过去的文件名称为md5文件名称

@@ -53,5 +53,5 @@ public class CommonVariables {
 	/**
 	 * 部署时服务器的默认端口
 	 */
-	public static final String SFTP_PORT = PropertyParaValue.getString("sftp_port", "22");
+	public static final int SFTP_PORT = PropertyParaValue.getInt("sftp_port", 22);
 }

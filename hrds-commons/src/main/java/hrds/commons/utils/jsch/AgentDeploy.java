@@ -2,7 +2,6 @@ package hrds.commons.utils.jsch;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.annotation.Method;
@@ -149,51 +148,45 @@ public class AgentDeploy {
 
 		// Agent的生成目录,使用Agent的名称命名的
 		String agentDir = oldAgentPath + SEPARATOR + agentDirName;
-
+		SFTPDetails sftpDetails = SftpOperate.getSftpDetails(down_info.getAgent_ip(), down_info.getUser_name(),
+			down_info.getPasswd(), CommonVariables.SFTP_PORT);
 		// 一 : 将需要的文件SCP 到目标agent目录下
-		Session shellSession = null;
-		ChannelSftp chSftp = null;
-		SFTPChannel channel = null;
-		try {
-			shellSession = getSession(down_info);
+		try (SftpOperate sftpOperate = new SftpOperate(sftpDetails)) {
 			if (StringUtil.isNotBlank(oldAgentPath)) {
 				// 1 : 根据旧的部署目录来判断是否为第一次部署,如果部署第一次部署则先将进程kill,然后再将目录删除.
-				SFTPChannel.execCommandByJSch(shellSession,
+				sftpOperate.execCommandByJSch(
 					"cd " + agentDir + SEPARATOR + ".bin; bash " + Constant.START_AGENT + " " + file.getName() + " "
 						+ down_info.getLog_dir() + " " + down_info.getAgent_port() + " stop");
 
-				SFTPChannel.execCommandByJSch(shellSession, "rm -rf " + agentDir);
+				sftpOperate.execCommandByJSch("rm -rf " + agentDir);
 			}
 
 			if (StringUtil.isNotBlank(oldLogPath)) {
 				// 根据旧的日志文件
-				SFTPChannel.execCommandByJSch(shellSession, "rm -rf " + oldLogPath);
+				sftpOperate.execCommandByJSch("rm -rf " + oldLogPath);
 			}
 
 			// 检查当前的目录下的进程是否启动(这里直接使用kill命令,为防止后续启动出错)
-			SFTPChannel.execCommandByJSch(shellSession,
+			sftpOperate.execCommandByJSch(
 				"cd " + agentDir + SEPARATOR + ".bin;bash " + Constant.START_AGENT + " " + file.getName() + " "
 					+ down_info.getLog_dir() + " " + down_info.getAgent_port() + " " + " stop");
 
 			// 删除目标的机器的部署路径,防止存在
-			SFTPChannel.execCommandByJSch(
-				shellSession, "rm -rf " + down_info.getSave_dir() + SEPARATOR + agentDirName);
+			sftpOperate.execCommandByJSch(
+				"rm -rf " + down_info.getSave_dir() + SEPARATOR + agentDirName);
 
 			//建立日志目录
-			SFTPChannel.execCommandByJSch(
-				shellSession, "mkdir -p " + new File(down_info.getLog_dir()).getParent());
+			sftpOperate.execCommandByJSch(
+				"mkdir -p " + new File(down_info.getLog_dir()).getParent());
 
 			// 创建远程目录
-			mkdirToTarget(shellSession, down_info.getSave_dir() + SEPARATOR + agentDirName);
+			mkdirToTarget(sftpOperate, down_info.getSave_dir() + SEPARATOR + agentDirName);
 
 			// 开始传输的Agent包
-			channel = new SFTPChannel();
-			chSftp = channel.getChannel(shellSession, 60000);
-
 			String targetDir = down_info.getSave_dir() + SEPARATOR + agentDirName + SEPARATOR + ".bin";
 			// 传输Agent启动的jar
 			logger.info("系统配置Agent-Jar路径" + file.getAbsolutePath());
-			chSftp.put(file.getAbsolutePath(), targetDir);
+			sftpOperate.channelSftp.put(file.getAbsolutePath(), targetDir);
 
 			// ----------------传输执行作业的脚本
 			File shellCommandFile = new File(file.getParent() + SEPARATOR + Constant.SHELLCOMMAND);
@@ -201,7 +194,7 @@ public class AgentDeploy {
 			if (!shellCommandFile.exists()) {
 				throw new BusinessException("Agent的作业脚本(" + Constant.SHELLCOMMAND + ")未找到!!!");
 			}
-			chSftp.put(file.getParent() + SEPARATOR + Constant.SHELLCOMMAND, targetDir);
+			sftpOperate.channelSftp.put(file.getParent() + SEPARATOR + Constant.SHELLCOMMAND, targetDir);
 
 			//-----------------传输启动agent脚本
 			File startShellFile = new File(file.getParent() + SEPARATOR + Constant.START_AGENT);
@@ -209,7 +202,7 @@ public class AgentDeploy {
 			if (!startShellFile.exists()) {
 				throw new BusinessException("Agent的启动脚本(" + Constant.START_AGENT + ")未找到!!!");
 			}
-			chSftp.put(file.getParent() + SEPARATOR + Constant.START_AGENT, targetDir);
+			sftpOperate.channelSftp.put(file.getParent() + SEPARATOR + Constant.START_AGENT, targetDir);
 
 			//      // 解压上传的GZ包
 			//      logger.info("解压上传的GZ包命令 : " + "tar -vxf " + targetDir + SEPARATOR + file.getName());
@@ -224,14 +217,14 @@ public class AgentDeploy {
 			// 本地当前工程下的配置文件信息,上传到目标机器
 			String localConfPath = System.getProperty("user.dir") + SEPARATOR + "resources";
 			logger.info("本地当前工程下的配置文件路径 : " + localConfPath);
-			sftpFiles(localConfPath, chSftp, targetDir);
+			sftpFiles(localConfPath, sftpOperate.channelSftp, targetDir);
 
 			// 二 : 将本地写的agent配置文件,sftp复制到agent部署的目标机器
-			sftpFiles(CONFPATH, chSftp, targetDir + SEPARATOR + "resources");
+			sftpFiles(CONFPATH, sftpOperate.channelSftp, targetDir + SEPARATOR + "resources");
 
 			// 这里需要在 appinfo.conf文件中写入数据库的连接为false
-			SFTPChannel.execCommandByJSch(
-				shellSession,
+			sftpOperate.execCommandByJSch(
+
 				"echo 'hasDatabase=false'>>"
 					+ targetDir
 					+ SEPARATOR
@@ -242,47 +235,34 @@ public class AgentDeploy {
 					+ "appinfo.conf");
 
 			// 三 : 将储存层上传的文件 SFTP 到agent目录下
-			ScpHadoopConf.scpConfToAgent(targetDir, chSftp, shellSession);
+			ScpHadoopConf.scpConfToAgent(targetDir, sftpOperate);
 
 			// 四 : 将需要的jar包 SFTP 到agent下
 			sftpFiles(
 				new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "lib",
-				chSftp,
+				sftpOperate.channelSftp,
 				down_info.getSave_dir() + SEPARATOR + agentDirName);
 
 			// 五 : 将需要的jre SFTP 到agent下
 			logger.info("开始创建远程机器JRE目录");
-			createDir(new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre", shellSession,
-				targetDir + SEPARATOR + "jre");
+			createDir(new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre",
+				sftpOperate, targetDir + SEPARATOR + "jre");
 			logger.info("开始SCP JRE目录文件");
 			sftpFiles(
 				new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre",
-				chSftp,
-				targetDir);
+				sftpOperate.channelSftp, targetDir);
 			//修改log4j的配置文件信息
-			updateLog4jXml(chSftp, targetDir + SEPARATOR + "resources", "Property", down_info.getLog_dir());
+			updateLog4jXml(sftpOperate.channelSftp, targetDir + SEPARATOR + "resources", "Property",
+				down_info.getLog_dir());
 			// 六 : 判断是否启动agent
 			if (IsFlag.Shi.getCode().equals(down_info.getDeploy())) {
 				//TODO 这里需要接收脚本执行的状态结果吗,目前是忽略的
-				SFTPChannel.execCommandByJSchNoRs(shellSession,
+				sftpOperate.execCommandByJSchNoRs(
 					"cd " + targetDir + ";bash " + Constant.START_AGENT + " " + file.getName() + " " + down_info.getLog_dir()
 						+ " " + down_info
 						.getAgent_port() + " " + " start");
 			}
 			return targetDir;
-		} finally {
-			if (shellSession != null) {
-				shellSession.disconnect();
-			}
-			if (chSftp != null) {
-				chSftp.quit();
-			}
-			if (channel != null) {
-				try {
-					channel.closeChannel();
-				} catch (Exception ignored) {
-				}
-			}
 		}
 	}
 
@@ -313,23 +293,6 @@ public class AgentDeploy {
 		}
 	}
 
-	private static Session getSession(Agent_down_info down_info) throws JSchException {
-		// 开始JSCH Session连接
-		Session jSchSession;
-		// 创建准备SFTP所需要的参数bean
-		SFTPDetails sftpDetails = new SFTPDetails();
-		sftpDetails.setHost(down_info.getAgent_ip());
-		logger.info("IP : " + down_info.getAgent_ip());
-		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
-		sftpDetails.setUser_name(down_info.getUser_name());
-		logger.info("user_name : " + down_info.getUser_name());
-		sftpDetails.setPwd(down_info.getPasswd());
-		logger.info("password : " + down_info.getPasswd());
-		jSchSession = SFTPChannel.getJSchSession(sftpDetails, 0);
-
-		return jSchSession;
-	}
-
 	public static void sftpFiles(String sftpDir, ChannelSftp chSftp, String targetDir) {
 		File file = new File(sftpDir);
 		File[] confFiles = file.listFiles();
@@ -353,7 +316,7 @@ public class AgentDeploy {
 		}
 	}
 
-	static void createDir(String sftpDir, Session shellSession, String targetDir) {
+	static void createDir(String sftpDir, SftpOperate sftpOperate, String targetDir) {
 		try {
 			File file = new File(sftpDir);
 			File[] confFiles = file.listFiles();
@@ -362,9 +325,9 @@ public class AgentDeploy {
 			}
 			for (File confFile : confFiles) {
 				if (confFile.isDirectory()) {
-					SFTPChannel.execCommandByJSch(shellSession,
+					sftpOperate.execCommandByJSch(
 						"mkdir -p " + targetDir + SEPARATOR + confFile.getName());
-					createDir(confFile.getAbsolutePath(), shellSession,
+					createDir(confFile.getAbsolutePath(), sftpOperate,
 						targetDir + SEPARATOR + confFile.getName());
 				}
 			}
@@ -374,7 +337,7 @@ public class AgentDeploy {
 		}
 	}
 
-	private static void mkdirToTarget(Session shellSession, String targetDir) {
+	private static void mkdirToTarget(SftpOperate sftpOperate, String targetDir) {
 		/*
 		 * .bin : 部署Agent的隐藏目录 storeConfigPath : 上传的配置文件根目录 lib : 需要的依赖jar包目录 resources : 配置文件根目录
 		 * fdconfig : 配置信息文件 i18n : 翻译的配置文件
@@ -384,16 +347,14 @@ public class AgentDeploy {
 		logger.info("创建远程目录 .bin  : " + rootDir);
 		try {
 			// 建立  .bin 隐藏目录
-			SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + rootDir);
+			sftpOperate.execCommandByJSch("mkdir -p " + rootDir);
 			// 建立  lib 目录
 			logger.info("创建远程目录 lib  : " + targetDir + SEPARATOR + targetch_machine[2]);
-			SFTPChannel.execCommandByJSch(
-				shellSession, "mkdir -p " + targetDir + SEPARATOR + targetch_machine[2]);
+			sftpOperate.execCommandByJSch("mkdir -p " + targetDir + SEPARATOR + targetch_machine[2]);
 
 			// 建立storeConfigPath目录
 			logger.info("创建远程目录 建立storeConfigPath目录  : " + rootDir + SEPARATOR + targetch_machine[1]);
-			SFTPChannel.execCommandByJSch(
-				shellSession, "mkdir -p " + rootDir + SEPARATOR + targetch_machine[1]);
+			sftpOperate.execCommandByJSch("mkdir -p " + rootDir + SEPARATOR + targetch_machine[1]);
 
 			// 建立 resource/fdconfig 目录
 			logger.info(
@@ -403,13 +364,11 @@ public class AgentDeploy {
 					+ targetch_machine[3]
 					+ SEPARATOR
 					+ targetch_machine[4]);
-			SFTPChannel.execCommandByJSch(
-				shellSession,
+			sftpOperate.execCommandByJSch(
 				"mkdir -p " + rootDir + SEPARATOR + targetch_machine[3] + SEPARATOR + targetch_machine[4]);
 
 			// 建立 resource/i18n 目录
-			SFTPChannel.execCommandByJSch(
-				shellSession,
+			sftpOperate.execCommandByJSch(
 				"mkdir -p " + rootDir + SEPARATOR + targetch_machine[3] + SEPARATOR + targetch_machine[5]);
 
 		} catch (JSchException | IOException e) {

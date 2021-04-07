@@ -18,15 +18,12 @@ import hrds.commons.codes.AgentType;
 import hrds.commons.codes.CollectType;
 import hrds.commons.codes.DatabaseType;
 import hrds.commons.codes.IsFlag;
-import hrds.commons.entity.Agent_down_info;
-import hrds.commons.entity.Agent_info;
-import hrds.commons.entity.Collect_job_classify;
-import hrds.commons.entity.Data_source;
-import hrds.commons.entity.Database_set;
+import hrds.commons.entity.*;
 import hrds.commons.exception.BusinessException;
 import hrds.commons.utils.*;
 import hrds.commons.utils.jsch.SFTPDetails;
 import hrds.commons.utils.key.PrimayKeyGener;
+
 import java.util.List;
 
 @DocClass(desc = "配置源DB属性", author = "WangZhengcheng")
@@ -421,7 +418,7 @@ public class DBConfStepAction extends BaseAction {
 			.addData("user_name", databaseSet.getUser_name())
 			.addData("database_pad", databaseSet.getDatabase_pad())
 			.addData("database_type", databaseSet.getDatabase_type())
-			.addData("database_name",databaseSet.getDatabase_name())
+			.addData("database_name", databaseSet.getDatabase_name())
 			.post(url);
 		// 3、如果测试连接不成功，则抛异常给前端，说明连接失败，如果成功，则不做任务处理
 		ActionResult actionResult = JsonUtil.toObjectSafety(resVal.getBodyString(), ActionResult.class)
@@ -468,7 +465,7 @@ public class DBConfStepAction extends BaseAction {
 		String logDir = agentDownInfo.getLog_dir();
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agentDownInfo.getAgent_ip());
-		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
+		sftpDetails.setPort(CommonVariables.SFTP_PORT);
 		sftpDetails.setUser_name(agentDownInfo.getUser_name());
 		sftpDetails.setPwd(agentDownInfo.getPasswd());
 		// 最多显示1000行

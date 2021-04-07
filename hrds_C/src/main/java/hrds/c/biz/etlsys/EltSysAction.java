@@ -47,15 +47,15 @@ public class EltSysAction extends BaseAction {
 		// 1.数据可访问权限处理方式，根据user_id进行权限控制
 		// 2.查询工程信息
 		return Dbo.queryResult(
-				"select etl_sys_cd,etl_sys_name,comments,curr_bath_date,sys_run_status from "
-						+ Etl_sys.TableName + " where user_id=? order by etl_sys_cd", getUserId());
+			"select etl_sys_cd,etl_sys_name,comments,curr_bath_date,sys_run_status from "
+				+ Etl_sys.TableName + " where user_id=? order by etl_sys_cd", getUserId());
 	}
 
 	@Method(desc = "根据工程编号查询作业调度工程信息",
-			logicStep = "1.数据可访问权限处理方式，根据user_id进行权限控制"
-					+ "2.验证当前工程是否存在"
-					+ "3.根据工程编号查询工程信息"
-					+ "4.判断remarks是否为空，不为空则分割获取部署工程的redis ip与port并封装数据返回")
+		logicStep = "1.数据可访问权限处理方式，根据user_id进行权限控制"
+			+ "2.验证当前工程是否存在"
+			+ "3.根据工程编号查询工程信息"
+			+ "4.判断remarks是否为空，不为空则分割获取部署工程的redis ip与port并封装数据返回")
 	@Param(name = "etl_sys_cd", desc = "工程编号", range = "新增工程时生成")
 	@Return(desc = "返回根据工程编号查询的工程信息", range = "无限制")
 	public Map<String, Object> searchEtlSysById(String etl_sys_cd) {
@@ -66,7 +66,7 @@ public class EltSysAction extends BaseAction {
 		String etlDeployPath = PropertyParaValue.getString("etlDeployPath", "/home/hyshf/");
 		Map<String, Object> etlSysMap = new HashMap<>();
 		if (StringUtil.isBlank(etl_sys.getServ_file_path()) ||
-				etl_sys.getServ_file_path().equals(etlDeployPath)) {
+			etl_sys.getServ_file_path().equals(etlDeployPath)) {
 			// 部署路径等于默认路径或部署路径为空则为默认部署路径
 			etlSysMap.put("isCustomize", IsFlag.Fou.getCode());
 		} else {
@@ -77,16 +77,16 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(
-			desc = "新增保存作业调度工程信息",
-			logicStep =
-					"1.数据可访问权限处理方式，该方法不需要权限控制"
-							+ "2.检查作业调度工程字段合法性"
-							+ "3.设置一些默认参数"
-							+ "4.检查工程编号是否已存在，存在不能新增"
-							+ "5.新增保存工程"
-							+ "6.每个工程创建时,都默认创建2种资源类型"
-							+ "7.遍历获取资源类型"
-							+ "8.循环新增保存资源")
+		desc = "新增保存作业调度工程信息",
+		logicStep =
+			"1.数据可访问权限处理方式，该方法不需要权限控制"
+				+ "2.检查作业调度工程字段合法性"
+				+ "3.设置一些默认参数"
+				+ "4.检查工程编号是否已存在，存在不能新增"
+				+ "5.新增保存工程"
+				+ "6.每个工程创建时,都默认创建2种资源类型"
+				+ "7.遍历获取资源类型"
+				+ "8.循环新增保存资源")
 	@Param(name = "etl_sys", desc = "作业调度工程登记表", range = "与数据库对应表规则一致", isBean = true)
 	public void addEtlSys(Etl_sys etl_sys) {
 		// 1.数据可访问权限处理方式，该方法不需要权限控制
@@ -123,8 +123,8 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(
-			desc = "检查作业调度工程字段合法性",
-			logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" + "2.验证工程名称是否为空" + "3.验证工程编号是否为数字英文下划线")
+		desc = "检查作业调度工程字段合法性",
+		logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" + "2.验证工程名称是否为空" + "3.验证工程编号是否为数字英文下划线")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "etl_sys_name", desc = "工程名称", range = "新增工程时生成")
 	private void checkEtlSysField(String etl_sys_cd, String etl_sys_name) {
@@ -140,9 +140,9 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(
-			desc = "更新保存作业调度工程",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.更新保存工程")
+		desc = "更新保存作业调度工程",
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.更新保存工程")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "etl_sys_name", desc = "工程名称", range = "新增工程时生成")
 	@Param(name = "comments", desc = "工程描述", range = "无限制", nullable = true)
@@ -150,15 +150,15 @@ public class EltSysAction extends BaseAction {
 		// 1.数据可访问权限处理方式，该方法不需要权限控制
 		// 2.更新保存工程
 		DboExecute.updatesOrThrow("更新保存失败!", "update " + Etl_sys.TableName
-						+ " set etl_sys_name=?,comments=? where etl_sys_cd=? and user_id=?",
-				etl_sys_name, comments, etl_sys_cd, getUserId());
+				+ " set etl_sys_name=?,comments=? where etl_sys_cd=? and user_id=?",
+			etl_sys_name, comments, etl_sys_cd, getUserId());
 	}
 
 	@Method(desc = "部署作业调度工程",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.判断系统是否正在运行中，如果正在运行中不允许部署"
-					+ "3.部署作业工程"
-					+ "4.部署成功，更新用户信息")
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.判断系统是否正在运行中，如果正在运行中不允许部署"
+			+ "3.部署作业工程"
+			+ "4.部署成功，更新用户信息")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "etl_serv_ip", desc = "ETL部署Agent服务器IP", range = "新增工程时生成")
 	@Param(name = "serv_file_path", desc = "ETL服务器部署路径", range = "目录为自定义时传值", nullable = true)
@@ -184,7 +184,7 @@ public class EltSysAction extends BaseAction {
 		serv_file_path = FilenameUtils.normalize(serv_file_path);
 		// 3.部署作业工程
 		ETLAgentDeployment.scpETLAgent(etl_sys_cd, etl_serv_ip, CommonVariables.SFTP_PORT, user_name, user_pwd,
-				serv_file_path, etlSys.getServ_file_path());
+			serv_file_path, etlSys.getServ_file_path());
 		String redisIP = PropertyParaValue.getString("redis_ip", "172.168.0.61");
 		String redisPort = PropertyParaValue.getString("redis_port", "56379");
 		Etl_sys etl_sys = new Etl_sys();
@@ -194,19 +194,19 @@ public class EltSysAction extends BaseAction {
 		etl_sys.setUser_pwd(user_pwd);
 		etl_sys.setServ_file_path(serv_file_path);
 		etl_sys.setRemarks(redisIP + ':' + redisPort);
-		etl_sys.setEtl_serv_port(CommonVariables.SFTP_PORT);
+		etl_sys.setEtl_serv_port(String.valueOf(CommonVariables.SFTP_PORT));
 		// 4.部署成功，更新用户信息
 		etl_sys.update(Dbo.db());
 	}
 
 	@Method(desc = "启动CONTROL",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.根据工程编号获取工程信息"
-					+ "3.判断工程是否已部署"
-					+ "4.判断是否续跑，如果续跑日期从数据库查询当前批量日期，因为续跑是续跑当前跑批的"
-					+ "5.如果日切方式不是自动日切且工程下作业列表为空，则不能启动"
-					+ "6.获取系统状态,如果不是停止说明系统不是停止状态,不是停止状态不能启动control"
-					+ "7.调用脚本启动启动Control")
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.根据工程编号获取工程信息"
+			+ "3.判断工程是否已部署"
+			+ "4.判断是否续跑，如果续跑日期从数据库查询当前批量日期，因为续跑是续跑当前跑批的"
+			+ "5.如果日切方式不是自动日切且工程下作业列表为空，则不能启动"
+			+ "6.获取系统状态,如果不是停止说明系统不是停止状态,不是停止状态不能启动control"
+			+ "7.调用脚本启动启动Control")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "isResumeRun", desc = "是否续跑", range = "使用（IsFlag）代码项，1代表是，0代表否")
 	@Param(name = "isAutoShift", desc = "是否自动日切", range = "使用（IsFlag）代码项，1代表是，0代表否")
@@ -234,14 +234,14 @@ public class EltSysAction extends BaseAction {
 		}
 		// 检查当前工程下的作业有没有分配资源，没有分配资源不能启动
 		List<Etl_job_def> etlJobDefList = Dbo.queryList(Etl_job_def.class,
-				"select * from " + Etl_job_def.TableName + " where etl_sys_cd=?",
-				etl_sys_cd);
+			"select * from " + Etl_job_def.TableName + " where etl_sys_cd=?",
+			etl_sys_cd);
 		for (Etl_job_def etl_job_def : etlJobDefList) {
 			if (Dbo.queryNumber(
-					"select count(1) from " + Etl_job_resource_rela.TableName
-							+ " where etl_sys_cd=? and etl_job=?",
-					etl_sys_cd, etl_job_def.getEtl_job())
-					.orElseThrow(() -> new BusinessException("sql查询错误")) != 1) {
+				"select count(1) from " + Etl_job_resource_rela.TableName
+					+ " where etl_sys_cd=? and etl_job=?",
+				etl_sys_cd, etl_job_def.getEtl_job())
+				.orElseThrow(() -> new BusinessException("sql查询错误")) != 1) {
 				throw new BusinessException(etl_job_def.getEtl_job() + "作业没有分配资源，不能启动!");
 			}
 		}
@@ -250,15 +250,15 @@ public class EltSysAction extends BaseAction {
 		}
 		// 7.调用脚本启动启动Control
 		ETLAgentDeployment.startEngineBatchControl(curr_bath_date, etl_sys_cd, isResumeRun, isAutoShift,
-				etlSys.getEtl_serv_ip(), etlSys.getEtl_serv_port(), etlSys.getUser_name(),
-				etlSys.getUser_pwd(), etlSys.getServ_file_path());
+			etlSys.getEtl_serv_ip(), etlSys.getEtl_serv_port(), etlSys.getUser_name(),
+			etlSys.getUser_pwd(), etlSys.getServ_file_path());
 	}
 
 	@Method(desc = "启动TRIGGER",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.根据工程编号获取工程信息"
-					+ "3.获取系统状态,如果不是运行说明CONTROL还未启动，不能启动TRIGGER"
-					+ "4.调用脚本启动启动Trigger")
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.根据工程编号获取工程信息"
+			+ "3.获取系统状态,如果不是运行说明CONTROL还未启动，不能启动TRIGGER"
+			+ "4.调用脚本启动启动Trigger")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	public void startTrigger(String etl_sys_cd) {
 		// 1.数据可访问权限处理方式，通过user_id进行权限控制
@@ -270,22 +270,22 @@ public class EltSysAction extends BaseAction {
 		}
 		// 4.调用脚本启动启动Trigger
 		ETLAgentDeployment.startEngineBatchTrigger(etl_sys_cd, etlSys.getEtl_serv_ip(),
-				etlSys.getEtl_serv_port(), etlSys.getUser_name(), etlSys.getUser_pwd(),
-				etlSys.getServ_file_path());
+			etlSys.getEtl_serv_port(), etlSys.getUser_name(), etlSys.getUser_pwd(),
+			etlSys.getServ_file_path());
 	}
 
 	@Method(desc = "读取Control或Trigger日志信息",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.根据工程编号获取工程信息"
-					+ "3.判断工程是否已部署"
-					+ "4.获取当前日期"
-					+ "5.获取control或trigger日志路径"
-					+ "6.日志读取行数最大为1000行"
-					+ "7.读取control或trigger日志信息")
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.根据工程编号获取工程信息"
+			+ "3.判断工程是否已部署"
+			+ "4.获取当前日期"
+			+ "5.获取control或trigger日志路径"
+			+ "6.日志读取行数最大为1000行"
+			+ "7.读取control或trigger日志信息")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "readNum", desc = "查看日志行数", range = "最多显示1000行,大于0的正整数", valueIfNull = "100")
 	@Param(name = "isControl", desc = "是否读取Control日志", range = "使用（IsFlag代码项），0代表control，" +
-			"1代表trigger")
+		"1代表trigger")
 	@Return(desc = "返回内容描述", range = "取值范围")
 	public String readControlOrTriggerLog(String etl_sys_cd, Integer readNum, String isControl) {
 
@@ -298,15 +298,15 @@ public class EltSysAction extends BaseAction {
 		String sysDate = DateUtil.getSysDate();
 		// 5.获取control或trigger日志路径
 		String logDir = FilenameUtils.normalize(etlSys.getServ_file_path())
-				+ separator + etl_sys_cd + separator;
+			+ separator + etl_sys_cd + separator;
 		if (IsFlag.Fou == IsFlag.ofEnumByCode(isControl)) {
 			// CONTROL日志目录
 			logDir = logDir + "control" + separator + sysDate.substring(0, 4) + separator
-					+ sysDate.substring(0, 6) + separator + sysDate + "_ControlOut.log";
+				+ sysDate.substring(0, 6) + separator + sysDate + "_ControlOut.log";
 		} else {
 			// TRIGGER日志目录
 			logDir = logDir + "trigger" + separator + sysDate.substring(0, 4) + separator
-					+ sysDate.substring(0, 6) + separator + sysDate + "_TriggerOut.log";
+				+ sysDate.substring(0, 6) + separator + sysDate + "_TriggerOut.log";
 		}
 		// 6.日志读取行数最大为1000行
 		if (readNum > 1000) {
@@ -322,22 +322,22 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(desc = "下载Control或Trigger日志",
-			logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
-					+ "2.根据工程编号获取工程信息"
-					+ "3.判断工程是否已部署"
-					+ "4.修改批量日期格式"
-					+ "5.获取control或trigger日志路径"
-					+ "6.获取压缩日志命令"
-					+ "7.判断是control日志还是trigger日志,获取日志目录以及压缩日志目录命令"
-					+ "8.与工程部署服务器进行交互压缩日志文件"
-					+ "9.获取文件下载路径"
-					+ "10.从服务器下载文件到本地"
-					+ "11.下载完删除压缩包"
-					+ "12.返回CONTROL或TRIGGER下载日志文件名")
+		logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制"
+			+ "2.根据工程编号获取工程信息"
+			+ "3.判断工程是否已部署"
+			+ "4.修改批量日期格式"
+			+ "5.获取control或trigger日志路径"
+			+ "6.获取压缩日志命令"
+			+ "7.判断是control日志还是trigger日志,获取日志目录以及压缩日志目录命令"
+			+ "8.与工程部署服务器进行交互压缩日志文件"
+			+ "9.获取文件下载路径"
+			+ "10.从服务器下载文件到本地"
+			+ "11.下载完删除压缩包"
+			+ "12.返回CONTROL或TRIGGER下载日志文件名")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	@Param(name = "curr_bath_date", desc = "批量日期", range = "yyyyMMdd格式的年月日，如：20191219")
 	@Param(name = "isControl", desc = "是否读取Control日志", range = "使用（IsFlag代码项），" +
-			"0代表control日志，1代表trigger日志")
+		"0代表control日志，1代表trigger日志")
 	public String downloadControlOrTriggerLog(String etl_sys_cd, String curr_bath_date, String isControl) {
 		try {
 			// 1.数据可访问权限处理方式，通过user_id进行权限控制
@@ -351,20 +351,20 @@ public class EltSysAction extends BaseAction {
 			}
 			// 5.获取control或trigger日志路径
 			String logDir = FilenameUtils.normalize(etlSys.getServ_file_path())
-					+ separator + etl_sys_cd + separator;
+				+ separator + etl_sys_cd + separator;
 			// 6.获取压缩日志命令
 			String compressCommand;
 			// 7.判断是control日志还是trigger日志,获取日志目录以及压缩日志目录命令
 			if (IsFlag.Fou == IsFlag.ofEnumByCode(isControl)) {
 				// CONTROL日志目录
 				logDir = logDir + "control" + separator + curr_bath_date.substring(0, 4)
-						+ separator + curr_bath_date.substring(0, 6) + separator + curr_bath_date;
+					+ separator + curr_bath_date.substring(0, 6) + separator + curr_bath_date;
 				// 压缩CONTROL日志命令
 				compressCommand = "tar -zvcPf " + logDir + "_ControlLog.tar.gz" + " " + logDir + "*.log";
 			} else {
 				// TRIGGER日志目录
 				logDir = logDir + "trigger" + separator + curr_bath_date.substring(0, 4)
-						+ separator + curr_bath_date.substring(0, 6) + separator + curr_bath_date;
+					+ separator + curr_bath_date.substring(0, 6) + separator + curr_bath_date;
 				// 压缩TRIGGER日志命令
 				compressCommand = "tar -zvcPf " + logDir + "_TriggerLog.tar.gz" + " " + logDir + "*.log";
 			}
@@ -404,19 +404,19 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(desc = "停止工程信息", logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制" +
-			"2.验证当前用户对应的工程是否已不存在" +
-			"3.停止工程信息")
+		"2.验证当前用户对应的工程是否已不存在" +
+		"3.停止工程信息")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	public void stopEtlProject(String etl_sys_cd) {
 		// 1.数据可访问权限处理方式，通过user_id进行权限控制
 		// 2.停止工程信息
 		DboExecute.updatesOrThrow("停止工程，更新系统运行状态失败", "update " + Etl_sys.TableName
-				+ " set sys_run_status=? where etl_sys_cd=?", Job_Status.STOP.getCode(), etl_sys_cd);
+			+ " set sys_run_status=? where etl_sys_cd=?", Job_Status.STOP.getCode(), etl_sys_cd);
 	}
 
 	@Method(desc = "下载文件",
-			logicStep = "1.数据可访问权限处理方式，该方法不需要权限验证" +
-					"2.下载文件")
+		logicStep = "1.数据可访问权限处理方式，该方法不需要权限验证" +
+			"2.下载文件")
 	@Param(name = "fileName", desc = "下载文件名", range = "无限制")
 	public void downloadFile(String fileName) {
 		// 1.数据可访问权限处理方式，该方法不需要权限验证
@@ -425,21 +425,21 @@ public class EltSysAction extends BaseAction {
 	}
 
 	@Method(desc = "删除作业调度工程", logicStep = "1.数据可访问权限处理方式，通过user_id进行权限控制" +
-			"2.验证当前用户对应的工程是否已不存在" +
-			"3.判断该工程下是否还有任务" +
-			"4.判断该工程下是否还有作业" +
-			"5.删除工程信息,这里删除资源定义表信息的原因是新增工程时会默认初始化thrift，yarn这两个资源给工程")
+		"2.验证当前用户对应的工程是否已不存在" +
+		"3.判断该工程下是否还有任务" +
+		"4.判断该工程下是否还有作业" +
+		"5.删除工程信息,这里删除资源定义表信息的原因是新增工程时会默认初始化thrift，yarn这两个资源给工程")
 	@Param(name = "etl_sys_cd", desc = "作业调度工程登记表主键ID", range = "新增工程时生成")
 	public void deleteEtlProject(String etl_sys_cd) {
 		// 1.数据可访问权限处理方式，通过user_id进行权限控制
 		// 2.判断该工程下是否还有任务
 		if (Dbo.queryNumber("select count(1) from " + Etl_sub_sys_list.TableName + "  WHERE etl_sys_cd=?"
-				, etl_sys_cd).orElseThrow(() -> new BusinessException("sql查询错误！")) > 0) {
+			, etl_sys_cd).orElseThrow(() -> new BusinessException("sql查询错误！")) > 0) {
 			throw new BusinessException("该工程下还有任务，不能删除！");
 		}
 		// 3.判断该工程下是否还有作业
 		if (Dbo.queryNumber("select count(1) from " + Etl_job_def.TableName + "  WHERE etl_sys_cd=?"
-				, etl_sys_cd).orElseThrow(() -> new BusinessException("sql查询错误！")) > 0) {
+			, etl_sys_cd).orElseThrow(() -> new BusinessException("sql查询错误！")) > 0) {
 			throw new BusinessException("该工程下还有作业，不能删除！");
 		}
 		// 4.删除工程信息,这里删除资源定义表信息的原因是新增工程时会默认初始化thrift，yarn这两个资源给工程
@@ -455,6 +455,6 @@ public class EltSysAction extends BaseAction {
 		// 删除作业调度信息
 		Dbo.execute("delete from " + Etl_job_cur.TableName + " where etl_sys_cd=?", etl_sys_cd);
 		DboExecute.deletesOrThrow("删除工程失败", "delete from " + Etl_sys.TableName +
-				" where etl_sys_cd=?", etl_sys_cd);
+			" where etl_sys_cd=?", etl_sys_cd);
 	}
 }

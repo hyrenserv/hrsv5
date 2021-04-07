@@ -2,8 +2,6 @@ package hrds.b.biz.agent;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.Session;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.annotation.Method;
 import fd.ng.core.annotation.Param;
@@ -18,19 +16,16 @@ import fd.ng.web.util.RequestUtil;
 import fd.ng.web.util.ResponseUtil;
 import hrds.b.biz.agent.tools.SendMsgUtil;
 import hrds.commons.base.BaseAction;
-import hrds.commons.codes.AgentType;
-import hrds.commons.codes.CleanType;
-import hrds.commons.codes.CollectType;
-import hrds.commons.codes.DataExtractType;
-import hrds.commons.codes.DatabaseType;
-import hrds.commons.codes.IsFlag;
-import hrds.commons.codes.StoreLayerDataSource;
+import hrds.commons.codes.*;
 import hrds.commons.entity.*;
 import hrds.commons.exception.AppSystemException;
 import hrds.commons.exception.BusinessException;
 import hrds.commons.utils.*;
-import hrds.commons.utils.jsch.SFTPChannel;
 import hrds.commons.utils.jsch.SFTPDetails;
+import hrds.commons.utils.jsch.SftpOperate;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,8 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @DocClass(desc = "获取数据源Agent列表", author = "WangZhengcheng")
 public class AgentListAction extends BaseAction {
@@ -1645,7 +1638,7 @@ public class AgentListAction extends BaseAction {
 
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agent_down_info.getAgent_ip());
-		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
+		sftpDetails.setPort(CommonVariables.SFTP_PORT);
 		sftpDetails.setUser_name(agent_down_info.getUser_name());
 		sftpDetails.setPwd(agent_down_info.getPasswd());
 		// 5: 使用工具类,读取日志信息
@@ -1808,18 +1801,14 @@ public class AgentListAction extends BaseAction {
 
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(agentMap.get("agent_ip").toString());
-		sftpDetails.setPort(Integer.parseInt(CommonVariables.SFTP_PORT));
+		sftpDetails.setPort(CommonVariables.SFTP_PORT);
 		sftpDetails.setUser_name(agentMap.get("user_name").toString());
 		sftpDetails.setPwd(agentMap.get("passwd").toString());
-
-		Session session = null;
-		ChannelSftp chSftp = null;
-		SFTPChannel channel = null;
-		try {
+		try (SftpOperate sftpOperate = new SftpOperate(sftpDetails)) {
 			//获取上传后的文件
 			File uploadedFile = FileUploadUtil.getUploadedFile(file);
 			//上次的文件如果不存在,则提示错误信息到页面
-			String upFilePath = null;
+			String upFilePath;
 			if (!uploadedFile.exists()) {
 				CheckParam.throwErrorMsg("上传的数据字典不存在");
 			} else {
@@ -1830,14 +1819,11 @@ public class AgentListAction extends BaseAction {
 						.getOriginalFileName(file);
 					uploadedFile.renameTo(new File(upFilePath));
 				}
-				session = SFTPChannel.getJSchSession(sftpDetails, 60000);
 				//建立远程机器的目录
-				SFTPChannel.execCommandByJSchNoRs(session, "mkdir -p " + targetPath);
+				sftpOperate.execCommandByJSchNoRs("mkdir -p " + targetPath);
 				// 开始传输上传的文件
-				channel = new SFTPChannel();
-				chSftp = channel.getChannel(session, 60000);
 				//将本地的文件传输到目标机器
-				chSftp.put(upFilePath, targetPath);
+				sftpOperate.channelSftp.put(upFilePath, targetPath);
 				//修改传输后的文件名称,因为上传到本地的文件名称会被修改掉...传输到目标机器后,将文件名称还原
 //				SFTPChannel.execCommandByJSchNoRs(session,
 //					"mv " + targetPath + File.separator + uploadedFile.getName() + " " + targetPath + File.separator
@@ -1845,19 +1831,6 @@ public class AgentListAction extends BaseAction {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (session != null) {
-				session.disconnect();
-			}
-			if (chSftp != null) {
-				chSftp.quit();
-			}
-			if (channel != null) {
-				try {
-					channel.closeChannel();
-				} catch (Exception ignored) {
-				}
-			}
 		}
 		return targetPath + File.separator + FileUploadUtil.getOriginalFileName(file);
 	}

@@ -1,6 +1,6 @@
 package hrds.agent.job.biz.core.dfstage;
 
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.JSchException;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.annotation.Method;
 import fd.ng.core.annotation.Return;
@@ -27,8 +27,8 @@ import hrds.commons.hadoop.readconfig.ConfigReader;
 import hrds.commons.hadoop.utils.HSqlExecute;
 import hrds.commons.utils.Constant;
 import hrds.commons.utils.StorageTypeKey;
-import hrds.commons.utils.jsch.SFTPChannel;
 import hrds.commons.utils.jsch.SFTPDetails;
+import hrds.commons.utils.jsch.SftpOperate;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.logging.log4j.LogManager;
@@ -52,21 +52,21 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	}
 
 	@Method(desc = "数据文件采集，数据加载阶段实现，处理完成后，无论成功还是失败，" +
-			"将相关状态信息封装到StageStatusInfo对象中返回", logicStep = "")
+		"将相关状态信息封装到StageStatusInfo对象中返回", logicStep = "")
 	@Return(desc = "StageStatusInfo是保存每个阶段状态信息的实体类", range = "不会为null,StageStatusInfo实体类对象")
 	@Override
 	public StageParamInfo handleStage(StageParamInfo stageParamInfo) {
 		long startTime = System.currentTimeMillis();
 		LOGGER.info("------------------表" + collectTableBean.getHbase_name()
-				+ "DB文件采集数据加载阶段开始------------------");
+			+ "DB文件采集数据加载阶段开始------------------");
 		//1、创建卸数阶段状态信息，更新作业ID,阶段名，阶段开始时间
 		StageStatusInfo statusInfo = new StageStatusInfo();
 		JobStatusInfoUtil.startStageStatusInfo(statusInfo, collectTableBean.getTable_id(),
-				StageConstant.DATALOADING.getCode());
+			StageConstant.DATALOADING.getCode());
 		try {
 			if (UnloadType.ZengLiangXieShu.getCode().equals(collectTableBean.getUnload_type())) {
 				LOGGER.info("表" + collectTableBean.getHbase_name()
-						+ "增量卸数数据加载阶段不用做任何操作");
+					+ "增量卸数数据加载阶段不用做任何操作");
 			} else if (UnloadType.QuanLiangXieShu.getCode().equals(collectTableBean.getUnload_type())) {
 				List<DataStoreConfBean> dataStoreConfBeanList = collectTableBean.getDataStoreConfBean();
 				for (DataStoreConfBean dataStoreConfBean : dataStoreConfBeanList) {
@@ -79,35 +79,35 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 							//支持外部表
 							//通过外部表加载数据到todayTableName
 							createExternalTableLoadData(todayTableName, collectTableBean, dataStoreConfBean,
-									stageParamInfo.getTableBean(), stageParamInfo.getFileNameArr());
+								stageParamInfo.getTableBean(), stageParamInfo.getFileNameArr());
 						} else if (IsFlag.Fou.getCode().equals(dataStoreConfBean.getIs_hadoopclient())) {
 							//没有客户端，则表示为数据库类型在upload时已经装载数据了，直接跳过
 							continue;
 						} else {
 							throw new AppSystemException("表" + collectTableBean.getHbase_name()
-									+ "错误的是否标识");
+								+ "错误的是否标识");
 						}
 					} else if (Store_type.HIVE.getCode().equals(dataStoreConfBean.getStore_type())) {
 						//设置hive的默认类型
 						dataStoreConfBean.getData_store_connect_attr().put(StorageTypeKey.database_type,
-								DatabaseType.Hive.getCode());
+							DatabaseType.Hive.getCode());
 						//hive库有两种情况，有客户端和没有客户端
 						if (IsFlag.Shi.getCode().equals(dataStoreConfBean.getIs_hadoopclient())) {
 							//有客户端
 							//通过load方式加载数据到hive
 							createHiveTableLoadData(todayTableName, hdfsFilePath, dataStoreConfBean,
-									stageParamInfo.getTableBean(), collectTableBean);
+								stageParamInfo.getTableBean(), collectTableBean);
 						} else if (IsFlag.Fou.getCode().equals(dataStoreConfBean.getIs_hadoopclient())) {
 							//没有客户端，则表示为数据库类型在upload时已经装载数据了，直接跳过
 							continue;
 						} else {
 							throw new AppSystemException("表" + collectTableBean.getHbase_name()
-									+ "错误的是否标识");
+								+ "错误的是否标识");
 						}
 					} else if (Store_type.HBASE.getCode().equals(dataStoreConfBean.getStore_type())) {
 						//根据文件类型bulkload加载数据进hbase
 						bulkloadLoadDataToHbase(todayTableName, hdfsFilePath, collectTableBean.getEtlDate(),
-								dataStoreConfBean, stageParamInfo.getTableBean(), collectTableBean);
+							dataStoreConfBean, stageParamInfo.getTableBean(), collectTableBean);
 //						LOGGER.warn("DB文件采集数据加载进HBASE没有实现");
 					} else if (Store_type.SOLR.getCode().equals(dataStoreConfBean.getStore_type())) {
 //						LOGGER.info("DB文件采集数据加载进SOLR");
@@ -120,32 +120,32 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 					} else {
 						//TODO 上面的待补充。
 						throw new AppSystemException("表" + collectTableBean.getHbase_name()
-								+ "不支持的存储类型");
+							+ "不支持的存储类型");
 					}
 					LOGGER.info("数据成功进入库" + dataStoreConfBean.getDsl_name() + "下的表"
-							+ collectTableBean.getHbase_name());
+						+ collectTableBean.getHbase_name());
 				}
 			} else {
 				throw new AppSystemException("表" + collectTableBean.getHbase_name()
-						+ "DB文件采集指定的数据抽取卸数方式类型不正确");
+					+ "DB文件采集指定的数据抽取卸数方式类型不正确");
 			}
 			JobStatusInfoUtil.endStageStatusInfo(statusInfo, RunStatusConstant.SUCCEED.getCode(), "执行成功");
 			LOGGER.info("------------------表" + collectTableBean.getHbase_name()
-					+ "DB文件采集数据加载阶段成功------------------执行时间为："
-					+ (System.currentTimeMillis() - startTime) / 1000 + "，秒");
+				+ "DB文件采集数据加载阶段成功------------------执行时间为："
+				+ (System.currentTimeMillis() - startTime) / 1000 + "，秒");
 		} catch (Exception e) {
 			JobStatusInfoUtil.endStageStatusInfo(statusInfo, RunStatusConstant.FAILED.getCode(), e.getMessage());
 			LOGGER.error("表" + collectTableBean.getHbase_name()
-					+ "DB文件采集数据加载阶段失败：", e);
+				+ "DB文件采集数据加载阶段失败：", e);
 		}
 		//结束给stageParamInfo塞值
 		JobStatusInfoUtil.endStageParamInfo(stageParamInfo, statusInfo, collectTableBean
-				, AgentType.DBWenJian.getCode());
+			, AgentType.DBWenJian.getCode());
 		return stageParamInfo;
 	}
 
 	public static void bulkloadLoadDataToHbase(String todayTableName, String hdfsFilePath, String etlDate
-			, DataStoreConfBean dataStoreConfBean, TableBean tableBean, CollectTableBean collectTableBean) {
+		, DataStoreConfBean dataStoreConfBean, TableBean tableBean, CollectTableBean collectTableBean) {
 		int run;
 		String isMd5 = IsFlag.Fou.getCode();
 		String file_format = tableBean.getFile_format();
@@ -180,8 +180,8 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 				for (int i = 0; i < columnList.size(); i++) {
 					String colName = columnList.get(i);
 					if (!(Constant.SDATENAME.equals(colName) || Constant.EDATENAME.equals(colName)
-							|| Constant.HYREN_OPER_DATE.equals(colName) || Constant.HYREN_OPER_TIME.equals(colName)
-							|| Constant.HYREN_OPER_PERSON.equals(colName))) {
+						|| Constant.HYREN_OPER_DATE.equals(colName) || Constant.HYREN_OPER_TIME.equals(colName)
+						|| Constant.HYREN_OPER_PERSON.equals(colName))) {
 						rowKeyIndex.append(i).append(Constant.METAINFOSPLIT);
 					}
 				}
@@ -190,19 +190,19 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 		}
 		rowKeyIndex.delete(rowKeyIndex.length() - Constant.METAINFOSPLIT.length(), rowKeyIndex.length());
 		String configPath = FileNameUtils.normalize(Constant.STORECONFIGPATH
-				+ dataStoreConfBean.getDsl_name() + File.separator, true);
+			+ dataStoreConfBean.getDsl_name() + File.separator, true);
 		Map<String, String> data_store_connect_attr = dataStoreConfBean.getData_store_connect_attr();
 		String[] args = {todayTableName, hdfsFilePath, columnMetaInfo, rowKeyIndex.toString(), configPath, etlDate,
-				isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
-				data_store_connect_attr.get(StorageTypeKey.platform),
-				data_store_connect_attr.get(StorageTypeKey.prncipal_name), tableBean.getIs_header()};
+			isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
+			data_store_connect_attr.get(StorageTypeKey.platform),
+			data_store_connect_attr.get(StorageTypeKey.prncipal_name), tableBean.getIs_header()};
 		//如果表已经存在，先删除当天的表
 		HBaseHelper helper = null;
 		try {
 			Configuration conf = ConfigReader.getConfiguration(configPath,
-					data_store_connect_attr.get(StorageTypeKey.platform),
-					data_store_connect_attr.get(StorageTypeKey.prncipal_name),
-					data_store_connect_attr.get(StorageTypeKey.hadoop_user_name));
+				data_store_connect_attr.get(StorageTypeKey.platform),
+				data_store_connect_attr.get(StorageTypeKey.prncipal_name),
+				data_store_connect_attr.get(StorageTypeKey.hadoop_user_name));
 			helper = HBaseHelper.getHelper(conf);
 			//备份表
 			backupToDayTable(todayTableName, helper);
@@ -214,10 +214,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 			} else if (FileFormat.FeiDingChang.getCode().equals(file_format)) {
 				//非定长需要文件分隔符
 				String[] args2 = {todayTableName, hdfsFilePath, columnMetaInfo, rowKeyIndex.toString(), configPath, etlDate,
-						isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
-						data_store_connect_attr.get(StorageTypeKey.platform),
-						data_store_connect_attr.get(StorageTypeKey.prncipal_name),
-						tableBean.getColumn_separator(), tableBean.getIs_header()};
+					isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
+					data_store_connect_attr.get(StorageTypeKey.platform),
+					data_store_connect_attr.get(StorageTypeKey.prncipal_name),
+					tableBean.getColumn_separator(), tableBean.getIs_header()};
 				run = ToolRunner.run(conf, new NonFixedBulkLoadJob(), args2);
 			} else if (FileFormat.PARQUET.getCode().equals(file_format)) {
 				run = ToolRunner.run(conf, new ParquetBulkLoadJob(), args);
@@ -226,11 +226,11 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 			} else if (FileFormat.DingChang.getCode().equals(file_format)) {
 				//定长需要根据文件的编码去获取字节长度,需要每一列的长度
 				String[] args2 = {todayTableName, hdfsFilePath, columnMetaInfo, rowKeyIndex.toString(), configPath, etlDate,
-						isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
-						data_store_connect_attr.get(StorageTypeKey.platform),
-						data_store_connect_attr.get(StorageTypeKey.prncipal_name),
-						DataBaseCode.ofValueByCode(tableBean.getFile_code()), tableBean.getColLengthInfo(),
-						tableBean.getIs_header()};
+					isMd5, data_store_connect_attr.get(StorageTypeKey.hadoop_user_name),
+					data_store_connect_attr.get(StorageTypeKey.platform),
+					data_store_connect_attr.get(StorageTypeKey.prncipal_name),
+					DataBaseCode.ofValueByCode(tableBean.getFile_code()), tableBean.getColLengthInfo(),
+					tableBean.getIs_header()};
 				run = ToolRunner.run(conf, new FixedBulkLoadJob(), args2);
 			} else if (FileFormat.CSV.getCode().equals(file_format)) {
 				run = ToolRunner.run(conf, new CsvBulkLoadJob(), args);
@@ -259,23 +259,22 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	}
 
 	public static void createExternalTableLoadData(String todayTableName, CollectTableBean collectTableBean
-			, DataStoreConfBean dataStoreConfBean, TableBean tableBean, String[] fileNameArr) {
+		, DataStoreConfBean dataStoreConfBean, TableBean tableBean, String[] fileNameArr) {
 		Map<String, String> data_store_connect_attr = dataStoreConfBean.getData_store_connect_attr();
 		String database_type = data_store_connect_attr.get(StorageTypeKey.database_type);
 		List<String> sqlList = new ArrayList<>();
-		Session session = null;
 		DatabaseWrapper db = null;
-		try {
+		try (SftpOperate sftpOperate = new SftpOperate(
+			new SFTPDetails(data_store_connect_attr.get(StorageTypeKey.sftp_host),
+				data_store_connect_attr.get(StorageTypeKey.sftp_user), data_store_connect_attr.
+				get(StorageTypeKey.sftp_pwd), data_store_connect_attr.get(StorageTypeKey.sftp_port)),
+			0)) {
 			db = ConnectionTool.getDBWrapper(dataStoreConfBean.getData_store_connect_attr());
-			//获取操作远程的对象
-			session = SFTPChannel.getJSchSession(new SFTPDetails(data_store_connect_attr.get(StorageTypeKey.sftp_host),
-					data_store_connect_attr.get(StorageTypeKey.sftp_user), data_store_connect_attr.
-					get(StorageTypeKey.sftp_pwd), data_store_connect_attr.get(StorageTypeKey.sftp_port)), 0);
 			String file_format = tableBean.getFile_format();
 			//备份表上次执行进数的数据
 			backupToDayTable(todayTableName, db);
 			if (DatabaseType.Oracle10g.getCode().equals(database_type) ||
-					DatabaseType.Oracle9i.getCode().equals(database_type)) {
+				DatabaseType.Oracle9i.getCode().equals(database_type)) {
 				String tmpTodayTableName = todayTableName + "t";
 				if (FileFormat.FeiDingChang.getCode().equals(file_format)) {
 					//如果表已存在则删除
@@ -283,11 +282,11 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 					//固定分隔符的文件
 					//创建外部临时表，这里表名不能超过30个字符，需要
 					sqlList.add(createOracleExternalTable(tmpTodayTableName, tableBean, fileNameArr,
-							dataStoreConfBean.getDsl_name(), data_store_connect_attr.get(StorageTypeKey.external_directory)));
+						dataStoreConfBean.getDsl_name(), data_store_connect_attr.get(StorageTypeKey.external_directory)));
 				} else {//TODO 这里判断逻辑需要增加多种文件格式支持外部表形式
 					throw new AppSystemException("表" + collectTableBean.getHbase_name()
-							+ "Oracle数据库外部表进数目前只支持非定长文件进数，请在页面选择转存" +
-							"或者使用非定长格式文件进行db文件采集直接加载进Oracle");
+						+ "Oracle数据库外部表进数目前只支持非定长文件进数，请在页面选择转存" +
+						"或者使用非定长格式文件进行db文件采集直接加载进Oracle");
 				}
 				//如果表已存在则删除
 				IncreasementByMpp.dropTableIfExists(todayTableName, db, sqlList);
@@ -296,34 +295,34 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 					sqlList.add(" CREATE TABLE " + todayTableName + " AS SELECT * FROM  " + tmpTodayTableName);
 				} else {
 					sqlList.add(" CREATE TABLE " + todayTableName + " parallel (degree 4) nologging  " +
-							"AS SELECT * FROM  " + tmpTodayTableName);
+						"AS SELECT * FROM  " + tmpTodayTableName);
 				}
 				//4.执行sql语句
 				HSqlExecute.executeSql(sqlList, db);
 				//判断是否有bad文件，有则抛异常
-				String bad_files = SFTPChannel.execCommandByJSch(session,
-						"ls " + data_store_connect_attr.get(StorageTypeKey.external_root_path)
-								+ tmpTodayTableName.toUpperCase() + "*bad");
+				String bad_files = sftpOperate.execCommandByJSch(
+					"ls " + data_store_connect_attr.get(StorageTypeKey.external_root_path)
+						+ tmpTodayTableName.toUpperCase() + "*bad");
 				if (!StringUtil.isEmpty(bad_files)) {
 					throw new AppSystemException("表" + collectTableBean.getHbase_name()
-							+ "你所生成的文件无法load到Oracle数据库，请查看数据库服务器下的bad文件"
-							+ bad_files + "及其相关错误日志");
+						+ "你所生成的文件无法load到Oracle数据库，请查看数据库服务器下的bad文件"
+						+ bad_files + "及其相关错误日志");
 				} else {
 					LOGGER.info("表" + collectTableBean.getHbase_name()
-							+ "oracle数据库进数成功");
+						+ "oracle数据库进数成功");
 				}
 			} else if (DatabaseType.Postgresql.getCode().equals(database_type)) {
 				//数据库服务器上文件所在路径
 				String uploadServerPath = DFUploadStageImpl.getUploadServerPath(collectTableBean,
-						data_store_connect_attr.get(StorageTypeKey.external_root_path));
+					data_store_connect_attr.get(StorageTypeKey.external_root_path));
 				if (FileFormat.CSV.getCode().equals(file_format)) {
 					//创建外部临时表
 					createPostgresqlExternalTable(todayTableName, tableBean, fileNameArr,
-							dataStoreConfBean.getDsl_name(), uploadServerPath, sqlList, db);
+						dataStoreConfBean.getDsl_name(), uploadServerPath, sqlList, db);
 				} else {//TODO 这里判断逻辑需要增加多种文件格式支持外部表形式
 					throw new AppSystemException("表" + collectTableBean.getHbase_name()
-							+ "Postgresql数据库外部表进数目前只支持Csv文件进数，请在页面选择转存" +
-							"或者使用csv格式文件进行db文件采集直接加载进Postgresql");
+						+ "Postgresql数据库外部表进数目前只支持Csv文件进数，请在页面选择转存" +
+						"或者使用csv格式文件进行db文件采集直接加载进Postgresql");
 				}
 				//4.执行sql语句
 				HSqlExecute.executeSql(sqlList, db);
@@ -334,10 +333,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 			//执行成功，清除上传到服务器上的文件，清除oracle外部表加载数据的日志
 			//清除上传到服务器上的文件
 			clearTemporaryFile(database_type, collectTableBean,
-					data_store_connect_attr.get(StorageTypeKey.external_root_path), session, fileNameArr);
+				data_store_connect_attr.get(StorageTypeKey.external_root_path), sftpOperate, fileNameArr);
 			//清除oracle外部表的日志
 			clearTemporaryLog(database_type, todayTableName,
-					data_store_connect_attr.get(StorageTypeKey.external_root_path), session);
+				data_store_connect_attr.get(StorageTypeKey.external_root_path), sftpOperate);
 			//根据表存储期限备份每张表存储期限内进数的数据
 			backupPastTable(collectTableBean, db);
 		} catch (Exception e) {
@@ -346,62 +345,61 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 				recoverBackupToDayTable(todayTableName, db);
 			}
 			throw new AppSystemException("表" + collectTableBean.getHbase_name()
-					+ "执行数据库" + dataStoreConfBean.getDsl_name() + "外部表加载数据的sql报错", e);
+				+ "执行数据库" + dataStoreConfBean.getDsl_name() + "外部表加载数据的sql报错", e);
 		} finally {
 			//清除中间表
 			clearTemporaryTable(database_type, fileNameArr, todayTableName, db, dataStoreConfBean.getDsl_name());
-			if (session != null)
-				session.disconnect();
 			if (db != null)
 				db.close();
 		}
 	}
 
 	public static void clearTemporaryFile(String database_type, CollectTableBean collectTableBean,
-										  String external_root_path, Session session, String[] fileNameArr) throws Exception {
+	                                      String external_root_path, SftpOperate sftpOperate, String[] fileNameArr)
+		throws IOException, JSchException {
 		//获取数据库抽取任务生成的文件名前缀
 		String past_hbase_name = fileNameArr[0].split(collectTableBean.getTable_name())[0]
-				+ collectTableBean.getTable_name();
+			+ collectTableBean.getTable_name();
 		if (FileUtil.isSysDir(external_root_path)) {
 			throw new AppSystemException("请不要删除系统目录下的文件" + external_root_path);
 		}
 		if (DatabaseType.Oracle10g.getCode().equals(database_type) ||
-				DatabaseType.Oracle9i.getCode().equals(database_type)) {
+			DatabaseType.Oracle9i.getCode().equals(database_type)) {
 			//删除大字段文件
 			String lobs_file = "find " + external_root_path + " -name \"LOBs_" + past_hbase_name
-					+ "_*\" | xargs rm -rf 'LOBs_" + past_hbase_name + "_*'";
-			SFTPChannel.execCommandByJSch(session, lobs_file);
+				+ "_*\" | xargs rm -rf 'LOBs_" + past_hbase_name + "_*'";
+			sftpOperate.execCommandByJSch(lobs_file);
 		} else if (DatabaseType.Postgresql.getCode().equals(database_type)) {
 			//数据库服务器上文件所在路径
 			external_root_path = DFUploadStageImpl.getUploadServerPath(collectTableBean,
-					external_root_path);
+				external_root_path);
 		}
 		//删除数据文件
 		for (String fileName : fileNameArr) {
-			SFTPChannel.execCommandByJSch(session,
-					"rm -rf " + external_root_path + fileName);
+			sftpOperate.execCommandByJSch("rm -rf " + external_root_path + fileName);
 		}
 	}
 
 	public static void clearTemporaryLog(String database_type, String todayTableName,
-										 String external_root_path, Session session) throws Exception {
+	                                     String external_root_path, SftpOperate sftpOperate)
+		throws IOException, JSchException {
 		if (FileUtil.isSysDir(external_root_path)) {
 			throw new AppSystemException("请不要删除系统目录下的文件" + external_root_path);
 		}
 		String tmpTodayTableName = todayTableName + "t";
 		if (DatabaseType.Oracle10g.getCode().equals(database_type) ||
-				DatabaseType.Oracle9i.getCode().equals(database_type)) {
+			DatabaseType.Oracle9i.getCode().equals(database_type)) {
 			//删除数据文件
-			SFTPChannel.execCommandByJSch(session,
-					"rm -rf " + external_root_path + tmpTodayTableName.toUpperCase() + "*log");
+			sftpOperate.execCommandByJSch(
+				"rm -rf " + external_root_path + tmpTodayTableName.toUpperCase() + "*log");
 		}
 	}
 
 	public static void clearTemporaryTable(String database_type, String[] fileNameArr,
-										   String todayTableName, DatabaseWrapper db, String dsl_name) {
+	                                       String todayTableName, DatabaseWrapper db, String dsl_name) {
 		List<String> sqlList = new ArrayList<>();
 		if (DatabaseType.Oracle10g.getCode().equals(database_type) ||
-				DatabaseType.Oracle9i.getCode().equals(database_type)) {
+			DatabaseType.Oracle9i.getCode().equals(database_type)) {
 			//oracle数据库只创建了一个临时表
 			//如果表已存在则删除
 			IncreasementByMpp.dropTableIfExists(todayTableName + "t", db, sqlList);
@@ -419,10 +417,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	}
 
 	public static void createPostgresqlExternalTable(String todayTableName, TableBean tableBean, String[] fileNameArr
-			, String dsl_name, String uploadServerPath, List<String> sqlList, DatabaseWrapper db) {
+		, String dsl_name, String uploadServerPath, List<String> sqlList, DatabaseWrapper db) {
 		List<String> columnList = StringUtil.split(tableBean.getColumnMetaInfo(), Constant.METAINFOSPLIT);
 		List<String> typeList = DataTypeTransform.tansform(StringUtil.split(
-				tableBean.getColTypeMetaInfo().toUpperCase(), Constant.METAINFOSPLIT), dsl_name);
+			tableBean.getColTypeMetaInfo().toUpperCase(), Constant.METAINFOSPLIT), dsl_name);
 		boolean is_header = IsFlag.Shi.getCode().equalsIgnoreCase(tableBean.getIs_header());
 		//拼接需要插入表的所有字段
 		StringBuilder insertColumns = new StringBuilder();
@@ -455,10 +453,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 			createExternalTable.append(") SERVER pg_file_server OPTIONS (filename '");
 			createExternalTable.append(uploadServerPath).append(fileNameArr[i]);
 			createExternalTable.append("', FORMAT 'csv',header '").append(is_header)
-					.append("',DELIMITER '").append(tableBean.getColumn_separator()).append("' ,null '')");
+				.append("',DELIMITER '").append(tableBean.getColumn_separator()).append("' ,null '')");
 			sqlList.add(createExternalTable.toString());
 			sqlList.add("INSERT INTO " + todayTableName + "(" + insertColumns + ") SELECT "
-					+ insertColumns + " FROM " + table_name);
+				+ insertColumns + " FROM " + table_name);
 		}
 	}
 
@@ -466,10 +464,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	 *拼接创建oracle外部表的sql
 	 */
 	public static String createOracleExternalTable(String tmpTodayTableName, TableBean tableBean,
-												   String[] fileNameArr, String dsl_name, String external_directory) {
+	                                               String[] fileNameArr, String dsl_name, String external_directory) {
 		List<String> columnList = StringUtil.split(tableBean.getColumnMetaInfo(), Constant.METAINFOSPLIT);
 		List<String> typeList = DataTypeTransform.tansform(StringUtil.split(tableBean.getColTypeMetaInfo().toUpperCase(),
-				Constant.METAINFOSPLIT), dsl_name);
+			Constant.METAINFOSPLIT), dsl_name);
 		StringBuilder sql = new StringBuilder();
 		sql.append("create table ").append(tmpTodayTableName);
 		sql.append("(");
@@ -504,7 +502,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	}
 
 	public static String getTransformsSqlForLobs(List<String> columns, List<String> types,
-												 String dsl_name, String external_directory) {
+	                                             String dsl_name, String external_directory) {
 		StringBuilder sb = new StringBuilder(1024);
 		if (types.contains("BLOB") || types.contains("CLOB")) {
 			sb.append("(");
@@ -515,7 +513,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 					sb.append(columns.get(i)).append(" ").append("CHAR(1000000)").append(",");
 				} else {
 					sb.append(columns.get(i)).append(" ").append("CHAR(").
-							append(TypeTransLength.getLength(types.get(i), dsl_name)).append("),");
+						append(TypeTransLength.getLength(types.get(i), dsl_name)).append("),");
 				}
 			}
 			sb.deleteCharAt(sb.length() - 1); //将最后的逗号删除
@@ -525,7 +523,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 				for (int i = 0; i < types.size(); i++) {
 					if ("BLOB".equals(types.get(i))) {
 						sb.append(columns.get(i)).append(" from ").append(" LOBFILE (").append(columns.get(i))
-								.append("_hylobs").append(")");
+							.append("_hylobs").append(")");
 						sb.append(" from (").append(external_directory).append(")").append(" BLOB ").append(",");
 					}
 				}
@@ -542,7 +540,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	}
 
 	public static void createHiveTableLoadData(String todayTableName, String hdfsFilePath, DataStoreConfBean
-			dataStoreConfBean, TableBean tableBean, CollectTableBean collectTableBean) {
+		dataStoreConfBean, TableBean tableBean, CollectTableBean collectTableBean) {
 		DatabaseWrapper db = null;
 		try {
 			db = ConnectionTool.getDBWrapper(dataStoreConfBean.getData_store_connect_attr());
@@ -553,9 +551,9 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 			//2.创建表
 			String file_format = tableBean.getFile_format();
 			if (FileFormat.SEQUENCEFILE.getCode().equals(file_format) || FileFormat.PARQUET.getCode()
-					.equals(file_format) || FileFormat.ORC.getCode().equals(file_format)) {
+				.equals(file_format) || FileFormat.ORC.getCode().equals(file_format)) {
 				sqlList.add(genHiveLoadColumnar(todayTableName, file_format,
-						dataStoreConfBean.getDsl_name(), tableBean));
+					dataStoreConfBean.getDsl_name(), tableBean));
 			} else if (FileFormat.FeiDingChang.getCode().equals(file_format)) {
 				sqlList.add(genHiveLoad(todayTableName, tableBean, tableBean.getColumn_separator()));
 			} else if (FileFormat.CSV.getCode().equals(file_format)) {
@@ -564,7 +562,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 				sqlList.add(genHiveDingChangLoad(todayTableName, tableBean, tableBean.getColumn_separator()));
 			} else {
 				throw new AppSystemException("目前仅支持：SequenceFile、Parquet、Orc、Csv、非定长、定长文件；" +
-						"暂不支持其他特殊类型直接加载到hive表");
+					"暂不支持其他特殊类型直接加载到hive表");
 			}
 			//3.加载数据
 			sqlList.add("load data inpath '" + hdfsFilePath + "' into table " + todayTableName);
@@ -617,21 +615,21 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 	 * 创建hive外部表加载列式存储文件
 	 */
 	public static String genHiveLoadColumnar(String todayTableName, String file_format,
-											 String dsl_name, TableBean tableBean) {
+	                                         String dsl_name, TableBean tableBean) {
 		String hiveStored = getColumnarFileHiveStored(file_format);
 		String type;
 		StringBuilder sql = new StringBuilder(120);
 		sql.append("CREATE TABLE IF NOT EXISTS ").append(todayTableName).append(" (");
 		List<String> columnList = StringUtil.split(tableBean.getColumnMetaInfo(), Constant.METAINFOSPLIT);
 		List<String> typeList = DataTypeTransform.tansform(StringUtil.split(tableBean.getColTypeMetaInfo(),
-				Constant.METAINFOSPLIT), dsl_name);
+			Constant.METAINFOSPLIT), dsl_name);
 		for (int i = 0; i < columnList.size(); i++) {
 			//Parquet  不支持decimal 类型
 			if (FileFormat.PARQUET.getCode().equals(file_format)) {
 				String typeLower = typeList.get(i).toLowerCase();
 				if (typeLower.contains(DataTypeConstant.DECIMAL.getMessage())
-						|| typeLower.contains(DataTypeConstant.NUMERIC.getMessage())
-						|| typeLower.contains(DataTypeConstant.DOUBLE.getMessage())) {
+					|| typeLower.contains(DataTypeConstant.NUMERIC.getMessage())
+					|| typeLower.contains(DataTypeConstant.DOUBLE.getMessage())) {
 					type = DataTypeConstant.DOUBLE.getMessage().toUpperCase();
 				} else {
 					type = typeList.get(i);
@@ -659,7 +657,7 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 		}
 		sql.deleteCharAt(sql.length() - 1);
 		sql.append(") ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.MultiDelimitSerDe' WITH  " +
-				"SERDEPROPERTIES (\"field.delim\"=\"").append(database_separatorr).append("\") stored as  textfile");
+			"SERDEPROPERTIES (\"field.delim\"=\"").append(database_separatorr).append("\") stored as  textfile");
 //		sql.append(") ROW FORMAT DELIMITED FIELDS TERMINATED BY  '").append(database_separatorr)
 //				.append("'").append("stored as textfile");
 		//判断是否有表头
@@ -684,10 +682,10 @@ public class DFDataLoadingStageImpl extends AbstractJobStage {
 		}
 		sql.deleteCharAt(sql.length() - 1);
 		sql.append(") ROW FORMAT SERDE 'hrds.commons.hadoop.hive.serde.HyrenSerDe' WITH  " +
-				"SERDEPROPERTIES (\"field.delim\"=\"").append(database_separatorr).append("\"," +
-				"\"serialization.encoding\"=\"").append(file_code).append("\"," +
-				"\"hyren.columns.lengths\"=\"").append(columnsLengths).append("\"" +
-				") stored as textfile");
+			"SERDEPROPERTIES (\"field.delim\"=\"").append(database_separatorr).append("\"," +
+			"\"serialization.encoding\"=\"").append(file_code).append("\"," +
+			"\"hyren.columns.lengths\"=\"").append(columnsLengths).append("\"" +
+			") stored as textfile");
 		//判断是否有表头
 		if (IsFlag.Shi.getCode().equals(tableBean.getIs_header())) {
 			//包含表头，跳过第一行

@@ -1,6 +1,5 @@
 package hrds.commons.utils;
 
-import com.jcraft.jsch.ChannelSftp;
 import fd.ng.core.annotation.DocClass;
 import fd.ng.core.annotation.Method;
 import fd.ng.core.annotation.Param;
@@ -11,8 +10,8 @@ import fd.ng.web.util.ResponseUtil;
 import hrds.commons.codes.DataBaseCode;
 import hrds.commons.exception.AppSystemException;
 import hrds.commons.exception.BusinessException;
-import hrds.commons.utils.jsch.SFTPChannel;
 import hrds.commons.utils.jsch.SFTPDetails;
+import hrds.commons.utils.jsch.SftpOperate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,41 +24,37 @@ public class FileDownloadUtil {
 	private static final Logger logger = LogManager.getLogger();
 
 	@Method(desc = "通过SFTP删除日志文件",
-			logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" +
-					"2.获取连接到sftp服务器的Channel" +
-					"3.使用sftp连接服务器" +
-					"4.通过SFTP删除日志文件" +
-					"5.退出SFTP连接" +
-					"6.关闭Channel连接")
+		logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" +
+			"2.获取连接到sftp操作对象" +
+			"3.通过SFTP删除日志文件" +
+			"4.退出SFTP连接" +
+			"5.关闭Channel连接")
 	@Param(name = "directory", desc = "需要删除的文件目录", range = "取值范围")
 	@Param(name = "sftpDetails", desc = "连接服务器配置信息", range = "无限制")
 	public static void deleteLogFileBySFTP(String directory, SFTPDetails sftpDetails) {
 		try {
 			// 1.数据可访问权限处理方式，该方法不需要权限控制
-			// 2.获取连接到sftp服务器的Channel
-			SFTPChannel sftpChannel = new SFTPChannel();
-			// 3.使用sftp连接服务器
-			ChannelSftp channelSftp = sftpChannel.getChannel(sftpDetails, 60000);
-			// 4.通过SFTP删除日志文件
-			channelSftp.rm(directory);
+			// 2.获取连接到sftp操作对象
+			SftpOperate sftpOperate = new SftpOperate(sftpDetails);
+			// 3.通过SFTP删除日志文件
+			sftpOperate.channelSftp.rm(directory);
 			logger.info("###########删除文件成功===");
-			// 5.退出SFTP连接
-			channelSftp.quit();
-			// 6.关闭Channel连接
-			sftpChannel.closeChannel();
+			// 4.退出SFTP连接
+			sftpOperate.channelSftp.quit();
+			// 5.关闭Channel连接
+			sftpOperate.close();
 		} catch (Exception e) {
 			throw new AppSystemException(e);
 		}
 	}
 
 	@Method(desc = "下载日志文件",
-			logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" +
-					"2.通过本地路径获取本地文件" +
-					"3.获取连接到sftp服务器的Channel" +
-					"4.通过sftp连接服务器" +
-					"5.通过sftp下载日志文件" +
-					"6.退出SFTP连接" +
-					"7.关闭Channel连接")
+		logicStep = "1.数据可访问权限处理方式，该方法不需要权限控制" +
+			"2.通过本地路径获取本地文件" +
+			"3.获取连接到sftp操作对象" +
+			"4.通过sftp下载日志文件" +
+			"5.退出SFTP连接" +
+			"6.关闭Channel连接")
 	@Param(name = "remotePath", desc = "远程路径", range = "无限制")
 	@Param(name = "localPath", desc = "本地路径", range = "无限制")
 	@Param(name = "sftpDetails", desc = "连接服务器配置信息", range = "无限制")
@@ -73,17 +68,15 @@ public class FileDownloadUtil {
 			logger.info("==========文件下载本地路径localPath=========" + localPath);
 			File localFile = new File(localPath);
 			outputStream = new FileOutputStream(localFile);
-			// 3.获取连接到sftp服务器的Channel
-			SFTPChannel sftpChannel = new SFTPChannel();
-			// 4.通过sftp连接服务器
-			ChannelSftp channelSftp = sftpChannel.getChannel(sftpDetails, 60000);
-			// 5.通过sftp下载日志文件
-			channelSftp.get(remotePath, outputStream);
+			// 3.获取连接到sftp操作对象
+			SftpOperate sftpOperate = new SftpOperate(sftpDetails);
+			// 4.通过sftp下载日志文件
+			sftpOperate.channelSftp.get(remotePath, outputStream);
 			logger.info("###########下载文件成功===");
-			// 6.退出SFTP连接
-			channelSftp.quit();
-			// 7.关闭Channel连接
-			sftpChannel.closeChannel();
+			// 5.退出SFTP连接
+			sftpOperate.channelSftp.quit();
+			// 6.关闭Channel连接
+			sftpOperate.close();
 		} catch (FileNotFoundException e) {
 			throw new BusinessException("找不到文件");
 		} catch (Exception e) {
@@ -101,15 +94,15 @@ public class FileDownloadUtil {
 	}
 
 	@Method(desc = "下载文件",
-			logicStep = "1.数据可访问权限处理方式，该方法不需要权限验证" +
-					"2.获取本地文件路径" +
-					"3.清空response" +
-					"4.设置响应头，控制浏览器下载该文件" +
-					"4.1firefox浏览器" +
-					"4.2其它浏览器" +
-					"5.读取要下载的文件，保存到文件输入流" +
-					"6.创建输出流" +
-					"7.将输入流写入到浏览器中")
+		logicStep = "1.数据可访问权限处理方式，该方法不需要权限验证" +
+			"2.获取本地文件路径" +
+			"3.清空response" +
+			"4.设置响应头，控制浏览器下载该文件" +
+			"4.1firefox浏览器" +
+			"4.2其它浏览器" +
+			"5.读取要下载的文件，保存到文件输入流" +
+			"6.创建输出流" +
+			"7.将输入流写入到浏览器中")
 	@Param(name = "fileName", desc = "下载文件名", range = "无限制")
 	public static void downloadFile(String fileName) {
 		// 1.数据可访问权限处理方式，该方法不需要权限验证
@@ -125,11 +118,11 @@ public class FileDownloadUtil {
 			if (RequestUtil.getRequest().getHeader("User-Agent").toLowerCase().indexOf("firefox") > 0) {
 				// 4.1firefox浏览器
 				ResponseUtil.getResponse().setHeader("content-disposition", "attachment;filename="
-						+ new String(fileName.getBytes(CodecUtil.UTF8_CHARSET), DataBaseCode.ISO_8859_1.getCode()));
+					+ new String(fileName.getBytes(CodecUtil.UTF8_CHARSET), DataBaseCode.ISO_8859_1.getCode()));
 			} else {
 				// 4.2其它浏览器
 				ResponseUtil.getResponse().setHeader("content-disposition", "attachment;filename="
-						+ Base64.getEncoder().encodeToString(fileName.getBytes(CodecUtil.UTF8_CHARSET)));
+					+ Base64.getEncoder().encodeToString(fileName.getBytes(CodecUtil.UTF8_CHARSET)));
 			}
 			ResponseUtil.getResponse().setContentType("APPLICATION/OCTET-STREAM");
 			// 5.读取要下载的文件，保存到文件输入流

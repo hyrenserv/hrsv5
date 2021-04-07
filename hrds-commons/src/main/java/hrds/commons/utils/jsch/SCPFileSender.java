@@ -2,7 +2,6 @@ package hrds.commons.utils.jsch;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import hrds.commons.exception.BusinessException;
 import hrds.commons.utils.PropertyParaValue;
@@ -14,11 +13,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class SCPFileSender {
-
-	public SFTPChannel getSFTPChannel() {
-
-		return new SFTPChannel();
-	}
 
 	private static final Logger logger = LogManager.getLogger();
 
@@ -46,29 +40,22 @@ public class SCPFileSender {
 	public static final String TRIGGERSHELL = "startEngineBatchTrigger.sh";
 
 	public static void etlScpToFrom(SFTPDetails sftpDetails) {
-		Session shellSession = null;
-		ChannelSftp chSftp = null;
-		SFTPChannel channel = null;
-		try {
+		try (SftpOperate sftpOperate = new SftpOperate(sftpDetails, 0)) {
 //			String hadoopConf = sftpDetails.getHADOOP_CONF(); // 集群conf配置文件
 			String targetDir = sftpDetails.getTarget＿dir(); // 目标路径
 			String tmp_conf_path = sftpDetails.getTmp_conf_path(); // 存放临时文件路径
 			String old_deploy_dir = sftpDetails.getOld_deploy_dir(); // 存放临时文件路径
 
 			// 部署前先删除原来的目录
-			shellSession = SFTPChannel.getJSchSession(sftpDetails, 0);
 			if (StringUtils.isNotBlank(old_deploy_dir)) {
-				SFTPChannel.execCommandByJSch(shellSession, "rm -rf " + old_deploy_dir);
+				sftpOperate.execCommandByJSch("rm -rf " + old_deploy_dir);
 				logger.info("###########是否之前部署过，如果目录存在先删除###########");
 			}
-			SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + targetDir);
+			sftpOperate.execCommandByJSch("mkdir -p " + targetDir);
 			logger.info("###########建立etl工程部署存放目录###########");
 			// 创建etl工程远程目录
-			mkdirToEtlTarget(shellSession, targetDir);
+			mkdirToEtlTarget(sftpOperate, targetDir);
 
-			SCPFileSender test = new SCPFileSender();
-			channel = test.getSFTPChannel();
-			chSftp = channel.getChannel(sftpDetails, 60000);
 			// 开始传输control程序的jar包以及启动脚本
 			logger.info("开始传输control程序的jar包以及启动脚本。。。。。。。");
 			String controlTarget = targetDir + "control" + SEPARATOR;
@@ -76,21 +63,21 @@ public class SCPFileSender {
 			if (!controlFile.exists()) {
 				throw new BusinessException("etl工程control的jar包(" + controlFile.getAbsolutePath() + ")未找到!!!");
 			}
-			chSftp.put(
-					controlFile.getAbsolutePath(),
-					controlTarget,
-					new FileProgressMonitor(controlFile.length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				controlFile.getAbsolutePath(),
+				controlTarget,
+				new FileProgressMonitor(controlFile.length()),
+				ChannelSftp.OVERWRITE);
 			String controlShell = controlFile.getParent() + SEPARATOR + CONTROLSHELL;
 			if (!new File(controlShell).exists()) {
 				throw new BusinessException("etl工程的脚本(" + CONTROLSHELL + ")未找到!!!");
 			}
 			// 传输启动control的脚本
-			chSftp.put(
-					controlShell,
-					controlTarget,
-					new FileProgressMonitor(new File(controlShell).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				controlShell,
+				controlTarget,
+				new FileProgressMonitor(new File(controlShell).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("传输control程序的jar包以及启动脚本结束。。。。。。。");
 			// 开始传输trigger程序的jar包以及启动脚本
 			logger.info("开始传输trigger程序的jar包以及启动脚本。。。。。。。");
@@ -99,32 +86,31 @@ public class SCPFileSender {
 			if (!triggerFile.exists()) {
 				throw new BusinessException("etl工程trigger的jar包(" + triggerFile.getAbsolutePath() + ")未找到!!!");
 			}
-			chSftp.put(
-					triggerFile.getAbsolutePath(),
-					triggerTarget,
-					new FileProgressMonitor(triggerFile.length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				triggerFile.getAbsolutePath(),
+				triggerTarget,
+				new FileProgressMonitor(triggerFile.length()),
+				ChannelSftp.OVERWRITE);
 			String triggerShell = triggerFile.getParent() + SEPARATOR + TRIGGERSHELL;
 			if (!new File(triggerShell).exists()) {
 				throw new BusinessException("etl工程的脚本(" + TRIGGERSHELL + ")未找到!!!");
 			}
 			// 传输启动trigger的脚本
-			chSftp.put(
-					triggerShell,
-					triggerTarget,
-					new FileProgressMonitor(new File(triggerShell).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				triggerShell,
+				triggerTarget,
+				new FileProgressMonitor(new File(triggerShell).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("传输trigger程序的jar包以及启动脚本结束。。。。。。。");
 
 			// 将需要的jre SFTP 到工程lib同级目录下
 			logger.info("开始创建、scp远程机器JRE目录");
 			AgentDeploy.createDir(new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre",
-					shellSession,
-					targetDir + SEPARATOR + "jre");
+				sftpOperate, targetDir + SEPARATOR + "jre");
 			AgentDeploy.sftpFiles(
-					new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre",
-					chSftp,
-					targetDir);
+				new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "jre",
+				sftpOperate.channelSftp,
+				targetDir);
 			logger.info("创建 SCP JRE目录文件结束");
 
 			// 本地当前工程下的配置文件信息dbinfo.conf,上传到目标机器
@@ -137,63 +123,63 @@ public class SCPFileSender {
 			// 国际化配置文件远程目录
 			String i18nPath = localPath + "i18n" + SEPARATOR;
 			// 将国际化配置文件sftp复制到etl工程部署的目标机器
-			AgentDeploy.sftpFiles(i18nPath, chSftp, controlResourceDir);
-			AgentDeploy.sftpFiles(i18nPath, chSftp, triggerResourceDir);
+			AgentDeploy.sftpFiles(i18nPath, sftpOperate.channelSftp, controlResourceDir);
+			AgentDeploy.sftpFiles(i18nPath, sftpOperate.channelSftp, triggerResourceDir);
 			// 将日志文件sftp复制到etl工程部署的目标机器
-			chSftp.put(
-					localPath + LOGINFONAME,
-					controlResourceDir,
-					ChannelSftp.OVERWRITE);
-			chSftp.put(
-					localPath + LOGINFONAME,
-					triggerResourceDir,
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				localPath + LOGINFONAME,
+				controlResourceDir,
+				ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				localPath + LOGINFONAME,
+				triggerResourceDir,
+				ChannelSftp.OVERWRITE);
 
 			// 将本地临时配置文件control.conf,sftp复制到etl工程部署部署的目标机器
-			chSftp.put(
-					tmp_conf_path + CONTROLCONFNAME,
-					controlResourceDir + "fdconfig",
-					new FileProgressMonitor(new File(tmp_conf_path + CONTROLCONFNAME).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				tmp_conf_path + CONTROLCONFNAME,
+				controlResourceDir + "fdconfig",
+				new FileProgressMonitor(new File(tmp_conf_path + CONTROLCONFNAME).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("###########将临时配置文件control.conf,sftp复制到agent部署的目标机器###########");
 			// 将本地临时配置文件trigger.conf,sftp复制到etl工程部署的目标机器
-			chSftp.put(
-					tmp_conf_path + TRIGGERCONFNAME,
-					triggerResourceDir + "fdconfig",
-					new FileProgressMonitor(new File(tmp_conf_path + TRIGGERCONFNAME).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				tmp_conf_path + TRIGGERCONFNAME,
+				triggerResourceDir + "fdconfig",
+				new FileProgressMonitor(new File(tmp_conf_path + TRIGGERCONFNAME).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("###########将本地临时配置文件trigger.conf,sftp复制到agent部署的目标机器###########");
 
 			// 将本地临时配置文件appinfo.conf,sftp复制到etl工程部署的目标机器
-			chSftp.put(
-					tmp_conf_path + CONTROL_APPINFO,
-					controlResourceDir + "fdconfig" + SEPARATOR + APPINFOCONfNAME,
-					new FileProgressMonitor(new File(tmp_conf_path + CONTROL_APPINFO).length()),
-					ChannelSftp.OVERWRITE);
-			chSftp.put(
-					tmp_conf_path + TRIGGER_APPINFO,
-					triggerResourceDir + "fdconfig" + SEPARATOR + APPINFOCONfNAME,
-					new FileProgressMonitor(new File(tmp_conf_path + TRIGGER_APPINFO).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				tmp_conf_path + CONTROL_APPINFO,
+				controlResourceDir + "fdconfig" + SEPARATOR + APPINFOCONfNAME,
+				new FileProgressMonitor(new File(tmp_conf_path + CONTROL_APPINFO).length()),
+				ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				tmp_conf_path + TRIGGER_APPINFO,
+				triggerResourceDir + "fdconfig" + SEPARATOR + APPINFOCONfNAME,
+				new FileProgressMonitor(new File(tmp_conf_path + TRIGGER_APPINFO).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("###########将本地临时配置文件appinfo.conf,sftp复制到etl工程部署的目标机器###########");
 
 			// 本地当前工程下的配置文件信息dbinfo.conf,上传到目标机器
-			chSftp.put(
-					fdConfPath + DBINFOCONFNAME,
-					controlResourceDir + "fdconfig",
-					new FileProgressMonitor(new File(tmp_conf_path + DBINFOCONFNAME).length()),
-					ChannelSftp.OVERWRITE);
-			chSftp.put(
-					fdConfPath + DBINFOCONFNAME,
-					triggerResourceDir + "fdconfig",
-					new FileProgressMonitor(new File(tmp_conf_path + DBINFOCONFNAME).length()),
-					ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				fdConfPath + DBINFOCONFNAME,
+				controlResourceDir + "fdconfig",
+				new FileProgressMonitor(new File(tmp_conf_path + DBINFOCONFNAME).length()),
+				ChannelSftp.OVERWRITE);
+			sftpOperate.channelSftp.put(
+				fdConfPath + DBINFOCONFNAME,
+				triggerResourceDir + "fdconfig",
+				new FileProgressMonitor(new File(tmp_conf_path + DBINFOCONFNAME).length()),
+				ChannelSftp.OVERWRITE);
 			logger.info("###########替换 dbinfo.conf文件到目标机器###########");
 
 			// 将需要的jar包 SFTP 到etl工程部署的目标机器
 			AgentDeploy.sftpFiles(
-					new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "lib",
-					chSftp, targetDir);
+				new File(System.getProperty("user.dir")).getParent() + SEPARATOR + "lib",
+				sftpOperate.channelSftp, targetDir);
 			logger.info("###########将需要的jar包 SFTP到etl工程部署的目标机器###########");
 
 			// fixme 集群配置文件暂时不知如何弄
@@ -228,19 +214,6 @@ public class SCPFileSender {
 		} catch (Exception e) {
 			logger.error(e);
 			throw new BusinessException("部署失败，请重新部署" + e.getMessage());
-		} finally {
-			if (shellSession != null) {
-				shellSession.disconnect();
-			}
-			if (chSftp != null) {
-				chSftp.quit();
-			}
-			if (channel != null) {
-				try {
-					channel.closeChannel();
-				} catch (Exception ignored) {
-				}
-			}
 		}
 	}
 
@@ -250,19 +223,19 @@ public class SCPFileSender {
 		logger.info("control/resources目录" + controlFdConfDir);
 		logger.info("trigger/resources目录" + triggerFdConfDir);
 		chSftp.put(
-				tmp_conf_path + confName,
-				controlFdConfDir + "fdconfig",
-				new FileProgressMonitor(new File(tmp_conf_path + confName).length()),
-				ChannelSftp.OVERWRITE);
+			tmp_conf_path + confName,
+			controlFdConfDir + "fdconfig",
+			new FileProgressMonitor(new File(tmp_conf_path + confName).length()),
+			ChannelSftp.OVERWRITE);
 		chSftp.put(
-				tmp_conf_path + confName,
-				triggerFdConfDir + "fdconfig",
-				new FileProgressMonitor(new File(tmp_conf_path + confName).length()),
-				ChannelSftp.OVERWRITE);
+			tmp_conf_path + confName,
+			triggerFdConfDir + "fdconfig",
+			new FileProgressMonitor(new File(tmp_conf_path + confName).length()),
+			ChannelSftp.OVERWRITE);
 	}
 
-	private static void mkdirToEtlTarget(Session shellSession, String targetDir)
-			throws IOException, JSchException {
+	private static void mkdirToEtlTarget(SftpOperate sftpOperate, String targetDir)
+		throws IOException, JSchException {
 		/**
 		 * lib : 需要的依赖jar包目录 resources : 配置文件根目录
 		 * fdconfig : 配置信息文件 i18n : 国际化配置文件
@@ -270,32 +243,31 @@ public class SCPFileSender {
 		String[] targetDir_machine = {"control", "trigger", "lib", "resources", "fdconfig", "i18n"};
 		// 建立lib 目录
 		logger.info("创建远程目录 lib: " + targetDir + SEPARATOR + targetDir_machine[2]);
-		SFTPChannel.execCommandByJSch(
-				shellSession, "mkdir -p " + targetDir + SEPARATOR + targetDir_machine[2]);
+		sftpOperate.execCommandByJSch("mkdir -p " + targetDir + SEPARATOR + targetDir_machine[2]);
 		// 建立control/resource/fdconfig 目录
 		String controlDir = targetDir + SEPARATOR + targetDir_machine[0] + SEPARATOR + targetDir_machine[3]
-				+ SEPARATOR + targetDir_machine[4];
+			+ SEPARATOR + targetDir_machine[4];
 		logger.info("创建远程目录control/resource/fdconfig目录: " + controlDir);
-		SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + controlDir);
+		sftpOperate.execCommandByJSch("mkdir -p " + controlDir);
 
 		// 建立trigger/resource/fdconfig 目录
 		String triggerDir = targetDir + SEPARATOR + targetDir_machine[1] + SEPARATOR + targetDir_machine[3]
-				+ SEPARATOR + targetDir_machine[4];
+			+ SEPARATOR + targetDir_machine[4];
 		logger.info("创建远程目录trigger/resource/fdconfig目录: " + triggerDir);
-		SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + triggerDir);
+		sftpOperate.execCommandByJSch("mkdir -p " + triggerDir);
 
 		// 建立control/resource/i18n 目录
 		String i18nControlDir =
-				targetDir + SEPARATOR + targetDir_machine[0] + SEPARATOR + targetDir_machine[3]
-						+ SEPARATOR + targetDir_machine[5];
+			targetDir + SEPARATOR + targetDir_machine[0] + SEPARATOR + targetDir_machine[3]
+				+ SEPARATOR + targetDir_machine[5];
 		logger.info("创建远程目录control/resource/i18n:" + triggerDir);
-		SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + i18nControlDir);
+		sftpOperate.execCommandByJSch("mkdir -p " + i18nControlDir);
 
 		// 建立trigger/resource/i18n 目录
 		String i18nTriggerDir =
-				targetDir + SEPARATOR + targetDir_machine[1] + SEPARATOR + targetDir_machine[3]
-						+ SEPARATOR + targetDir_machine[5];
+			targetDir + SEPARATOR + targetDir_machine[1] + SEPARATOR + targetDir_machine[3]
+				+ SEPARATOR + targetDir_machine[5];
 		logger.info("创建远程目录trigger/resource/i18n:" + triggerDir);
-		SFTPChannel.execCommandByJSch(shellSession, "mkdir -p " + i18nTriggerDir);
+		sftpOperate.execCommandByJSch("mkdir -p " + i18nTriggerDir);
 	}
 }
