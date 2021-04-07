@@ -153,8 +153,8 @@ public class SftpOperate implements Closeable {
 		channelExec.setCommand(command);
 		channelExec.setErrStream(System.err);
 		channelExec.connect();
-		channelExec.disconnect();
 		result = IOUtils.toString(in, StandardCharsets.UTF_8);
+		channelExec.disconnect();
 		return result;
 	}
 
