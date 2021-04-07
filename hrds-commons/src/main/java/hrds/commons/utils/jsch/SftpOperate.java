@@ -113,7 +113,7 @@ public class SftpOperate implements Closeable {
 	public void scpMkdir(String currentLoadDir) {
 		// 1.拼接创建文件夹的命令，使用SFTPChannel执行
 		String mkdir = "mkdir -p " + currentLoadDir;
-		execCommandByJSchNoRs(session, mkdir);
+		execCommandByJSchNoRs(mkdir);
 	}
 
 	/**
@@ -144,10 +144,9 @@ public class SftpOperate implements Closeable {
 	/**
 	 * 执行命令,不需要返回值
 	 *
-	 * @param session Session
 	 * @param command 命令
 	 */
-	public static void execCommandByJSchNoRs(Session session, String command) {
+	public void execCommandByJSchNoRs(String command) {
 		logger.info("执行命令为: " + command);
 		ChannelExec channelExec;
 		try {
@@ -169,7 +168,7 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param executeShell shell命令
 	 */
-	public static void executeLocalShell(String executeShell) {
+	public void executeLocalShell(String executeShell) {
 		try {
 			logger.info("执行命令为 ：" + executeShell);
 			//executeShell linux命令  多个命令可用 " ; " 隔开
@@ -192,12 +191,11 @@ public class SftpOperate implements Closeable {
 	/**
 	 * exec 执行命令,根据命令返回的信息返回结果
 	 *
-	 * @param session Session
 	 * @param command 命令
 	 * @return String
 	 * @throws Exception Exception
 	 */
-	public static String execCommandByJSchToReadLine(Session session, String command) throws Exception {
+	public String execCommandByJSchToReadLine(String command) throws Exception {
 		logger.info("执行命令为 : " + command);
 		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
 		InputStream inputStream = channelExec.getInputStream(); // 从远程端到达的所有数据都能从这个流中读取到
@@ -229,7 +227,7 @@ public class SftpOperate implements Closeable {
 	 * @param ftpPort     int
 	 * @return SFTPDetails Map<String, String>
 	 */
-	public static SFTPDetails getSftpDetails(String ftpHost, String ftpUserName, String ftpPassword, int ftpPort) {
+	public SFTPDetails getSftpDetails(String ftpHost, String ftpUserName, String ftpPassword, int ftpPort) {
 		return new SFTPDetails(ftpHost, ftpUserName, ftpPassword, ftpPort);
 	}
 
