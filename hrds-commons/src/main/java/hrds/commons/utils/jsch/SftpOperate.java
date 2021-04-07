@@ -75,7 +75,7 @@ public class SftpOperate implements Closeable {
 	@Method(desc = "获取远程目录下的文件对象集合", logicStep = "1.调用方法全匹配远程目录下的文件对象集合")
 	@Param(name = "srcDir", desc = "需要拉取的远程的目录", range = "不能为空")
 	@Return(desc = "拉取到的远程的ls的对象的集合", range = "可能为空集合")
-	public Vector<LsEntry> listDir(String srcDir) throws SftpException {
+	public Vector<LsEntry> listDir(String srcDir) {
 		// 1.调用方法全匹配远程目录下的文件对象集合
 		return listDir(srcDir, "*");
 	}
@@ -85,27 +85,45 @@ public class SftpOperate implements Closeable {
 	@Param(name = "srcDir", desc = "需要拉取的远程的目录", range = "不能为空")
 	@Param(name = "regex", desc = "匹配规则", range = "不能为空")
 	@Return(desc = "拉取到的远程的ls的对象的集合", range = "可能为空集合")
-	public Vector<LsEntry> listDir(String srcDir, String regex) throws SftpException {
+	public Vector<LsEntry> listDir(String srcDir, String regex) {
 		// 1.判断需要获取的目录文件夹是否以/结尾，根据是否以/结尾拼接路径获取远程目录下文件的集合
-		if (srcDir.endsWith("/")) {
-			return channelSftp.ls(srcDir + regex);
-		} else {
-			return channelSftp.ls(srcDir + "/" + regex);
+		try {
+			if (srcDir.endsWith("/")) {
+				return channelSftp.ls(srcDir + regex);
+			} else {
+				return channelSftp.ls(srcDir + "/" + regex);
+			}
+		} catch (SftpException e) {
+			e.printStackTrace();
+			logger.error("按照正则获取远程目录下的文件对象集合!" + e);
+			throw new BusinessException("按照正则获取远程目录下的文件对象集合失败!");
 		}
 	}
 
 	@Method(desc = "使用sftp拉取远程服务器上的文件到本地", logicStep = "1.使用sftp拉取远程服务器上的文件到本地")
 	@Param(name = "srcFile", desc = "远程文件全路径", range = "不能为空")
 	@Param(name = "destFile", desc = "本地目录", range = "不能为空")
-	public void transferFile(String srcFile, String destFile) throws SftpException {
-		channelSftp.get(srcFile, destFile);
+	public void transferFile(String srcFile, String destFile) {
+		try {
+			channelSftp.get(srcFile, destFile);
+		} catch (SftpException e) {
+			e.printStackTrace();
+			logger.error("使用sftp拉取远程服务器上的文件到本地! " + e);
+			throw new BusinessException("使用sftp拉取远程服务器上的文件到本地!" + e.getMessage());
+		}
 	}
 
 	@Method(desc = "使用sftp推送本地文件到远程服务器", logicStep = "1.使用sftp推送本地文件到远程服务器")
 	@Param(name = "srcFile", desc = "本地文件全路径", range = "不能为空")
 	@Param(name = "destFile", desc = "远程目录", range = "不能为空")
-	public void transferPutFile(String srcFile, String destFile) throws SftpException {
-		channelSftp.put(srcFile, destFile);
+	public void transferPutFile(String srcFile, String destFile) {
+		try {
+			channelSftp.put(srcFile, destFile);
+		} catch (SftpException e) {
+			e.printStackTrace();
+			logger.error("使用sftp推送本地文件到远程服务器失败! " + e);
+			throw new BusinessException("使用sftp推送本地文件到远程服务器失败!" + e.getMessage());
+		}
 	}
 
 	@Method(desc = "使用sftp远程创建目录", logicStep = "1.拼接创建文件夹的命令，使用SFTPChannel执行")
@@ -121,22 +139,22 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param command 命令
 	 */
-	public String execCommandByJSch(String command) throws JSchException, IOException {
-		command = FileNameUtils.normalize(command, true);
-		logger.info("执行命令为: " + command);
-		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-		InputStream in = channelExec.getInputStream();
-		channelExec.setCommand(command);
-		channelExec.setErrStream(System.err);
-		channelExec.connect();
+	public String execCommandByJSch(String command) {
 		String result = "";
 		try {
+			command = FileNameUtils.normalize(command, true);
+			logger.info("执行命令为: " + command);
+			ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+			InputStream in = channelExec.getInputStream();
+			channelExec.setCommand(command);
+			channelExec.setErrStream(System.err);
+			channelExec.connect();
+			channelExec.disconnect();
 			result = IOUtils.toString(in, StandardCharsets.UTF_8);
-		} catch (IOException e) {
+		} catch (IOException | JSchException e) {
 			e.printStackTrace();
 			logger.error("命令执行异常: " + e.getMessage());
 		}
-		channelExec.disconnect();
 		return result;
 	}
 
@@ -192,28 +210,33 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param command 命令
 	 * @return String
-	 * @throws Exception Exception
 	 */
-	public String execCommandByJSchToReadLine(String command) throws Exception {
+	public String execCommandByJSchToReadLine(String command) {
 		logger.info("执行命令为 : " + command);
-		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-		InputStream inputStream = channelExec.getInputStream(); // 从远程端到达的所有数据都能从这个流中读取到
-		OutputStream outputStream = channelExec.getOutputStream(); // 写入该流的所有数据都将发送到远程端。
-		// 使用PrintWriter流的目的就是为了使用println这个方法
-		// 好处就是不需要每次手动给字符串加\n
-		PrintWriter printWriter = new PrintWriter(outputStream);
-		printWriter.println(command);
-		Thread.sleep(3000);
-		printWriter.println("exit"); // 加上个就是为了，结束本次交互
-		printWriter.flush();
-		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-		String msg;
+		ChannelExec channelExec;
 		StringBuilder result = new StringBuilder();
-		while ((msg = in.readLine()) != null) {
-			result.append(msg);
+		try {
+			channelExec = (ChannelExec) session.openChannel("exec");
+			InputStream inputStream = channelExec.getInputStream(); // 从远程端到达的所有数据都能从这个流中读取到
+			OutputStream outputStream = channelExec.getOutputStream(); // 写入该流的所有数据都将发送到远程端。
+			// 使用PrintWriter流的目的就是为了使用println这个方法
+			// 好处就是不需要每次手动给字符串加\n
+			PrintWriter printWriter = new PrintWriter(outputStream);
+			printWriter.println(command);
+			Thread.sleep(3000);
+			printWriter.println("exit"); // 加上个就是为了，结束本次交互
+			printWriter.flush();
+			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+			String msg;
+			while ((msg = in.readLine()) != null) {
+				result.append(msg);
+			}
+			in.close();
+			channelExec.disconnect();
+		} catch (JSchException | IOException | InterruptedException e) {
+			e.printStackTrace();
+			logger.error("exec 执行命令: " + command + "失败!");
 		}
-		in.close();
-		channelExec.disconnect();
 		return result.toString();
 	}
 
