@@ -23,8 +23,8 @@ import hrds.commons.utils.datastorage.syspara.SysPara;
 import hrds.commons.utils.deployentity.HttpYaml;
 import hrds.commons.utils.xml.XmlUtil;
 import hrds.commons.utils.yaml.Yaml;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,7 +37,7 @@ import java.util.Map;
 @DocClass(desc = "部署Agent", author = "Mr.Lee", createdate = "2020-01-15 14:20")
 public class AgentDeploy {
 
-	private static final Log logger = LogFactory.getLog(AgentDeploy.class);
+	private static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * 系统路径的符号
@@ -315,7 +315,7 @@ public class AgentDeploy {
 
 	private static Session getSession(Agent_down_info down_info) throws JSchException {
 		// 开始JSCH Session连接
-		Session jSchSession = null;
+		Session jSchSession;
 		// 创建准备SFTP所需要的参数bean
 		SFTPDetails sftpDetails = new SFTPDetails();
 		sftpDetails.setHost(down_info.getAgent_ip());
@@ -360,13 +360,12 @@ public class AgentDeploy {
 			if (confFiles == null) {
 				throw new BusinessException("JRE目录不存在,请给检查");
 			}
-			for (int i = 0; i < confFiles.length; i++) {
-//				logger.info("创建目录" + targetDir + SEPARATOR + "jre" + SEPARATOR + confFiles[i].getName());
-				if (confFiles[i].isDirectory()) {
+			for (File confFile : confFiles) {
+				if (confFile.isDirectory()) {
 					SFTPChannel.execCommandByJSch(shellSession,
-						"mkdir -p " + targetDir + SEPARATOR + confFiles[i].getName());
-					createDir(confFiles[i].getAbsolutePath(), shellSession,
-						targetDir + SEPARATOR + confFiles[i].getName());
+						"mkdir -p " + targetDir + SEPARATOR + confFile.getName());
+					createDir(confFile.getAbsolutePath(), shellSession,
+						targetDir + SEPARATOR + confFile.getName());
 				}
 			}
 		} catch (JSchException | IOException e) {
@@ -376,7 +375,7 @@ public class AgentDeploy {
 	}
 
 	private static void mkdirToTarget(Session shellSession, String targetDir) {
-		/**
+		/*
 		 * .bin : 部署Agent的隐藏目录 storeConfigPath : 上传的配置文件根目录 lib : 需要的依赖jar包目录 resources : 配置文件根目录
 		 * fdconfig : 配置信息文件 i18n : 翻译的配置文件
 		 */
@@ -413,14 +412,9 @@ public class AgentDeploy {
 				shellSession,
 				"mkdir -p " + rootDir + SEPARATOR + targetch_machine[3] + SEPARATOR + targetch_machine[5]);
 
-		} catch (JSchException e) {
-			logger.error(e.getMessage(), e);
-			throw new BusinessException(e.getMessage());
-		} catch (IOException e) {
+		} catch (JSchException | IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new BusinessException(e.getMessage());
 		}
 	}
-
-
 }
