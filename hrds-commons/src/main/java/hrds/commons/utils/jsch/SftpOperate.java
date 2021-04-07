@@ -131,7 +131,12 @@ public class SftpOperate implements Closeable {
 	public void scpMkdir(String currentLoadDir) {
 		// 1.拼接创建文件夹的命令，使用SFTPChannel执行
 		String mkdir = "mkdir -p " + currentLoadDir;
-		execCommandByJSchNoRs(mkdir);
+		try {
+			execCommandByJSchNoRs(mkdir);
+		} catch (JSchException | IOException | InterruptedException e) {
+			e.printStackTrace();
+			throw new BusinessException("使用sftp远程创建目录: " + currentLoadDir + " 失败!");
+		}
 	}
 
 	/**
@@ -139,22 +144,17 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param command 命令
 	 */
-	public String execCommandByJSch(String command) {
-		String result = "";
-		try {
-			command = FileNameUtils.normalize(command, true);
-			logger.info("执行命令为: " + command);
-			ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-			InputStream in = channelExec.getInputStream();
-			channelExec.setCommand(command);
-			channelExec.setErrStream(System.err);
-			channelExec.connect();
-			channelExec.disconnect();
-			result = IOUtils.toString(in, StandardCharsets.UTF_8);
-		} catch (IOException | JSchException e) {
-			e.printStackTrace();
-			logger.error("命令执行异常: " + e.getMessage());
-		}
+	public String execCommandByJSch(String command) throws IOException, JSchException {
+		String result;
+		command = FileNameUtils.normalize(command, true);
+		logger.info("执行命令为: " + command);
+		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+		InputStream in = channelExec.getInputStream();
+		channelExec.setCommand(command);
+		channelExec.setErrStream(System.err);
+		channelExec.connect();
+		channelExec.disconnect();
+		result = IOUtils.toString(in, StandardCharsets.UTF_8);
 		return result;
 	}
 
@@ -163,21 +163,16 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param command 命令
 	 */
-	public void execCommandByJSchNoRs(String command) {
+	public void execCommandByJSchNoRs(String command) throws JSchException, IOException, InterruptedException {
 		logger.info("执行命令为: " + command);
 		ChannelExec channelExec;
-		try {
-			channelExec = (ChannelExec) session.openChannel("exec");
-			channelExec.getInputStream();
-			channelExec.setCommand(command);
-			channelExec.setErrStream(System.err);
-			channelExec.connect();
-			Thread.sleep(1000);
-			channelExec.disconnect();
-		} catch (JSchException | IOException | InterruptedException e) {
-			logger.error("执行命令异常: " + e);
-			throw new BusinessException("执行命令异常! " + e.getMessage());
-		}
+		channelExec = (ChannelExec) session.openChannel("exec");
+		channelExec.getInputStream();
+		channelExec.setCommand(command);
+		channelExec.setErrStream(System.err);
+		channelExec.connect();
+		Thread.sleep(1000);
+		channelExec.disconnect();
 	}
 
 	/**
@@ -185,23 +180,19 @@ public class SftpOperate implements Closeable {
 	 *
 	 * @param executeShell shell命令
 	 */
-	public void executeLocalShell(String executeShell) {
-		try {
-			logger.info("执行命令为 ：" + executeShell);
-			//executeShell linux命令  多个命令可用 " ; " 隔开
-			Process ps = Runtime.getRuntime().exec((new String[]{"sh", "-l", "-c", executeShell}));
-			ps.waitFor();
-			BufferedReader br = new BufferedReader(new InputStreamReader(ps.getErrorStream()));
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = br.readLine()) != null) {
-				sb.append(line).append(System.lineSeparator());
-			}
-			if (!StringUtil.isEmpty(sb.toString())) {
-				throw new AppSystemException("Linux命令" + executeShell + "执行失败，" + sb.toString());
-			}
-		} catch (Exception e) {
-			throw new AppSystemException("Linux命令" + executeShell + "执行失败");
+	public void executeLocalShell(String executeShell) throws IOException, InterruptedException {
+		logger.info("执行命令为 ：" + executeShell);
+		//executeShell linux命令  多个命令可用 " ; " 隔开
+		Process ps = Runtime.getRuntime().exec((new String[]{"sh", "-l", "-c", executeShell}));
+		ps.waitFor();
+		BufferedReader br = new BufferedReader(new InputStreamReader(ps.getErrorStream()));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = br.readLine()) != null) {
+			sb.append(line).append(System.lineSeparator());
+		}
+		if (!StringUtil.isEmpty(sb.toString())) {
+			throw new AppSystemException("Linux命令" + executeShell + "执行失败，" + sb.toString());
 		}
 	}
 
@@ -211,32 +202,27 @@ public class SftpOperate implements Closeable {
 	 * @param command 命令
 	 * @return String
 	 */
-	public String execCommandByJSchToReadLine(String command) {
+	public String execCommandByJSchToReadLine(String command) throws JSchException, IOException, InterruptedException {
 		logger.info("执行命令为 : " + command);
 		ChannelExec channelExec;
 		StringBuilder result = new StringBuilder();
-		try {
-			channelExec = (ChannelExec) session.openChannel("exec");
-			InputStream inputStream = channelExec.getInputStream(); // 从远程端到达的所有数据都能从这个流中读取到
-			OutputStream outputStream = channelExec.getOutputStream(); // 写入该流的所有数据都将发送到远程端。
-			// 使用PrintWriter流的目的就是为了使用println这个方法
-			// 好处就是不需要每次手动给字符串加\n
-			PrintWriter printWriter = new PrintWriter(outputStream);
-			printWriter.println(command);
-			Thread.sleep(3000);
-			printWriter.println("exit"); // 加上个就是为了，结束本次交互
-			printWriter.flush();
-			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-			String msg;
-			while ((msg = in.readLine()) != null) {
-				result.append(msg);
-			}
-			in.close();
-			channelExec.disconnect();
-		} catch (JSchException | IOException | InterruptedException e) {
-			e.printStackTrace();
-			logger.error("exec 执行命令: " + command + "失败!");
+		channelExec = (ChannelExec) session.openChannel("exec");
+		InputStream inputStream = channelExec.getInputStream(); // 从远程端到达的所有数据都能从这个流中读取到
+		OutputStream outputStream = channelExec.getOutputStream(); // 写入该流的所有数据都将发送到远程端。
+		// 使用PrintWriter流的目的就是为了使用println这个方法
+		// 好处就是不需要每次手动给字符串加\n
+		PrintWriter printWriter = new PrintWriter(outputStream);
+		printWriter.println(command);
+		Thread.sleep(3000);
+		printWriter.println("exit"); // 加上个就是为了，结束本次交互
+		printWriter.flush();
+		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+		String msg;
+		while ((msg = in.readLine()) != null) {
+			result.append(msg);
 		}
+		in.close();
+		channelExec.disconnect();
 		return result.toString();
 	}
 
