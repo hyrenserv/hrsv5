@@ -65,8 +65,8 @@ public class FullTextSearchAction extends BaseAction {
 	)
 	@Param(name = "queryKeyword", desc = "查询内容", range = "String类型值,无输入限制", nullable = true)
 	@Param(name = "searchType", desc = "检索类型", range = "String类型值,检索类型（全文检索：fullTextSearch," +
-		"searchByMap：以图搜图,articleSimilarityQuery：文章相似度,fileNameSearch：文件名搜索）", valueIfNull =
-		"fullTextSearch")
+		"searchByMap：以图搜图,articleSimilarityQuery：文章相似度,fileNameSearch：文件名搜索）",
+		valueIfNull = "fullTextSearch")
 	@Param(name = "start", desc = "查询开始行", range = "int类型值,1-99,默认为9", valueIfNull = "1")
 	@Param(name = "currPage", desc = "分页", range = "int类型值,默认为1", valueIfNull = "1")
 	@Param(name = "pageSize", desc = "分页大小", range = "int类型值,默认为10", valueIfNull = "10")
@@ -82,66 +82,68 @@ public class FullTextSearchAction extends BaseAction {
 		Map<String, Object> ftsMap = new HashMap<>();
 		//1.根据类型获取对应搜索结果集
 		int totalSize = 0;
-		if (!StringUtil.isBlank(searchType)) {
-			Result result;
-			switch (searchType) {
-				//1-1.全文检索返回结果集
-				case "fullTextSearch":
-					//检索条件校验
-					Validator.notNull(queryKeyword, "检索内容不能为空");
-					queryKeyword = getParticipleQuery(queryKeyword.trim());
-					result = getFinalResult(queryKeyword, start, pageSize, currPage);
-					List<String> analysis = Arrays.asList(queryKeyword.substring(1, queryKeyword.length() - 1).split("\" OR \""));
-					ftsMap.put("analysis", analysis);
-					if (!result.isEmpty()) {
-						// 返回总数据记录
-						totalSize = result.getIntDefaultZero(0, "totalSize");
-					}
-					break;
-				//1-2.以图搜图返回结果集
-				case "searchByMap":
-					//TODO 以图搜图的方法未实现
-					PictureSearch picSearch = new PictureSearch();
-					result = picSearch.pictureSearchResult(imageAddress);
-					break;
-				//1-3.文章相似度返回结果集
-				case "articleSimilarityQuery":
-					result = getWZXSDResult(docAddress, similarityRate, searchWay, currPage, pageSize);
-					if (!result.isEmpty()) {
-						// 返回总数据记录
-						totalSize = result.getIntDefaultZero(0, "totalSize");
-					}
-					break;
-				//1-4.文件名搜索返回结果集
-				case "fileNameSearch":
-					result = getWJMSSResult(fileName, currPage, pageSize);
-					break;
-				default:
-					throw new BusinessException("searchType is not matching...");
-			}
-			//2.结果集处理
-			List<Map<String, Object>> rList = new ArrayList<>();
-			if (!result.isEmpty()) {
-				List<Map<String, Object>> rsList = result.toList();
-				//请求 action 地址
-				String requestUrl = RequestUtil.getRequest().getRequestURL().toString();
-				String action = requestUrl.substring(0, requestUrl.lastIndexOf('/') + 1);
-				for (Map<String, Object> stringObjectMap : rsList) {
-					String fileId = (String) stringObjectMap.get("file_id");
-					String originalName = (String) stringObjectMap.get("original_name");
-					String downloadPath = action +
-						"downloadFileSDO.do?view_down_file_id=" + fileId +
-						"&view_down_file_name=" + originalName;
-					stringObjectMap.put("downloadPath", downloadPath);
-					stringObjectMap.put("collectTime",
-						DateUtil.parseStr2DateWith8Char((String) stringObjectMap.get("storage_date")) + " " +
-							DateUtil.parseStr2TimeWith6Char((String) stringObjectMap.get("storage_time")));
-					rList.add(stringObjectMap);
+		//高亮词列表
+		List<String> analysis = new ArrayList<>();
+		Result result;
+		switch (searchType) {
+			//1-1.全文检索返回结果集
+			case "fullTextSearch":
+				//检索条件校验
+				Validator.notNull(queryKeyword, "检索内容不能为空");
+				queryKeyword = getParticipleQuery(queryKeyword.trim());
+				result = getFinalResult(queryKeyword, start, pageSize, currPage);
+				analysis = Arrays.asList(queryKeyword.substring(1, queryKeyword.length() - 1).split("\" OR \""));
+				if (!result.isEmpty()) {
+					// 返回总数据记录
+					totalSize = result.getIntDefaultZero(0, "totalSize");
 				}
-				ftsMap.put("result", rList);
-				ftsMap.put("collectType", AgentType.WenJianXiTong.getCode());
-				ftsMap.put("totalSize", totalSize);
+				break;
+			//1-2.以图搜图返回结果集
+			case "searchByMap":
+				//TODO 以图搜图的方法未实现
+				PictureSearch picSearch = new PictureSearch();
+				result = picSearch.pictureSearchResult(imageAddress);
+				break;
+			//1-3.文章相似度返回结果集
+			case "articleSimilarityQuery":
+				IsFlag is_return_text = IsFlag.ofEnumByCode(searchWay);
+				result = getWZXSDResult(docAddress, similarityRate, is_return_text, currPage, pageSize);
+				if (!result.isEmpty()) {
+					// 返回总数据记录
+					totalSize = result.getIntDefaultZero(0, "totalSize");
+				}
+				break;
+			//1-4.文件名搜索返回结果集
+			case "fileNameSearch":
+				result = getWJMSSResult(fileName, currPage, pageSize);
+				analysis.add(fileName);
+				break;
+			default:
+				throw new BusinessException("searchType is not matching...");
+		}
+		//2.结果集处理
+		List<Map<String, Object>> rList = new ArrayList<>();
+		if (!result.isEmpty()) {
+			List<Map<String, Object>> rsList = result.toList();
+			//请求 action 地址
+			String requestUrl = RequestUtil.getRequest().getRequestURL().toString();
+			String action = requestUrl.substring(0, requestUrl.lastIndexOf('/') + 1);
+			for (Map<String, Object> stringObjectMap : rsList) {
+				String fileId = (String) stringObjectMap.get("file_id");
+				String originalName = (String) stringObjectMap.get("original_name");
+				String downloadPath = action +
+					"downloadFileSDO.do?view_down_file_id=" + fileId +
+					"&view_down_file_name=" + originalName;
+				stringObjectMap.put("downloadPath", downloadPath);
+				stringObjectMap.put("collectTime",
+					DateUtil.parseStr2DateWith8Char((String) stringObjectMap.get("storage_date")) + " " +
+						DateUtil.parseStr2TimeWith6Char((String) stringObjectMap.get("storage_time")));
+				rList.add(stringObjectMap);
 			}
+			ftsMap.put("analysis", analysis);
+			ftsMap.put("result", rList);
+			ftsMap.put("collectType", AgentType.WenJianXiTong.getCode());
+			ftsMap.put("totalSize", totalSize);
 		}
 		return ftsMap;
 	}
@@ -380,7 +382,7 @@ public class FullTextSearchAction extends BaseAction {
 	@Param(name = "similarityRate", desc = "文章相似率", range = "1%-100%")
 	@Param(name = "searchWay", desc = "查询类型,是否返回文本信息", range = "1：是,0：否")
 	@Return(desc = "相似文件查询结果的Result", range = "无限制")
-	private Result getWZXSDResult(String docAddress, String similarityRate, String searchWay, int currPage,
+	private Result getWZXSDResult(String docAddress, String similarityRate, IsFlag is_return_text, int currPage,
 	                              int pageSize) {
 
 		//合并后的结果集
@@ -390,14 +392,8 @@ public class FullTextSearchAction extends BaseAction {
 		if (StringUtil.isEmpty(similarityRate)) {
 			similarityRate = "0";
 		}
-		if (searchWay.equals(IsFlag.Shi.getCode())) {
-			//TODO getDocumentSimilarFromSolr方法未实现
-			documentSimilar = es.getDocumentSimilarFromSolr(docAddress, similarityRate, true);
-		} else if (searchWay.equals(IsFlag.Fou.getCode())) {
-			documentSimilar = es.getDocumentSimilarFromSolr(docAddress, similarityRate, false);
-		} else {
-			throw new BusinessException("查询类型错误,是否返回搜索文本,1：是；0：否！");
-		}
+		//TODO getDocumentSimilarFromSolr方法未实现
+		documentSimilar = es.getDocumentSimilarFromSolr(docAddress, similarityRate, is_return_text);
 		for (int i = 0; i < documentSimilar.getRowCount(); i++) {
 			String rowKey = documentSimilar.getString(i, "file_id");
 			SqlOperator.Assembler asmSql = SqlOperator.Assembler.newInstance();
@@ -443,20 +439,20 @@ public class FullTextSearchAction extends BaseAction {
 		asmSql.addSql("SELECT sfa.*,ds.datasource_name,gi.agent_name,fcs.fcs_name,uf.fav_id,uf.fav_flag from (" +
 			" SELECT a.* FROM source_file_attribute a  WHERE collect_type = ? ");
 		asmSql.addParam(AgentType.WenJianXiTong.getCode());
-		asmSql.addLikeParam("original_name", fileName);
+		asmSql.addLikeParam("original_name", "%" + fileName + "%");
 		asmSql.addORParam("a.source_id", sourceIdsObj);
 		asmSql.addSql(" ) sfa join data_source ds  ON sfa.source_id=ds.source_id JOIN agent_info gi ON sfa.agent_id =" +
 			" gi.agent_id JOIN file_collect_set fcs ON sfa.collect_set_id = fcs.fcs_id LEFT JOIN user_fav uf ON" +
 			" sfa.file_id = uf.file_id ORDER BY seqencing DESC");
-		Result fileNameSearchResult = Dbo.queryPagedResult(new DefaultPageImpl(currPage, pageSize), asmSql.sql(),
-			asmSql.params());
+		DefaultPageImpl page = new DefaultPageImpl(currPage, pageSize);
+		Result fileNameSearchResult = Dbo.queryPagedResult(page, asmSql.sql(), asmSql.params());
 		EssaySimilar es = new EssaySimilar();
 		for (int i = 0; i < fileNameSearchResult.getRowCount(); i++) {
 			String fileAvroPath = fileNameSearchResult.getString(i, "file_avro_path");
+			fileAvroPath = PathUtil.convertLocalPathToHDFSPath(fileAvroPath);
 			String fileAvroBlock = fileNameSearchResult.getString(i, "file_avro_block");
 			String fileId = fileNameSearchResult.getString(i, "file_id");
-			fileAvroPath = PathUtil.convertLocalPathToHDFSPath(fileAvroPath);
-			//TODO getFileSummaryFromAvro方法未实现
+			//获取文件的摘要信息
 			String fileSummary = es.getFileSummaryFromAvro(fileAvroPath, fileAvroBlock, fileId);
 			fileNameSearchResult.setObject(i, "summary_content", fileSummary);
 		}
