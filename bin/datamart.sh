@@ -26,6 +26,8 @@ SQL_PARAMS="${3}"
 main(){
     # if no parameter is passed to script then show how to use.
     if [[ $# -eq 0 ]]; then usage; fi
+    # Enter the script directory
+    cd ${SH_EXEC_DIR}
     # Check the legality of the file
     if [[ ! -f ${MARKET_JAR_NAME} ]]; then echo "Market service package file does not exist, please check !" && exit 1; fi
     # execute script
@@ -33,8 +35,6 @@ main(){
 }
 # script main
 function market_main() {
-    # Enter the script directory
-    cd ${SH_EXEC_DIR}
     # Configure classpath
     CLASSPATH=.:resources:${MARKET_JAR_NAME}:../lib/*
     printf ${CLASSPATH}

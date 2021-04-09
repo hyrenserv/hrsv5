@@ -28,6 +28,8 @@ main(){
     # if no parameter is passed to script then show how to use.
     if [[ $# -eq 0 ]]; then usage; fi
     if [[ $# -ne 4 ]]; then usage; fi
+    # Enter the script directory
+    cd ${SH_EXEC_DIR}
     # file add execute permission
     if [[ -d ${AGENT_DEPLOYMENT_DIR} ]]; then chmod -R 755 ${AGENT_DEPLOYMENT_DIR}; fi
     # Check the legality of the file
