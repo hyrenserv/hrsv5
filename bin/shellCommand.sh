@@ -9,7 +9,7 @@ PROJECTDIR=$(
 
 MainClass=hrds.main.CommandExecute
 
-CLASSPATH=.:$PROJECTDIR/hrds_Agent-5.0.jar:$PROJECTDIR/resources_spark/:$PROJECTDIR/../lib/*
+CLASSPATH=.:$PROJECTDIR/hrds_Agent-5.0.jar:$PROJECTDIR/resources/:$PROJECTDIR/../lib/*
 
 printf $CLASSPATH
 
