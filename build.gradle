@@ -257,7 +257,7 @@ subprojects {
         //当前项目名
         String archivesBaseName = "${project.name}"
         //存放资源文件的目录
-        String classpaths = 'resources'
+        String classpaths = 'resources/'
         //遍历项目的所有依赖的jar包赋值给变量someString
         configurations.runtime.each { classpaths = classpaths + " ../lib/" + it.name }
         //设置manifest
