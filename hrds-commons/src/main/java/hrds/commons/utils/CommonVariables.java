@@ -9,8 +9,8 @@ public class CommonVariables {
 	/**
 	 * 非结构化,文件采集是否
 	 */
-	public static final boolean FILE_COLLECTION_IS_WRITE_HADOOP = IsFlag.Shi.getCode().equals(PropertyParaValue.getString(
-		"file_collection_is_write_hadoop", IsFlag.Fou.getCode()));
+	public static final boolean FILE_COLLECTION_IS_WRITE_HADOOP = IsFlag.Shi.getCode().equals(
+		PropertyParaValue.getString("file_collection_is_write_hadoop", IsFlag.Fou.getCode()));
 	/**
 	 * 开启kerberos认证后,服务认证实例名
 	 */
@@ -36,7 +36,6 @@ public class CommonVariables {
 	 */
 	public static final String ZK_HOST = PropertyParaValue.getString("zkHost",
 		"hdp001.beyondsoft.com:2181,hdp002.beyondsoft.com:2181,hdp003.beyondsoft.com:2181/solr");
-	public static final String OCR_SERVER_ADDRESS = PropertyParaValue.getString("ocr_rpc_cpu", "");
 	/**
 	 * 对于SQL的字段是否使用字段验证
 	 */
@@ -54,4 +53,27 @@ public class CommonVariables {
 	 * 部署时服务器的默认端口
 	 */
 	public static final int SFTP_PORT = PropertyParaValue.getInt("sftp_port", 22);
+	/**
+	 * OCR 服务请求地址
+	 */
+	public static final String OCR_RPC_ADDRESS = PropertyParaValue.getString("ocr_rpc_address",
+		"127.0.0.1:18101");
+	/**
+	 * 是否使用的是OCR RPC服务,还是Apache OCR, 默认1 OCR RPC
+	 */
+	public static final boolean USE_OCR_RPC = IsFlag.Shi.getCode().equals(PropertyParaValue.getString(
+		"use_ocr_rpc", "0"));
+	/**
+	 * OCR 跑批线程池大小
+	 */
+	public static final int OCR_THREAD_POOL = PropertyParaValue.getInt("ocr_thread_pool", 4);
+	/**
+	 * OCR 识别语言，默认简体中文(chi_sim)
+	 */
+	public static final String OCR_RECOGNITION_LANGUAGE = PropertyParaValue.getString(
+		"ocr_recognition_language", "chi_sim");
+	/**
+	 * OCR 提取的摘要行数,默认 3 行
+	 */
+	public static final int SUMMARY_VOLUMN = PropertyParaValue.getInt("summary_volumn", 3);
 }
