@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 public class ParallerTestUtil {
 	//读取测试用例初始化数据
 	public static final YamlMap TESTINITCONFIG = YamlFactory.load(new File(new File(
-			System.getProperty("user.dir")).getParent() + File.separator + "testinfo.conf")).asMap();
+		System.getProperty("user.dir")) + File.separator + "testinfo.conf")).asMap();
 
 	private static final Logger logger = LogManager.getLogger();
 
@@ -46,8 +46,8 @@ public class ParallerTestUtil {
 				//获取className的名称
 				String name = className.substring(className.lastIndexOf(".") + 1);
 				try (BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(outputResultPath + name + concurrent_number + ".log"),
-						StandardCharsets.UTF_8))) {
+					new FileOutputStream(outputResultPath + name + concurrent_number + ".log"),
+					StandardCharsets.UTF_8))) {
 					for (int i = 0; i < execute_count; i++) {
 						Class[] cls = new Class[concurrent_number];
 						for (int j = 0; j < concurrent_number; j++) {
@@ -60,13 +60,13 @@ public class ParallerTestUtil {
 						// 多个类并发执行
 						Result rt = JUnitCore.runClasses(ParallelRunner.classes(), cls);
 						bufferedWriter.write("wasSuccessful=" + rt.wasSuccessful() + ", " +
-								"getIgnoreCount=" + rt.getIgnoreCount());
+							"getIgnoreCount=" + rt.getIgnoreCount());
 						bufferedWriter.newLine();
 						bufferedWriter.write("getRunCount=" + rt.getRunCount() + ", getRunTime="
-								+ (rt.getRunTime() / 1000) + "秒");
+							+ (rt.getRunTime() / 1000) + "秒");
 						bufferedWriter.newLine();
 						bufferedWriter.write("getFailureCount=" + rt.getFailureCount() + ", getFailures="
-								+ rt.getFailures().stream().map(Failure::toString).collect(Collectors.joining(" | ")));
+							+ rt.getFailures().stream().map(Failure::toString).collect(Collectors.joining(" | ")));
 						bufferedWriter.newLine();
 						bufferedWriter.write("==========================================================================");
 						bufferedWriter.newLine();
