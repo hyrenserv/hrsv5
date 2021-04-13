@@ -15,7 +15,7 @@ public class PictureTextExtract extends PictureServer implements PictureTextInte
 	private static final Log logger = LogFactory.getLog(PictureTextExtract.class);
 
 	public PictureTextExtract() {
-		super(CommonVariables.OCR_SERVER_ADDRESS);
+		super(CommonVariables.OCR_RPC_ADDRESS);
 	}
 
 	public String extractText(String filePath) {
