@@ -7,7 +7,6 @@ import hrds.commons.codes.CleanType;
 import hrds.commons.codes.FileFormat;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -300,5 +299,10 @@ public class Constant {
 		"algorithms-conf-serialize" + FileUtil.PATH_SEPARATOR_CHAR;
 	public static final String HYUCC_RESULT_PATH_NAME = "HyUccOut";
 	public static final String HYFD_RESULT_PATH_NAME = "HyFdOut";
+
+	/**
+	 * 流数据管理
+	 */
+	public static final String STREAM_HYREN_END = "hyren_end_end_end";
 
 }
